@@ -10,8 +10,9 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "*.supabase.co" },
     ],
   },
-  // Next 16: Turbopack es default en build; optimizePackageImports promovido fuera de experimental
-  optimizePackageImports: ["lucide-react"],
+  experimental: {
+    optimizePackageImports: ["lucide-react"],
+  },
 };
 
 export default nextConfig;
