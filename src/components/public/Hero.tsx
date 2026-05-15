@@ -20,6 +20,10 @@ export function Hero({ featured }: HeroProps) {
         aria-hidden
         className="absolute -right-32 top-1/3 h-[480px] w-[480px] rounded-full bg-brand-600/20 blur-3xl"
       />
+      <div
+        aria-hidden
+        className="absolute inset-0 opacity-[0.06] [background-image:radial-gradient(circle_at_1px_1px,white_1px,transparent_0)] [background-size:32px_32px]"
+      />
       <div className="brand-bars" aria-hidden />
       <div className="container-page relative grid gap-12 py-20 md:grid-cols-12 md:py-28 lg:py-32">
         <div className="md:col-span-7">
@@ -50,6 +54,26 @@ export function Hero({ featured }: HeroProps) {
               <Link href="/nosotros">Conoce SPROCh</Link>
             </Button>
           </div>
+          <dl className="mt-10 grid max-w-md grid-cols-3 gap-6 border-t border-white/10 pt-6 text-left">
+            <div>
+              <dt className="text-[10px] font-semibold uppercase tracking-[0.16em] text-ink-400">
+                Fundada
+              </dt>
+              <dd className="mt-1 font-display text-2xl text-white">1952</dd>
+            </div>
+            <div>
+              <dt className="text-[10px] font-semibold uppercase tracking-[0.16em] text-ink-400">
+                Alcance
+              </dt>
+              <dd className="mt-1 font-display text-2xl text-white">SIOLA</dd>
+            </div>
+            <div>
+              <dt className="text-[10px] font-semibold uppercase tracking-[0.16em] text-ink-400">
+                Foco
+              </dt>
+              <dd className="mt-1 font-display text-2xl text-white">Clínica</dd>
+            </div>
+          </dl>
         </div>
 
         {featured && (

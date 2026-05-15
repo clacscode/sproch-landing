@@ -1,11 +1,16 @@
 import Link from "next/link";
 import { ArrowRight, BookOpen, GraduationCap, Newspaper, Users } from "lucide-react";
+import { AudienceSplit } from "@/components/public/AudienceSplit";
 import { Button } from "@/components/ui/button";
 import { EventCard } from "@/components/public/EventCard";
+import { FAQ } from "@/components/public/FAQ";
 import { Hero } from "@/components/public/Hero";
+import { MemberBenefits } from "@/components/public/MemberBenefits";
 import { NewsCard } from "@/components/public/NewsCard";
 import { Section, SectionHeader } from "@/components/public/Section";
 import { SponsorsStrip } from "@/components/public/SponsorsStrip";
+import { StatsStrip } from "@/components/public/StatsStrip";
+import { Testimonials } from "@/components/public/Testimonials";
 import { getFeaturedEvent, listEvents } from "@/server/queries/events";
 import { listNews } from "@/server/queries/news";
 
@@ -49,6 +54,8 @@ export default async function HomePage() {
     <>
       <Hero featured={featured} />
 
+      <StatsStrip />
+
       <Section className="bg-white">
         <div className="container-page">
           <SectionHeader
@@ -74,6 +81,16 @@ export default async function HomePage() {
       </Section>
 
       <Section className="bg-ink-50">
+        <SectionHeader
+          eyebrow="Para ti"
+          title="Dos caminos, una misma sociedad"
+          description="Si eres profesional, súmate a la comunidad. Si eres paciente, infórmate antes de tu próximo tratamiento."
+          align="center"
+        />
+        <AudienceSplit />
+      </Section>
+
+      <Section className="bg-white">
         <div className="container-page">
           <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
             <SectionHeader
@@ -102,6 +119,24 @@ export default async function HomePage() {
         </div>
       </Section>
 
+      <Section className="relative isolate overflow-hidden bg-ink-950 text-white">
+        <div
+          aria-hidden
+          className="absolute -left-32 top-1/4 h-[420px] w-[420px] rounded-full bg-brand-600/15 blur-3xl"
+        />
+        <MemberBenefits />
+      </Section>
+
+      <Section className="bg-ink-50">
+        <SectionHeader
+          eyebrow="Voces de la comunidad"
+          title="Lo que dicen nuestros socios"
+          description="Especialistas, docentes y residentes que ya forman parte de SPROCh."
+          align="center"
+        />
+        <Testimonials />
+      </Section>
+
       <Section className="bg-white">
         <div className="container-page">
           <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
@@ -127,16 +162,21 @@ export default async function HomePage() {
         </div>
       </Section>
 
+      <Section className="bg-ink-50">
+        <FAQ />
+      </Section>
+
       {featured?.sponsors?.length ? (
-        <Section className="bg-ink-50">
+        <Section className="bg-white">
           <div className="container-page">
             <SponsorsStrip sponsors={featured.sponsors} title="Auspiciadores Congreso 2026" />
           </div>
         </Section>
       ) : null}
 
-      <Section className="bg-ink-950 text-white">
-        <div className="container-page grid items-center gap-10 md:grid-cols-2">
+      <Section className="relative isolate overflow-hidden bg-ink-950 text-white">
+        <div className="brand-bars" aria-hidden />
+        <div className="container-page relative grid items-center gap-10 md:grid-cols-2">
           <div>
             <h2 className="font-display text-4xl uppercase leading-tight md:text-5xl">
               ¿Tienes una consulta o quieres colaborar con la sociedad?
