@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, CalendarDays, MapPin, Ticket, Users } from "lucide-react";
+import { CalendarDays, MapPin, Ticket, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Breadcrumbs } from "@/components/public/Breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { Section, SectionHeader } from "@/components/public/Section";
 import { SponsorsStrip } from "@/components/public/SponsorsStrip";
@@ -76,16 +77,16 @@ export default async function EventDetailPage({ params }: { params: Promise<Para
 
   return (
     <>
-      <section className="relative bg-ink-950 text-white">
+      <section className="relative isolate overflow-hidden bg-brand-mesh text-white">
         <div className="brand-bars" aria-hidden />
-        <div className="container-page relative py-16 md:py-20">
-          <Link
-            href="/eventos"
-            className="inline-flex items-center gap-2 text-sm text-ink-300 hover:text-white"
-          >
-            <ArrowLeft size={16} />
-            Volver a eventos
-          </Link>
+        <div className="container-page relative py-14 md:py-20">
+          <Breadcrumbs
+            items={[
+              { label: "Inicio", href: "/" },
+              { label: "Cursos y Congresos", href: "/eventos" },
+              { label: event.title },
+            ]}
+          />
           <div className="mt-6 flex flex-wrap gap-2">
             <Badge variant={event.category === "CONGRESO" ? "brand" : "dark"}>
               {event.category}
@@ -97,32 +98,34 @@ export default async function EventDetailPage({ params }: { params: Promise<Para
           </h1>
           <p className="mt-6 max-w-2xl text-ink-200">{event.summary}</p>
 
-          <dl className="mt-8 grid gap-4 sm:grid-cols-2 md:grid-cols-3">
-            <div className="rounded-lg border border-white/10 bg-white/5 p-4">
-              <dt className="text-xs font-semibold uppercase tracking-widest text-ink-400">
+          <dl className="mt-8 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3">
+            <div className="rounded-lg border border-white/10 bg-white/5 p-3 sm:p-4">
+              <dt className="text-[10px] font-semibold uppercase tracking-widest text-ink-400 sm:text-xs">
                 Fechas
               </dt>
-              <dd className="mt-2 flex items-center gap-2 text-sm text-white">
-                <CalendarDays size={16} className="text-brand-500" />
-                {formatDateRange(event.startDate, event.endDate)}
+              <dd className="mt-2 flex items-start gap-2 text-sm text-white">
+                <CalendarDays size={16} className="mt-0.5 shrink-0 text-brand-500" />
+                <span>{formatDateRange(event.startDate, event.endDate)}</span>
               </dd>
             </div>
-            <div className="rounded-lg border border-white/10 bg-white/5 p-4">
-              <dt className="text-xs font-semibold uppercase tracking-widest text-ink-400">
+            <div className="rounded-lg border border-white/10 bg-white/5 p-3 sm:p-4">
+              <dt className="text-[10px] font-semibold uppercase tracking-widest text-ink-400 sm:text-xs">
                 Sede
               </dt>
-              <dd className="mt-2 flex items-center gap-2 text-sm text-white">
-                <MapPin size={16} className="text-brand-500" />
-                {event.location}
+              <dd className="mt-2 flex items-start gap-2 text-sm text-white">
+                <MapPin size={16} className="mt-0.5 shrink-0 text-brand-500" />
+                <span>{event.location}</span>
               </dd>
             </div>
-            <div className="rounded-lg border border-white/10 bg-white/5 p-4">
-              <dt className="text-xs font-semibold uppercase tracking-widest text-ink-400">
+            <div className="col-span-2 rounded-lg border border-white/10 bg-white/5 p-3 sm:p-4 md:col-span-1">
+              <dt className="text-[10px] font-semibold uppercase tracking-widest text-ink-400 sm:text-xs">
                 Valor
               </dt>
               <dd className="mt-2 flex items-center gap-2 text-sm text-white">
-                <Ticket size={16} className="text-brand-500" />
-                {event.priceCLP === 0 ? "Sin costo" : formatCLP(event.priceCLP)}
+                <Ticket size={16} className="shrink-0 text-brand-500" />
+                <span className="font-display text-base">
+                  {event.priceCLP === 0 ? "Sin costo" : formatCLP(event.priceCLP)}
+                </span>
               </dd>
             </div>
           </dl>

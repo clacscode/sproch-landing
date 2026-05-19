@@ -1,10 +1,10 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X } from "lucide-react";
-import { Logo } from "./Logo";
+import { ArrowRight, Menu, Phone, UserPlus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { siteConfig } from "@/lib/site";
 import { cn } from "@/lib/cn";
@@ -28,43 +28,108 @@ export function Header() {
   return (
     <header
       className={cn(
-        "sticky top-0 z-40 w-full transition-all",
+        "sticky top-0 z-40 w-full border-b transition-all",
         scrolled
-          ? "bg-white/90 shadow-card backdrop-blur supports-[backdrop-filter]:bg-white/75"
-          : "bg-white",
+          ? "border-ink-100 bg-white/95 shadow-card backdrop-blur supports-[backdrop-filter]:bg-white/80"
+          : "border-transparent bg-white",
       )}
     >
-      <div className="container-page flex h-16 items-center justify-between md:h-20">
-        <Logo />
-        <nav className="hidden items-center gap-8 md:flex" aria-label="Principal">
+      {/* Top bar fina: contacto rápido */}
+      <div className="hidden border-b border-ink-100 bg-ink-50/60 md:block">
+        <div className="container-page flex h-9 items-center justify-between text-xs text-ink-600">
+          <p className="font-medium tracking-wide text-ink-700">
+            Sociedad de Prótesis y Rehabilitación Oral de Chile
+          </p>
+          <div className="flex items-center gap-5">
+            <a
+              href={`tel:${siteConfig.phone.replace(/\s/g, "")}`}
+              className="inline-flex items-center gap-1.5 transition-colors hover:text-brand-700"
+            >
+              <Phone size={12} aria-hidden />
+              {siteConfig.phone}
+            </a>
+            <a
+              href={`mailto:${siteConfig.email}`}
+              className="transition-colors hover:text-brand-700"
+            >
+              {siteConfig.email}
+            </a>
+          </div>
+        </div>
+      </div>
+
+      {/* Bar principal */}
+      <div className="container-page flex h-16 items-center justify-between gap-6 md:h-20">
+        <Link
+          href="/"
+          aria-label={siteConfig.legalName}
+          className="inline-flex items-center"
+        >
+          <Image
+            src="/brand/logo.png"
+            alt={siteConfig.name}
+            width={180}
+            height={48}
+            priority
+            className="h-9 w-auto md:h-11"
+          />
+        </Link>
+
+        <nav
+          className="hidden flex-1 items-center justify-center gap-1 md:flex"
+          aria-label="Principal"
+        >
           {siteConfig.navigation.map((item) => {
             const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
             return (
               <Link
                 key={item.href}
                 href={item.href}
+                aria-current={active ? "page" : undefined}
                 className={cn(
-                  "relative text-sm font-medium transition-colors",
-                  active ? "text-brand-700" : "text-ink-700 hover:text-ink-900",
+                  "relative rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                  active
+                    ? "text-brand-700"
+                    : "text-ink-700 hover:bg-ink-50 hover:text-ink-900",
                 )}
               >
                 {item.label}
                 <span
-                  className={cn(
-                    "absolute -bottom-1.5 left-0 h-[2px] bg-brand-600 transition-all",
-                    active ? "w-full" : "w-0",
-                  )}
                   aria-hidden
+                  className={cn(
+                    "pointer-events-none absolute inset-x-3 -bottom-px h-0.5 rounded-full bg-brand-600 transition-all",
+                    active ? "opacity-100" : "opacity-0",
+                  )}
                 />
               </Link>
             );
           })}
         </nav>
-        <div className="hidden md:block">
-          <Button asChild size="sm">
-            <Link href="/eventos">Inscríbete al congreso</Link>
+
+        <div className="hidden items-center gap-2.5 md:flex">
+          <Button
+            asChild
+            size="sm"
+            variant="secondary"
+            className="group/btn ring-1 ring-ink-900/10 transition-all hover:shadow-card"
+          >
+            <Link href="/contacto">
+              <UserPlus size={15} aria-hidden />
+              Hazte socio
+            </Link>
+          </Button>
+          <Button asChild size="sm" className="btn-glow group/btn">
+            <Link href="/eventos">
+              Inscríbete
+              <ArrowRight
+                size={15}
+                aria-hidden
+                className="transition-transform group-hover/btn:translate-x-0.5"
+              />
+            </Link>
           </Button>
         </div>
+
         <button
           type="button"
           className="inline-flex h-10 w-10 items-center justify-center rounded-md text-ink-900 hover:bg-ink-100 md:hidden"
@@ -76,6 +141,7 @@ export function Header() {
           {open ? <X size={22} /> : <Menu size={22} />}
         </button>
       </div>
+
       <div
         id="mobile-nav"
         className={cn(
@@ -90,18 +156,40 @@ export function Header() {
               <Link
                 key={item.href}
                 href={item.href}
+                aria-current={active ? "page" : undefined}
                 className={cn(
-                  "rounded-md px-3 py-3 text-sm font-medium",
-                  active ? "bg-brand-50 text-brand-700" : "text-ink-700 hover:bg-ink-50",
+                  "rounded-md px-3 py-3 text-base font-medium transition-colors",
+                  active ? "bg-brand-50 text-brand-700" : "text-ink-800 hover:bg-ink-50",
                 )}
               >
                 {item.label}
               </Link>
             );
           })}
-          <Button asChild className="mt-2">
-            <Link href="/eventos">Inscríbete al congreso</Link>
-          </Button>
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            <Button asChild variant="secondary">
+              <Link href="/contacto">
+                <UserPlus size={16} aria-hidden />
+                Hazte socio
+              </Link>
+            </Button>
+            <Button asChild className="btn-glow">
+              <Link href="/eventos">
+                Inscríbete
+                <ArrowRight size={16} aria-hidden />
+              </Link>
+            </Button>
+          </div>
+          <div className="mt-3 flex flex-col gap-1 border-t border-ink-100 pt-3 text-xs text-ink-600">
+            <a
+              href={`tel:${siteConfig.phone.replace(/\s/g, "")}`}
+              className="inline-flex items-center gap-2"
+            >
+              <Phone size={12} aria-hidden />
+              {siteConfig.phone}
+            </a>
+            <a href={`mailto:${siteConfig.email}`}>{siteConfig.email}</a>
+          </div>
         </nav>
       </div>
     </header>

@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Calendar, User } from "lucide-react";
+import { ArrowRight, Calendar, User } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Breadcrumbs } from "@/components/public/Breadcrumbs";
+import { NewsCard } from "@/components/public/NewsCard";
 import { Section } from "@/components/public/Section";
 import { formatDate } from "@/lib/format";
 import { siteConfig } from "@/lib/site";
@@ -55,17 +57,19 @@ export default async function NewsArticlePage({ params }: { params: Promise<Para
     mainEntityOfPage: `${siteConfig.url}/noticias/${article.slug}`,
   };
 
+  const related = (await listNews({ limit: 4 })).filter((n) => n.slug !== article.slug).slice(0, 3);
+
   return (
     <>
-      <section className="bg-ink-950 text-white">
-        <div className="container-page py-16 md:py-20">
-          <Link
-            href="/noticias"
-            className="inline-flex items-center gap-2 text-sm text-ink-300 hover:text-white"
-          >
-            <ArrowLeft size={16} />
-            Volver a noticias
-          </Link>
+      <section className="relative isolate overflow-hidden bg-brand-fade text-white">
+        <div className="container-page py-14 md:py-20">
+          <Breadcrumbs
+            items={[
+              { label: "Inicio", href: "/" },
+              { label: "Noticias", href: "/noticias" },
+              { label: article.title },
+            ]}
+          />
           <div className="mt-6 flex flex-wrap gap-2">
             {article.tags.map((tag) => (
               <Badge key={tag} variant="dark" className="bg-white/10">
@@ -73,10 +77,10 @@ export default async function NewsArticlePage({ params }: { params: Promise<Para
               </Badge>
             ))}
           </div>
-          <h1 className="mt-4 font-display text-4xl uppercase leading-[0.95] tracking-tight md:text-6xl">
+          <h1 className="mt-4 max-w-4xl font-display text-4xl uppercase leading-[0.95] tracking-tight md:text-6xl">
             {article.title}
           </h1>
-          <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-ink-300">
+          <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-ink-200">
             <span className="inline-flex items-center gap-2">
               <Calendar size={16} className="text-brand-500" />
               {formatDate(article.publishedAt)}
@@ -93,14 +97,47 @@ export default async function NewsArticlePage({ params }: { params: Promise<Para
 
       <Section className="bg-white">
         <article className="container-page max-w-3xl">
-          <p className="text-lg leading-relaxed text-ink-700">{article.excerpt}</p>
+          <p className="border-l-4 border-brand-600 pl-5 text-xl leading-relaxed text-ink-800 md:text-2xl">
+            {article.excerpt}
+          </p>
           <div
-            className="prose prose-neutral mt-8 max-w-none text-ink-800 [&_p]:my-4 [&_strong]:text-ink-900"
+            className="mt-10 max-w-none text-base leading-relaxed text-ink-700 [&_a]:text-brand-700 [&_a]:underline-offset-4 [&_a:hover]:underline [&_h2]:mt-10 [&_h2]:font-display [&_h2]:text-2xl [&_h2]:uppercase [&_h2]:text-ink-900 [&_h3]:mt-8 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:text-ink-900 [&_li]:my-2 [&_p]:my-5 [&_strong]:font-semibold [&_strong]:text-ink-900 [&_ul]:my-5 [&_ul]:list-disc [&_ul]:pl-6"
             // eslint-disable-next-line react/no-danger
             dangerouslySetInnerHTML={{ __html: article.content }}
           />
         </article>
       </Section>
+
+      {related.length > 0 && (
+        <Section className="bg-ink-50">
+          <div className="container-page">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
+                  Sigue leyendo
+                </p>
+                <h2 className="mt-1 font-display text-3xl uppercase text-ink-900 md:text-4xl">
+                  Otras noticias
+                </h2>
+              </div>
+              <Link
+                href="/noticias"
+                className="inline-flex items-center gap-1 text-sm font-semibold text-brand-700 hover:text-brand-800"
+              >
+                Ver todas
+                <ArrowRight size={14} />
+              </Link>
+            </div>
+            <ul className="mt-8 grid gap-6 md:grid-cols-3">
+              {related.map((r) => (
+                <li key={r.id}>
+                  <NewsCard article={r} />
+                </li>
+              ))}
+            </ul>
+          </div>
+        </Section>
+      )}
 
       <script
         type="application/ld+json"

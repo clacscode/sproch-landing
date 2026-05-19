@@ -1,10 +1,10 @@
 import Link from "next/link";
-import { ArrowRight, BookOpen, GraduationCap, Newspaper, Users } from "lucide-react";
+import { ArrowRight, BookOpen, GraduationCap, Mail, Newspaper, Phone, Users } from "lucide-react";
 import { AudienceSplit } from "@/components/public/AudienceSplit";
 import { Button } from "@/components/ui/button";
 import { EventCard } from "@/components/public/EventCard";
 import { FAQ } from "@/components/public/FAQ";
-import { Hero } from "@/components/public/Hero";
+import { HeroCarousel } from "@/components/public/HeroCarousel";
 import { MemberBenefits } from "@/components/public/MemberBenefits";
 import { NewsCard } from "@/components/public/NewsCard";
 import { Section, SectionHeader } from "@/components/public/Section";
@@ -52,7 +52,7 @@ export default async function HomePage() {
 
   return (
     <>
-      <Hero featured={featured} />
+      <HeroCarousel featured={featured} />
 
       <StatsStrip />
 
@@ -64,12 +64,18 @@ export default async function HomePage() {
             description="Acompañamos a la comunidad odontológica chilena e iberoamericana en su desarrollo clínico, académico y profesional."
           />
           <ul className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            {valueProps.map(({ icon: Icon, title, description }) => (
+            {valueProps.map(({ icon: Icon, title, description }, idx) => (
               <li
                 key={title}
-                className="rounded-xl border border-ink-100 bg-white p-6 transition-shadow hover:shadow-card"
+                className="group relative overflow-hidden rounded-xl border border-ink-100 bg-white p-6 transition-all duration-300 hover:-translate-y-1 hover:border-brand-200 hover:shadow-card"
               >
-                <span className="inline-flex h-12 w-12 items-center justify-center rounded-lg bg-brand-50 text-brand-700">
+                <span
+                  aria-hidden
+                  className="absolute right-4 top-3 font-display text-3xl text-ink-100 transition-colors group-hover:text-brand-100"
+                >
+                  {String(idx + 1).padStart(2, "0")}
+                </span>
+                <span className="inline-flex h-12 w-12 items-center justify-center rounded-lg bg-brand-50 text-brand-700 transition-colors group-hover:bg-brand-600 group-hover:text-white">
                   <Icon size={22} />
                 </span>
                 <h3 className="mt-4 text-lg font-semibold text-ink-900">{title}</h3>
@@ -119,10 +125,10 @@ export default async function HomePage() {
         </div>
       </Section>
 
-      <Section className="relative isolate overflow-hidden bg-ink-950 text-white">
+      <Section className="relative isolate overflow-hidden bg-brand-fade text-white">
         <div
           aria-hidden
-          className="absolute -left-32 top-1/4 h-[420px] w-[420px] rounded-full bg-brand-600/15 blur-3xl"
+          className="absolute -left-32 top-1/4 h-[420px] w-[420px] rounded-full bg-brand-600/20 blur-3xl"
         />
         <MemberBenefits />
       </Section>
@@ -174,25 +180,63 @@ export default async function HomePage() {
         </Section>
       ) : null}
 
-      <Section className="relative isolate overflow-hidden bg-ink-950 text-white">
-        <div className="brand-bars" aria-hidden />
-        <div className="container-page relative grid items-center gap-10 md:grid-cols-2">
-          <div>
-            <h2 className="font-display text-4xl uppercase leading-tight md:text-5xl">
-              ¿Tienes una consulta o quieres colaborar con la sociedad?
-            </h2>
-            <p className="mt-4 max-w-lg text-ink-200">
-              Estamos abiertos a alianzas académicas, propuestas de cursos y consultas
-              institucionales. Escríbenos y te responderemos en menos de 48 horas hábiles.
-            </p>
-          </div>
-          <div className="flex flex-col gap-3 sm:flex-row md:justify-end">
-            <Button asChild size="lg">
-              <Link href="/contacto">Escríbenos</Link>
-            </Button>
-            <Button asChild size="lg" variant="outline" className="border-white/20 bg-white/5 text-white hover:bg-white/10">
-              <Link href="/nosotros">Conoce más</Link>
-            </Button>
+      <Section className="bg-white">
+        <div className="container-page">
+          <div className="relative isolate overflow-hidden rounded-2xl bg-brand-mesh px-5 py-10 text-white shadow-lift sm:rounded-3xl sm:px-8 md:px-12 md:py-14">
+            <div
+              aria-hidden
+              className="absolute -right-32 -top-24 h-72 w-72 rounded-full bg-brand-600/25 blur-3xl"
+            />
+            <div
+              aria-hidden
+              className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-brand-500 via-brand-600 to-brand-800"
+            />
+            <div className="relative grid items-center gap-8 lg:grid-cols-12">
+              <div className="lg:col-span-7">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-brand-400">
+                  Conversemos
+                </p>
+                <h2 className="mt-3 font-display text-3xl uppercase leading-[1.05] md:text-4xl lg:text-5xl">
+                  ¿Tienes una consulta o quieres
+                  <span className="block text-brand-400 drop-shadow-[0_2px_12px_rgba(0,0,0,0.5)]">colaborar con la sociedad?</span>
+                </h2>
+                <p className="mt-4 max-w-xl text-base text-ink-200">
+                  Alianzas académicas, propuestas de cursos y consultas institucionales. Te
+                  respondemos en menos de 48 horas hábiles.
+                </p>
+              </div>
+              <div className="lg:col-span-5">
+                <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap lg:flex-col">
+                  <Button asChild size="lg" className="btn-glow w-full sm:flex-1 lg:flex-none lg:w-full">
+                    <Link href="/contacto">Escríbenos</Link>
+                  </Button>
+                  <Button
+                    asChild
+                    size="lg"
+                    variant="outline"
+                    className="w-full border-white/25 bg-white/5 text-white hover:border-white/40 hover:bg-white/10 sm:flex-1 lg:flex-none lg:w-full"
+                  >
+                    <Link href="/nosotros">Conoce SPROCh</Link>
+                  </Button>
+                </div>
+                <div className="mt-5 flex flex-col gap-2 text-sm">
+                  <a
+                    href="mailto:soc.protesis@gmail.com"
+                    className="inline-flex items-center gap-2.5 transition-colors hover:text-brand-400"
+                  >
+                    <Mail size={16} aria-hidden className="shrink-0 text-brand-400" />
+                    <span className="break-all">soc.protesis@gmail.com</span>
+                  </a>
+                  <a
+                    href="tel:+56223348332"
+                    className="inline-flex items-center gap-2.5 transition-colors hover:text-brand-400"
+                  >
+                    <Phone size={16} aria-hidden className="shrink-0 text-brand-400" />
+                    <span>+56 2 2334 8332</span>
+                  </a>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </Section>

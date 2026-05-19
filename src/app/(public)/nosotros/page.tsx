@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Award, Compass, HeartHandshake, Lightbulb } from "lucide-react";
+import { Filiales } from "@/components/public/Filiales";
 import { Section, SectionHeader } from "@/components/public/Section";
 import { boardMock, milestones } from "@/data/board";
 
@@ -39,7 +40,7 @@ const principles = [
 export default function NosotrosPage() {
   return (
     <>
-      <section className="relative isolate overflow-hidden bg-ink-950 text-white">
+      <section className="relative isolate overflow-hidden bg-brand-mesh text-white">
         <div className="brand-bars" aria-hidden />
         <div className="container-page relative grid gap-10 py-20 md:grid-cols-12 md:py-28">
           <div className="md:col-span-8">
@@ -111,6 +112,17 @@ export default function NosotrosPage() {
       </Section>
 
       <Section className="bg-white">
+        <div className="container-page">
+          <SectionHeader
+            eyebrow="Red nacional"
+            title="Filiales SPROCh"
+            description="La sociedad está presente en las distintas macrozonas del país a través de sus filiales regionales."
+          />
+          <Filiales />
+        </div>
+      </Section>
+
+      <Section className="bg-ink-50">
         <div className="container-page">
           <SectionHeader
             eyebrow="Directorio"

@@ -9,7 +9,7 @@ export const newsMock: NewsArticle[] = [
       "Del 30 de julio al 1 de agosto en el Hotel Marina Las Condes, Santiago. Programa internacional con expositores de Brasil y España.",
     content: `
 <p>La Sociedad de Prótesis y Rehabilitación Oral de Chile invita a la comunidad odontológica iberoamericana a participar del <strong>Congreso SPROCh 2026 — ADA: De lo análogo y digital a la AI</strong>, que se realizará entre el 30 de julio y el 1 de agosto en el Hotel Marina Las Condes, Santiago.</p>
-<p>La instancia coincide con la XIX Reunión Internacional de la SIOLA y contará con expositores internacionales como el Dr. Alessandro Loguercio (Brasil), Dr. Bruno Kraft (Brasil), Dr. Óscar González (España), entre otros.</p>
+<p>La instancia contará con expositores internacionales como el Dr. Alessandro Loguercio (Brasil), Dr. Bruno Kraft (Brasil), Dr. Óscar González (España), entre otros.</p>
 <p>Las inscripciones tempranas estarán disponibles próximamente con descuentos para socios y estudiantes de postgrado.</p>
     `.trim(),
     coverImage: "/brand/logo.png",

@@ -39,7 +39,7 @@ export const memberBenefits: MembershipBenefit[] = [
     icon: Network,
     title: "Red iberoamericana",
     description:
-      "Vinculación con sociedades hermanas de la región a través de SIOLA y convenios académicos.",
+      "Vinculación con sociedades hermanas de la región a través de convenios académicos y científicos.",
   },
   {
     icon: BookOpenCheck,
@@ -89,7 +89,7 @@ export interface StatItem {
 
 export const stats: StatItem[] = [
   { value: "70+", label: "años de historia" },
-  { value: "12", label: "países representados en SIOLA" },
+  { value: "12+", label: "países en nuestra red iberoamericana" },
   { value: "20+", label: "cursos y jornadas anuales" },
   { value: "100%", label: "actividades con aval científico" },
 ];
@@ -114,7 +114,7 @@ export const faqs: FAQItem[] = [
   },
   {
     q: "¿Tienen vinculación con sociedades internacionales?",
-    a: "Sí. SPROCh integra la Sociedad Iberoamericana de Osteointegración y Latinoamericana (SIOLA) y mantiene convenios académicos con universidades y sociedades hermanas.",
+    a: "Sí. SPROCh mantiene convenios académicos con universidades y sociedades científicas hermanas en Iberoamérica para fortalecer la formación y el intercambio profesional.",
   },
   {
     q: "¿Dónde puedo presentar trabajos de investigación?",

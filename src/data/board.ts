@@ -26,7 +26,7 @@ export const milestones = [
     year: "2000s",
     title: "Integración latinoamericana",
     description:
-      "Vinculación activa con sociedades hermanas de Iberoamérica y participación en SIOLA.",
+      "Vinculación activa con sociedades científicas hermanas de Iberoamérica y participación en redes regionales.",
   },
   {
     year: "2020s",

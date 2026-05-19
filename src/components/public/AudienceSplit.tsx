@@ -11,7 +11,7 @@ const cards = [
     bullets: [
       "Tarifas preferentes para socios al día",
       "Aval institucional en formación continua",
-      "Red iberoamericana SIOLA",
+      "Red iberoamericana de sociedades hermanas",
     ],
     cta: { label: "Explorar agenda", href: "/eventos" },
     tone: "dark" as const,

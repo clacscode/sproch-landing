@@ -6,9 +6,9 @@ export const eventsMock: EventItem[] = [
     slug: "congreso-sproch-2026",
     title: "Congreso SPROCh 2026 — ADA: De lo análogo y digital a la AI",
     summary:
-      "XIX Reunión Internacional de la SIOLA. Tres días con expositores internacionales en Santiago.",
+      "Tres días con expositores internacionales en Santiago. De lo análogo y digital a la inteligencia artificial.",
     content: `
-<p>El congreso anual de SPROCh reúne a la comunidad iberoamericana en torno a la prótesis y rehabilitación oral. La edición 2026, en alianza con la XIX Reunión Internacional de la SIOLA, propone un recorrido desde lo análogo y digital hacia la inteligencia artificial aplicada a la práctica clínica.</p>
+<p>El congreso anual de SPROCh reúne a la comunidad iberoamericana en torno a la prótesis y rehabilitación oral. La edición 2026 propone un recorrido desde lo análogo y digital hacia la inteligencia artificial aplicada a la práctica clínica.</p>
 <p>Tres días de conferencias, talleres y networking en el Hotel Marina Las Condes, Santiago.</p>
     `.trim(),
     startDate: "2026-07-30",
