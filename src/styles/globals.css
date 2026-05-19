@@ -159,6 +159,14 @@ body {
   opacity: 0.75;
 }
 
+/* En mobile las barras chocan con texto/CTAs porque no hay margen lateral */
+@media (max-width: 768px) {
+  .brand-bars::before,
+  .brand-bars::after {
+    display: none;
+  }
+}
+
 /* Grafito dominante con acento rojo sutil; el rojo solo aparece como brisa,
    no como mancha. Pensado para que el logo rojo destaque sobre la card clara. */
 .bg-brand-mesh {
@@ -227,8 +235,10 @@ body {
   opacity: 0.22;
 }
 @media (max-width: 768px) {
-  .hero-rays::before { left: -10%; opacity: 0.3; }
-  .hero-rays::after { left: 6%; opacity: 0.2; }
+  .hero-rays::before,
+  .hero-rays::after {
+    display: none;
+  }
 }
 
 /* Scroll indicator: chevron que rebota */

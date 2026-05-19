@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight, Facebook, Instagram, Linkedin, Mail, MapPin, Phone } from "lucide-react";
+import { NewsletterForm } from "@/components/public/NewsletterForm";
 import { siteConfig } from "@/lib/site";
 
 export function Footer() {
@@ -63,6 +64,19 @@ export function Footer() {
             >
               <Linkedin size={18} className="text-ink-200 transition-colors group-hover:text-white" />
             </a>
+          </div>
+
+          {/* Newsletter dentro del bloque de marca */}
+          <div className="mt-8 max-w-md">
+            <h3 className="font-display text-sm uppercase tracking-[0.22em] text-brand-400">
+              Mantente al día
+            </h3>
+            <p className="mt-2 text-sm text-ink-300">
+              Suscríbete y entérate primero de cursos, congresos y convocatorias.
+            </p>
+            <div className="mt-3">
+              <NewsletterForm />
+            </div>
           </div>
         </div>
 

@@ -40,11 +40,20 @@ export const metadata: Metadata = {
     title: siteConfig.legalName,
     description: siteConfig.description,
     siteName: siteConfig.name,
+    images: [
+      {
+        url: "/opengraph-image",
+        width: 1200,
+        height: 630,
+        alt: siteConfig.legalName,
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: siteConfig.legalName,
     description: siteConfig.description,
+    images: ["/opengraph-image"],
   },
   icons: {
     icon: "/brand/logo.png",

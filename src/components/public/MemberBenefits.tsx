@@ -23,7 +23,7 @@ export function MemberBenefits() {
         </div>
         <div className="md:col-span-5 md:justify-self-end">
           <Button asChild size="lg" variant="outline" className="border-white/20 bg-white/5 text-white hover:bg-white/10 hover:border-white/40">
-            <Link href="/contacto">
+            <Link href="/socios">
               Quiero hacerme socio
               <ArrowRight size={18} />
             </Link>

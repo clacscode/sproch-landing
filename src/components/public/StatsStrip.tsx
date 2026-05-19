@@ -1,4 +1,5 @@
 import { Award, CalendarRange, GraduationCap, Globe2 } from "lucide-react";
+import { StatCounter } from "@/components/public/StatCounter";
 import { stats } from "@/data/membership";
 
 const ICONS = [Award, Globe2, CalendarRange, GraduationCap];
@@ -28,7 +29,9 @@ export function StatsStrip() {
               </span>
               <div>
                 <p className="font-display text-4xl leading-none text-ink-900 sm:text-5xl">
-                  <span className="text-brand-600">{stat.value}</span>
+                  <span className="text-brand-600">
+                    <StatCounter value={stat.value} />
+                  </span>
                 </p>
                 <p className="mt-2 text-xs font-medium uppercase tracking-[0.14em] text-ink-500">
                   {stat.label}

@@ -86,7 +86,7 @@ export function HeroCarousel({ featured }: HeroCarouselProps) {
         ),
         description:
           "Acceso a cursos con tarifa preferente, publicaciones, certificaciones y la red iberoamericana de sociedades hermanas.",
-        primaryCta: { label: "Quiero hacerme socio", href: "/contacto" },
+        primaryCta: { label: "Quiero hacerme socio", href: "/socios" },
         secondaryCta: { label: "Ver beneficios", href: "/nosotros" },
         image: {
           src: "/brand/sproch-2.jpeg",

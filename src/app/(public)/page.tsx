@@ -7,6 +7,7 @@ import { FAQ } from "@/components/public/FAQ";
 import { HeroCarousel } from "@/components/public/HeroCarousel";
 import { MemberBenefits } from "@/components/public/MemberBenefits";
 import { NewsCard } from "@/components/public/NewsCard";
+import { Reveal } from "@/components/public/Reveal";
 import { Section, SectionHeader } from "@/components/public/Section";
 import { SponsorsStrip } from "@/components/public/SponsorsStrip";
 import { StatsStrip } from "@/components/public/StatsStrip";
@@ -65,8 +66,10 @@ export default async function HomePage() {
           />
           <ul className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
             {valueProps.map(({ icon: Icon, title, description }, idx) => (
-              <li
+              <Reveal
+                as="li"
                 key={title}
+                delay={idx * 80}
                 className="group relative overflow-hidden rounded-xl border border-ink-100 bg-white p-6 transition-all duration-300 hover:-translate-y-1 hover:border-brand-200 hover:shadow-card"
               >
                 <span
@@ -80,7 +83,7 @@ export default async function HomePage() {
                 </span>
                 <h3 className="mt-4 text-lg font-semibold text-ink-900">{title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-ink-600">{description}</p>
-              </li>
+              </Reveal>
             ))}
           </ul>
         </div>
@@ -115,10 +118,10 @@ export default async function HomePage() {
             <p className="mt-12 text-ink-500">Pronto anunciaremos nuevas fechas.</p>
           ) : (
             <ul className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {upcoming.map((event) => (
-                <li key={event.id}>
+              {upcoming.map((event, i) => (
+                <Reveal as="li" key={event.id} delay={i * 90}>
                   <EventCard event={event} variant={event.featured ? "featured" : "default"} />
-                </li>
+                </Reveal>
               ))}
             </ul>
           )}
@@ -159,10 +162,10 @@ export default async function HomePage() {
             </Button>
           </div>
           <ul className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {latestNews.map((article) => (
-              <li key={article.id}>
+            {latestNews.map((article, i) => (
+              <Reveal as="li" key={article.id} delay={i * 90}>
                 <NewsCard article={article} />
-              </li>
+              </Reveal>
             ))}
           </ul>
         </div>

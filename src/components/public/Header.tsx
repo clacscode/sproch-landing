@@ -113,7 +113,7 @@ export function Header() {
             variant="secondary"
             className="group/btn ring-1 ring-ink-900/10 transition-all hover:shadow-card"
           >
-            <Link href="/contacto">
+            <Link href="/socios">
               <UserPlus size={15} aria-hidden />
               Hazte socio
             </Link>
@@ -168,7 +168,7 @@ export function Header() {
           })}
           <div className="mt-3 grid grid-cols-2 gap-2">
             <Button asChild variant="secondary">
-              <Link href="/contacto">
+              <Link href="/socios">
                 <UserPlus size={16} aria-hidden />
                 Hazte socio
               </Link>
