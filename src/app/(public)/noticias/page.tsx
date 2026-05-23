@@ -4,6 +4,7 @@ import { ArrowRight, ArrowUpRight, CalendarDays, Newspaper } from "lucide-react"
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { NewsCard } from "@/components/public/NewsCard";
+import { NewsSearch } from "@/components/public/NewsSearch";
 import { formatDate } from "@/lib/format";
 import { listAllTags, listNews } from "@/server/queries/news";
 
@@ -119,7 +120,7 @@ export default async function NewsListingPage({
           <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-brand-700">
-                Filtrar por temática
+                Filtrar y buscar
               </p>
               <h2 className="mt-3 font-display text-3xl uppercase leading-tight tracking-tight text-ink-900 md:text-4xl">
                 Explora {articles.length}{" "}
@@ -131,38 +132,53 @@ export default async function NewsListingPage({
                     <span className="text-brand-700">{params.tag}</span>
                   </>
                 )}
+                {params.q && (
+                  <>
+                    {" "}
+                    <span className="text-ink-500">para</span>{" "}
+                    <span className="text-brand-700">&ldquo;{params.q}&rdquo;</span>
+                  </>
+                )}
               </h2>
             </div>
-            {params.tag && (
+            <NewsSearch initialQuery={params.q ?? ""} initialTag={params.tag} />
+          </div>
+
+          <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
+            <div className="-mx-4 flex flex-1 gap-2 overflow-x-auto px-4 pb-2 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0">
+              <FilterPill href={params.q ? `/noticias?q=${encodeURIComponent(params.q)}` : "/noticias"} active={!params.tag}>
+                Todas
+              </FilterPill>
+              {tags.map((tag) => {
+                const sp = new URLSearchParams();
+                sp.set("tag", tag);
+                if (params.q) sp.set("q", params.q);
+                return (
+                  <FilterPill
+                    key={tag}
+                    href={`/noticias?${sp.toString()}`}
+                    active={params.tag === tag}
+                  >
+                    {tag}
+                  </FilterPill>
+                );
+              })}
+            </div>
+            {(params.tag || params.q) && (
               <Link
                 href="/noticias"
-                className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-700 hover:text-brand-800"
+                className="inline-flex shrink-0 items-center gap-1.5 text-sm font-semibold text-brand-700 hover:text-brand-800"
               >
-                Limpiar filtro
+                Limpiar filtros
                 <ArrowRight size={14} aria-hidden />
               </Link>
             )}
-          </div>
-
-          <div className="mt-6 -mx-4 flex gap-2 overflow-x-auto px-4 pb-2 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0">
-            <FilterPill href="/noticias" active={!params.tag}>
-              Todas
-            </FilterPill>
-            {tags.map((tag) => (
-              <FilterPill
-                key={tag}
-                href={`/noticias?tag=${encodeURIComponent(tag)}`}
-                active={params.tag === tag}
-              >
-                {tag}
-              </FilterPill>
-            ))}
           </div>
         </div>
       </section>
 
       {/* ──────────────── FEATURED ──────────────── */}
-      {!params.tag && featured && (
+      {!params.tag && !params.q && featured && (
         <section className="bg-paper">
           <div className="container-page pb-12 md:pb-16">
             <Link
@@ -232,10 +248,12 @@ export default async function NewsListingPage({
           {articles.length === 0 ? (
             <div className="rounded-3xl border border-dashed border-ink-200 bg-white px-6 py-16 text-center">
               <p className="font-display text-2xl uppercase text-ink-900">
-                Sin noticias con ese filtro
+                Sin resultados
               </p>
               <p className="mt-3 text-ink-600">
-                Probemos limpiar el filtro o explorar otra etiqueta.
+                {params.q
+                  ? <>No encontramos publicaciones que coincidan con <strong>&ldquo;{params.q}&rdquo;</strong>{params.tag ? <> en la categoría <strong>{params.tag}</strong></> : null}.</>
+                  : "Probemos limpiar el filtro o explorar otra etiqueta."}
               </p>
               <Button asChild className="mt-6">
                 <Link href="/noticias">
@@ -246,19 +264,19 @@ export default async function NewsListingPage({
             </div>
           ) : (
             <>
-              {(!params.tag && rest.length > 0) || params.tag ? (
+              {(!params.tag && !params.q && rest.length > 0) || params.tag || params.q ? (
                 <div className="mb-8 flex items-center justify-between border-b border-ink-200 pb-4">
                   <p className="text-xs font-semibold uppercase tracking-[0.22em] text-ink-500">
-                    {params.tag ? "Resultados" : "Más publicaciones"}
+                    {params.tag || params.q ? "Resultados" : "Más publicaciones"}
                   </p>
                   <p className="text-xs text-ink-500 tabular-nums">
-                    {params.tag ? articles.length : rest.length} resultados
+                    {params.tag || params.q ? articles.length : rest.length} resultados
                   </p>
                 </div>
               ) : null}
 
               <ul className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {(params.tag ? articles : rest).map((article) => (
+                {(params.tag || params.q ? articles : rest).map((article) => (
                   <li key={article.id}>
                     <NewsCard article={article} />
                   </li>
