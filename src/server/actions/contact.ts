@@ -28,6 +28,7 @@ export async function submitContactAction(input: ContactInput): Promise<ContactR
     console.info("[contact] nuevo mensaje:", {
       name: parsed.data.name,
       email: parsed.data.email,
+      inquiryType: parsed.data.inquiryType ?? "general",
       subject: parsed.data.subject,
     });
   }
