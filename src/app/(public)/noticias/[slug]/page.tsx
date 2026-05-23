@@ -46,15 +46,39 @@ export default async function NewsArticlePage({ params }: { params: Promise<Para
   const article = await getNewsBySlug(slug);
   if (!article) notFound();
 
-  const jsonLd = {
+  const articleJsonLd = {
     "@context": "https://schema.org",
     "@type": "NewsArticle",
     headline: article.title,
     description: article.excerpt,
     datePublished: article.publishedAt,
     author: { "@type": "Organization", name: article.authorName ?? siteConfig.legalName },
-    publisher: { "@type": "Organization", name: siteConfig.legalName },
+    publisher: {
+      "@type": "Organization",
+      name: siteConfig.legalName,
+      logo: {
+        "@type": "ImageObject",
+        url: `${siteConfig.url}/brand/logo.png`,
+      },
+    },
+    image: `${siteConfig.url}/noticias/${article.slug}/opengraph-image`,
     mainEntityOfPage: `${siteConfig.url}/noticias/${article.slug}`,
+    keywords: article.tags.join(", "),
+  };
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Inicio", item: `${siteConfig.url}/` },
+      { "@type": "ListItem", position: 2, name: "Noticias", item: `${siteConfig.url}/noticias` },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: article.title,
+        item: `${siteConfig.url}/noticias/${article.slug}`,
+      },
+    ],
   };
 
   const related = (await listNews({ limit: 4 })).filter((n) => n.slug !== article.slug).slice(0, 3);
@@ -254,7 +278,12 @@ export default async function NewsArticlePage({ params }: { params: Promise<Para
       <script
         type="application/ld+json"
         // eslint-disable-next-line react/no-danger
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
     </>
   );

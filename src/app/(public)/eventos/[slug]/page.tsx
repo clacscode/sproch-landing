@@ -51,7 +51,7 @@ export default async function EventDetailPage({ params }: { params: Promise<Para
 
   const enrollDisabled = !isWebpayConfigured() || event.priceCLP === 0;
 
-  const jsonLd = {
+  const eventJsonLd = {
     "@context": "https://schema.org",
     "@type": "Event",
     name: event.title,
@@ -62,6 +62,7 @@ export default async function EventDetailPage({ params }: { params: Promise<Para
     eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
     location: { "@type": "Place", name: event.location, address: event.location },
     organizer: { "@type": "Organization", name: siteConfig.legalName, url: siteConfig.url },
+    image: `${siteConfig.url}/eventos/${event.slug}/opengraph-image`,
     offers:
       event.priceCLP > 0
         ? {
@@ -72,6 +73,26 @@ export default async function EventDetailPage({ params }: { params: Promise<Para
             url: `${siteConfig.url}/eventos/${event.slug}`,
           }
         : undefined,
+  };
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Inicio", item: `${siteConfig.url}/` },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Cursos y Congresos",
+        item: `${siteConfig.url}/eventos`,
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: event.title,
+        item: `${siteConfig.url}/eventos/${event.slug}`,
+      },
+    ],
   };
 
   return (
@@ -341,7 +362,12 @@ export default async function EventDetailPage({ params }: { params: Promise<Para
       <script
         type="application/ld+json"
         // eslint-disable-next-line react/no-danger
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(eventJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
     </>
   );

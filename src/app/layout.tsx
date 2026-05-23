@@ -68,6 +68,54 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
+const organizationJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: siteConfig.legalName,
+  alternateName: siteConfig.name,
+  url: siteConfig.url,
+  logo: `${siteConfig.url}/brand/logo.png`,
+  email: siteConfig.email,
+  telephone: siteConfig.phone,
+  description: siteConfig.description,
+  foundingDate: "1952",
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "Av. Santa María 1990, Piso 3",
+    addressLocality: "Providencia",
+    addressRegion: "Región Metropolitana",
+    addressCountry: "CL",
+  },
+  sameAs: [
+    siteConfig.social.instagram,
+    siteConfig.social.facebook,
+    siteConfig.social.linkedin,
+  ],
+  contactPoint: {
+    "@type": "ContactPoint",
+    contactType: "customer support",
+    email: siteConfig.email,
+    telephone: siteConfig.phone,
+    areaServed: "CL",
+    availableLanguage: ["Spanish"],
+  },
+};
+
+const websiteJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: siteConfig.legalName,
+  alternateName: siteConfig.name,
+  url: siteConfig.url,
+  inLanguage: "es-CL",
+  publisher: { "@type": "Organization", name: siteConfig.legalName, url: siteConfig.url },
+  potentialAction: {
+    "@type": "SearchAction",
+    target: `${siteConfig.url}/noticias?q={search_term_string}`,
+    "query-input": "required name=search_term_string",
+  },
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -75,7 +123,19 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es-CL" className={`${jakarta.variable} ${bebas.variable}`}>
-      <body className="min-h-screen bg-white text-ink-900 antialiased">{children}</body>
+      <body className="min-h-screen bg-white text-ink-900 antialiased">
+        {children}
+        <script
+          type="application/ld+json"
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+        />
+      </body>
     </html>
   );
 }
