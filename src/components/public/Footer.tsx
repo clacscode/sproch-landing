@@ -1,82 +1,92 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight, Facebook, Instagram, Linkedin, Mail, MapPin, Phone } from "lucide-react";
+import {
+  ArrowUpRight,
+  Clock,
+  Facebook,
+  Instagram,
+  Linkedin,
+  Mail,
+  MapPin,
+  Phone,
+} from "lucide-react";
 import { siteConfig } from "@/lib/site";
+
+const socialLinks = [
+  { name: "Instagram", icon: Instagram, href: siteConfig.social.instagram },
+  { name: "Facebook", icon: Facebook, href: siteConfig.social.facebook },
+  { name: "LinkedIn", icon: Linkedin, href: siteConfig.social.linkedin },
+];
 
 export function Footer() {
   const year = new Date().getFullYear();
   return (
-    <footer className="relative isolate overflow-hidden bg-ink-950 text-white">
-      {/* Acento superior con degradado rojo (separa visualmente del CTA) */}
+    <footer className="grain-overlay relative isolate overflow-hidden bg-ink-950 text-white">
       <div
         aria-hidden
-        className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-600 to-transparent"
+        className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-500 to-transparent"
       />
       <div
         aria-hidden
-        className="absolute -right-40 -top-32 h-[420px] w-[420px] rounded-full bg-brand-700/10 blur-3xl"
+        className="pointer-events-none absolute -right-40 -top-32 h-[480px] w-[480px] rounded-full bg-[radial-gradient(circle,_color-mix(in_oklab,_var(--color-brand-700)_45%,_transparent)_0%,_transparent_70%)] opacity-60"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-[0.05] [background-image:radial-gradient(circle_at_1px_1px,white_1px,transparent_0)] [background-size:32px_32px]"
       />
 
-      <div className="container-page relative grid gap-12 py-16 md:grid-cols-12 md:gap-10 md:py-20">
+      {/* Top eyebrow strip */}
+      <div className="container-page relative pt-16 md:pt-20">
+        <p className="inline-flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.28em] text-brand-300">
+          <span aria-hidden className="h-px w-10 bg-brand-500" />
+          Sociedad de Prótesis · Desde 1952
+        </p>
+      </div>
+
+      <div className="container-page relative grid gap-12 pb-16 pt-10 md:grid-cols-12 md:gap-10 md:pb-20 md:pt-14">
         {/* Brand block */}
         <div className="md:col-span-5">
-          <div className="inline-flex rounded-xl bg-white p-5 shadow-lift ring-1 ring-black/5">
-            <Image
-              src="/brand/logo.png"
-              alt={siteConfig.name}
-              width={280}
-              height={88}
-              className="h-14 w-auto"
-            />
-          </div>
-          <p className="mt-6 max-w-md text-base leading-relaxed text-ink-100">
-            {siteConfig.legalName}.
-          </p>
-          <p className="mt-2 max-w-md text-sm leading-relaxed text-ink-400">
+          <Image
+            src="/brand/logo-dark.png"
+            alt={siteConfig.name}
+            width={320}
+            height={120}
+            className="h-16 w-auto md:h-20"
+          />
+          <p className="mt-7 max-w-md font-display text-2xl uppercase leading-tight tracking-tight text-white md:text-3xl">
             {siteConfig.tagline}
           </p>
-          <div className="mt-6 flex flex-wrap items-center gap-2">
-            <a
-              href={siteConfig.social.instagram}
-              target="_blank"
-              rel="noreferrer"
-              aria-label="Instagram"
-              className="group inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/[0.06] ring-1 ring-white/10 transition-all hover:bg-brand-600 hover:ring-brand-500"
-            >
-              <Instagram size={18} className="text-ink-200 transition-colors group-hover:text-white" />
-            </a>
-            <a
-              href={siteConfig.social.facebook}
-              target="_blank"
-              rel="noreferrer"
-              aria-label="Facebook"
-              className="group inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/[0.06] ring-1 ring-white/10 transition-all hover:bg-brand-600 hover:ring-brand-500"
-            >
-              <Facebook size={18} className="text-ink-200 transition-colors group-hover:text-white" />
-            </a>
-            <a
-              href={siteConfig.social.linkedin}
-              target="_blank"
-              rel="noreferrer"
-              aria-label="LinkedIn"
-              className="group inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/[0.06] ring-1 ring-white/10 transition-all hover:bg-brand-600 hover:ring-brand-500"
-            >
-              <Linkedin size={18} className="text-ink-200 transition-colors group-hover:text-white" />
-            </a>
+          <div className="mt-7 flex flex-wrap items-center gap-2">
+            {socialLinks.map(({ name, icon: Icon, href }) => (
+              <a
+                key={name}
+                href={href}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={name}
+                className="group inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/[0.06] ring-1 ring-white/10 transition-all hover:-translate-y-0.5 hover:bg-brand-600 hover:ring-brand-500"
+              >
+                <Icon
+                  size={18}
+                  aria-hidden
+                  className="text-ink-200 transition-colors group-hover:text-white"
+                />
+              </a>
+            ))}
           </div>
         </div>
 
         {/* Navegación */}
         <nav aria-label="Navegación pie de página" className="md:col-span-3">
-          <h3 className="font-display text-sm uppercase tracking-[0.22em] text-brand-400">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-brand-300">
             Navegación
-          </h3>
-          <ul className="mt-5 space-y-3">
+          </p>
+          <ul className="mt-5 space-y-3.5">
             {siteConfig.navigation.map((item) => (
               <li key={item.href}>
                 <Link
                   href={item.href}
-                  className="group inline-flex items-center gap-1 text-base text-ink-100 transition-colors hover:text-brand-400"
+                  className="group inline-flex items-center gap-1.5 font-display text-base uppercase tracking-tight text-ink-100 transition-colors hover:text-brand-300"
                 >
                   {item.label}
                   <ArrowUpRight
@@ -87,58 +97,76 @@ export function Footer() {
                 </Link>
               </li>
             ))}
+            <li>
+              <Link
+                href="/socios"
+                className="group inline-flex items-center gap-1.5 font-display text-base uppercase tracking-tight text-ink-100 transition-colors hover:text-brand-300"
+              >
+                Hazte socio
+                <ArrowUpRight
+                  size={14}
+                  aria-hidden
+                  className="-mb-0.5 opacity-0 transition-all group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                />
+              </Link>
+            </li>
           </ul>
         </nav>
 
         {/* Contacto */}
         <div className="md:col-span-4">
-          <h3 className="font-display text-sm uppercase tracking-[0.22em] text-brand-400">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-brand-300">
             Contacto
-          </h3>
+          </p>
           <ul className="mt-5 space-y-4 text-sm text-ink-100">
             <li className="flex items-start gap-3">
-              <MapPin size={18} className="mt-0.5 shrink-0 text-brand-400" aria-hidden />
+              <MapPin size={16} className="mt-0.5 shrink-0 text-brand-400" aria-hidden />
               <span className="leading-relaxed">{siteConfig.address}</span>
             </li>
             <li>
               <a
                 href={`mailto:${siteConfig.email}`}
-                className="group flex items-start gap-3 transition-colors hover:text-brand-400"
+                className="group flex items-start gap-3 transition-colors hover:text-brand-300"
               >
-                <Mail size={18} className="mt-0.5 shrink-0 text-brand-400" aria-hidden />
+                <Mail size={16} className="mt-0.5 shrink-0 text-brand-400" aria-hidden />
                 <span className="break-all leading-relaxed">{siteConfig.email}</span>
               </a>
             </li>
             <li>
               <a
                 href={`tel:${siteConfig.phone.replace(/\s/g, "")}`}
-                className="group flex items-start gap-3 transition-colors hover:text-brand-400"
+                className="group flex items-start gap-3 transition-colors hover:text-brand-300"
               >
-                <Phone size={18} className="mt-0.5 shrink-0 text-brand-400" aria-hidden />
+                <Phone size={16} className="mt-0.5 shrink-0 text-brand-400" aria-hidden />
                 <span className="leading-relaxed">{siteConfig.phone}</span>
               </a>
+            </li>
+            <li className="flex items-start gap-3 text-ink-300">
+              <Clock size={16} className="mt-0.5 shrink-0 text-brand-400" aria-hidden />
+              <span className="leading-relaxed">Lunes a viernes · 09 a 18 hrs</span>
             </li>
           </ul>
         </div>
       </div>
 
-      <div className="border-t border-white/10">
-        <div className="container-page flex flex-col gap-2 py-6 text-xs text-ink-400 md:flex-row md:items-center md:justify-between">
+      {/* Bottom strip */}
+      <div className="relative border-t border-white/10">
+        <div className="container-page flex flex-col gap-3 py-6 text-xs uppercase tracking-[0.18em] text-ink-400 md:flex-row md:items-center md:justify-between">
           <p>
-            © {year} {siteConfig.legalName}. Todos los derechos reservados.
+            © {year} {siteConfig.legalName}
           </p>
           <p className="flex flex-wrap items-center gap-x-3 gap-y-1">
-            <span>Desde 1952 · Santiago, Chile</span>
-            <span className="hidden md:inline" aria-hidden>
+            <span>Santiago, Chile</span>
+            <span aria-hidden className="text-ink-700">
               ·
             </span>
-            <span>
+            <span className="normal-case tracking-normal">
               Sitio desarrollado por{" "}
               <a
                 href={siteConfig.developedBy.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-medium text-ink-100 underline-offset-2 transition-colors hover:text-white hover:underline"
+                className="font-semibold uppercase tracking-[0.18em] text-ink-200 transition-colors hover:text-white"
               >
                 {siteConfig.developedBy.name}
               </a>
