@@ -57,8 +57,8 @@ export const metadata: Metadata = {
     images: ["/opengraph-image"],
   },
   icons: {
-    icon: "/brand/logo.png",
-    apple: "/brand/logo.png",
+    icon: "/icon-256.png",
+    apple: "/apple-icon.png",
   },
 };
 
