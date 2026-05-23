@@ -42,7 +42,7 @@ export default function NosotrosPage() {
     <>
       <section className="relative isolate overflow-hidden bg-brand-mesh text-white">
         <div className="brand-bars" aria-hidden />
-        <div className="container-page relative grid gap-10 py-20 md:grid-cols-12 md:py-28">
+        <div className="container-page relative grid gap-10 pb-20 pt-24 md:grid-cols-12 md:pb-28 md:pt-32">
           <div className="md:col-span-8">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-400">
               Quiénes somos

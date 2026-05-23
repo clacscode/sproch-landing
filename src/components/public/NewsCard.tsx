@@ -30,7 +30,7 @@ export function NewsCard({ article, variant = "default" }: NewsCardProps) {
   const accent = getAccent(primaryTag);
 
   return (
-    <Card className="group flex h-full flex-col overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lift">
+    <Card className="group card-lift flex h-full flex-col overflow-hidden">
       <Link
         href={`/noticias/${article.slug}`}
         className="relative block aspect-[16/9] w-full overflow-hidden"

@@ -64,25 +64,33 @@ export default async function HomePage() {
             title="Una sociedad científica con más de 70 años de tradición"
             description="Acompañamos a la comunidad odontológica chilena e iberoamericana en su desarrollo clínico, académico y profesional."
           />
-          <ul className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <ul className="mt-14 grid gap-px overflow-hidden rounded-2xl bg-ink-200/60 md:grid-cols-2 lg:grid-cols-4">
             {valueProps.map(({ icon: Icon, title, description }, idx) => (
               <Reveal
                 as="li"
                 key={title}
                 delay={idx * 80}
-                className="group relative overflow-hidden rounded-xl border border-ink-100 bg-white p-6 transition-all duration-300 hover:-translate-y-1 hover:border-brand-200 hover:shadow-card"
+                className="group relative isolate flex min-h-[280px] flex-col bg-white p-8 transition-colors duration-300 hover:bg-paper md:min-h-[320px]"
               >
                 <span
                   aria-hidden
-                  className="absolute right-4 top-3 font-display text-3xl text-ink-100 transition-colors group-hover:text-brand-100"
+                  className="pointer-events-none absolute -bottom-6 -right-2 font-display text-[140px] leading-none tracking-tighter text-ink-100 transition-colors duration-500 group-hover:text-brand-100"
                 >
                   {String(idx + 1).padStart(2, "0")}
                 </span>
-                <span className="inline-flex h-12 w-12 items-center justify-center rounded-lg bg-brand-50 text-brand-700 transition-colors group-hover:bg-brand-600 group-hover:text-white">
+                <span className="relative inline-flex h-12 w-12 items-center justify-center rounded-lg bg-brand-50 text-brand-700 ring-1 ring-brand-100 transition-all duration-300 group-hover:bg-brand-600 group-hover:text-white group-hover:ring-brand-600">
                   <Icon size={22} />
                 </span>
-                <h3 className="mt-4 text-lg font-semibold text-ink-900">{title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-ink-600">{description}</p>
+                <h3 className="relative mt-6 text-xl font-bold tracking-tight text-ink-900">
+                  {title}
+                </h3>
+                <p className="relative mt-2 text-sm leading-relaxed text-ink-600">
+                  {description}
+                </p>
+                <span
+                  aria-hidden
+                  className="absolute inset-x-0 bottom-0 h-0.5 origin-left scale-x-0 bg-brand-600 transition-transform duration-500 group-hover:scale-x-100"
+                />
               </Reveal>
             ))}
           </ul>

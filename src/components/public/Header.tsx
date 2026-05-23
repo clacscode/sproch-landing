@@ -28,29 +28,34 @@ export function Header() {
   return (
     <header
       className={cn(
-        "sticky top-0 z-40 w-full border-b transition-all",
+        "fixed inset-x-0 top-0 z-40 w-full text-white transition-all duration-300",
         scrolled
-          ? "border-ink-100 bg-white/95 shadow-card backdrop-blur supports-[backdrop-filter]:bg-white/80"
-          : "border-transparent bg-white",
+          ? "bg-ink-950/80 shadow-[0_8px_24px_-12px_rgba(0,0,0,0.5)] ring-1 ring-white/10 supports-[backdrop-filter]:bg-ink-950/60 supports-[backdrop-filter]:backdrop-blur-xl"
+          : "bg-transparent",
       )}
     >
       {/* Top bar fina: contacto rápido */}
-      <div className="hidden border-b border-ink-100 bg-ink-50/60 md:block">
-        <div className="container-page flex h-9 items-center justify-between text-xs text-ink-600">
-          <p className="font-medium tracking-wide text-ink-700">
+      <div
+        className={cn(
+          "hidden transition-colors md:block",
+          scrolled && "bg-black/20",
+        )}
+      >
+        <div className="container-page flex h-8 items-center justify-between text-xs text-white/65">
+          <p className="font-medium tracking-wide text-white/85">
             Sociedad de Prótesis y Rehabilitación Oral de Chile
           </p>
           <div className="flex items-center gap-5">
             <a
               href={`tel:${siteConfig.phone.replace(/\s/g, "")}`}
-              className="inline-flex items-center gap-1.5 transition-colors hover:text-brand-700"
+              className="inline-flex items-center gap-1.5 transition-colors hover:text-brand-300"
             >
               <Phone size={12} aria-hidden />
               {siteConfig.phone}
             </a>
             <a
               href={`mailto:${siteConfig.email}`}
-              className="transition-colors hover:text-brand-700"
+              className="transition-colors hover:text-brand-300"
             >
               {siteConfig.email}
             </a>
@@ -59,93 +64,104 @@ export function Header() {
       </div>
 
       {/* Bar principal */}
-      <div className="container-page flex h-16 items-center justify-between gap-6 md:h-20">
-        <Link
-          href="/"
-          aria-label={siteConfig.legalName}
-          className="inline-flex items-center"
-        >
-          <Image
-            src="/brand/logo.png"
-            alt={siteConfig.name}
-            width={180}
-            height={48}
-            priority
-            className="h-9 w-auto md:h-11"
-          />
-        </Link>
+      <div className="relative overflow-hidden">
+        {/* Sutil gradiente rojo a la derecha para reforzar identidad sin tapar el logo */}
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-y-0 right-[-10%] w-[55%] opacity-60"
+          style={{
+            background:
+              "radial-gradient(ellipse 70% 140% at 80% 50%, color-mix(in oklab, var(--color-brand-700) 28%, transparent) 0%, transparent 65%)",
+          }}
+        />
+        <div className="container-page relative flex h-16 items-center justify-between gap-6 md:h-20">
+          <Link
+            href="/"
+            aria-label={siteConfig.legalName}
+            className="inline-flex items-center"
+          >
+            <Image
+              src="/brand/logo-dark.png"
+              alt={siteConfig.name}
+              width={260}
+              height={96}
+              priority
+              className="h-10 w-auto md:h-14"
+            />
+          </Link>
 
-        <nav
-          className="hidden flex-1 items-center justify-center gap-1 md:flex"
-          aria-label="Principal"
-        >
-          {siteConfig.navigation.map((item) => {
-            const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                aria-current={active ? "page" : undefined}
-                className={cn(
-                  "relative rounded-md px-3 py-2 text-sm font-medium transition-colors",
-                  active
-                    ? "text-brand-700"
-                    : "text-ink-700 hover:bg-ink-50 hover:text-ink-900",
-                )}
-              >
-                {item.label}
-                <span
-                  aria-hidden
+          <nav
+            className="hidden flex-1 items-center justify-center gap-1 md:flex"
+            aria-label="Principal"
+          >
+            {siteConfig.navigation.map((item) => {
+              const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  aria-current={active ? "page" : undefined}
                   className={cn(
-                    "pointer-events-none absolute inset-x-3 -bottom-px h-0.5 rounded-full bg-brand-600 transition-all",
-                    active ? "opacity-100" : "opacity-0",
+                    "relative rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                    active
+                      ? "text-white"
+                      : "text-white/75 hover:bg-white/5 hover:text-white",
                   )}
+                >
+                  {item.label}
+                  <span
+                    aria-hidden
+                    className={cn(
+                      "pointer-events-none absolute inset-x-3 -bottom-px h-0.5 rounded-full bg-brand-500 transition-all",
+                      active ? "opacity-100" : "opacity-0",
+                    )}
+                  />
+                </Link>
+              );
+            })}
+          </nav>
+
+          <div className="hidden items-center gap-2.5 md:flex">
+            <Button
+              asChild
+              size="sm"
+              variant="secondary"
+              className="group/btn border border-white/15 bg-white/10 text-white shadow-none ring-0 backdrop-blur transition-all hover:bg-white/15 hover:text-white"
+            >
+              <Link href="/socios">
+                <UserPlus size={15} aria-hidden />
+                Hazte socio
+              </Link>
+            </Button>
+            <Button asChild size="sm" className="btn-glow group/btn">
+              <Link href="/eventos">
+                Inscríbete
+                <ArrowRight
+                  size={15}
+                  aria-hidden
+                  className="transition-transform group-hover/btn:translate-x-0.5"
                 />
               </Link>
-            );
-          })}
-        </nav>
+            </Button>
+          </div>
 
-        <div className="hidden items-center gap-2.5 md:flex">
-          <Button
-            asChild
-            size="sm"
-            variant="secondary"
-            className="group/btn ring-1 ring-ink-900/10 transition-all hover:shadow-card"
+          <button
+            type="button"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-md text-white hover:bg-white/10 md:hidden"
+            aria-label={open ? "Cerrar menú" : "Abrir menú"}
+            aria-expanded={open}
+            aria-controls="mobile-nav"
+            onClick={() => setOpen((v) => !v)}
           >
-            <Link href="/socios">
-              <UserPlus size={15} aria-hidden />
-              Hazte socio
-            </Link>
-          </Button>
-          <Button asChild size="sm" className="btn-glow group/btn">
-            <Link href="/eventos">
-              Inscríbete
-              <ArrowRight
-                size={15}
-                aria-hidden
-                className="transition-transform group-hover/btn:translate-x-0.5"
-              />
-            </Link>
-          </Button>
+            {open ? <X size={22} /> : <Menu size={22} />}
+          </button>
         </div>
-
-        <button
-          type="button"
-          className="inline-flex h-10 w-10 items-center justify-center rounded-md text-ink-900 hover:bg-ink-100 md:hidden"
-          aria-label={open ? "Cerrar menú" : "Abrir menú"}
-          aria-expanded={open}
-          aria-controls="mobile-nav"
-          onClick={() => setOpen((v) => !v)}
-        >
-          {open ? <X size={22} /> : <Menu size={22} />}
-        </button>
       </div>
 
       <div
         id="mobile-nav"
         className={cn(
-          "border-t border-ink-100 bg-white md:hidden",
+          "border-t border-white/10 bg-ink-950 md:hidden",
           open ? "block" : "hidden",
         )}
       >
@@ -159,7 +175,7 @@ export function Header() {
                 aria-current={active ? "page" : undefined}
                 className={cn(
                   "rounded-md px-3 py-3 text-base font-medium transition-colors",
-                  active ? "bg-brand-50 text-brand-700" : "text-ink-800 hover:bg-ink-50",
+                  active ? "bg-white/10 text-white" : "text-white/80 hover:bg-white/5 hover:text-white",
                 )}
               >
                 {item.label}
@@ -167,7 +183,11 @@ export function Header() {
             );
           })}
           <div className="mt-3 grid grid-cols-2 gap-2">
-            <Button asChild variant="secondary">
+            <Button
+              asChild
+              variant="secondary"
+              className="border border-white/15 bg-white/10 text-white hover:bg-white/15 hover:text-white"
+            >
               <Link href="/socios">
                 <UserPlus size={16} aria-hidden />
                 Hazte socio
@@ -180,7 +200,7 @@ export function Header() {
               </Link>
             </Button>
           </div>
-          <div className="mt-3 flex flex-col gap-1 border-t border-ink-100 pt-3 text-xs text-ink-600">
+          <div className="mt-3 flex flex-col gap-1 border-t border-white/10 pt-3 text-xs text-white/70">
             <a
               href={`tel:${siteConfig.phone.replace(/\s/g, "")}`}
               className="inline-flex items-center gap-2"

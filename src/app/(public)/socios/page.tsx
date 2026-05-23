@@ -24,7 +24,7 @@ export default function SociosPage() {
       <section className="relative isolate overflow-hidden bg-brand-mesh text-white">
         <div className="brand-bars" aria-hidden />
         <div className="hero-rays" aria-hidden />
-        <div className="container-page relative py-14 md:py-20">
+        <div className="container-page relative pb-14 pt-24 md:pb-20 md:pt-32">
           <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-brand-400">
             Hazte socio
           </p>

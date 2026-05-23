@@ -14,27 +14,55 @@ export function SectionHeader({
   title,
   description,
   align = "left",
+  tone = "light",
 }: {
   eyebrow?: string;
   title: string;
   description?: string;
   align?: "left" | "center";
+  /** En secciones oscuras, "dark" ajusta el color del eyebrow/título. */
+  tone?: "light" | "dark";
 }) {
+  const isDark = tone === "dark";
   return (
     <div
       className={cn("max-w-3xl", align === "center" && "mx-auto text-center")}
       data-align={align}
     >
       {eyebrow && (
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
+        <p
+          className={cn(
+            "inline-flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.24em]",
+            isDark ? "text-brand-400" : "text-brand-700",
+          )}
+        >
+          <span
+            aria-hidden
+            className={cn(
+              "h-px w-8",
+              isDark ? "bg-brand-500/70" : "bg-brand-600/70",
+            )}
+          />
           {eyebrow}
         </p>
       )}
-      <h2 className="mt-2 text-3xl font-bold leading-tight text-ink-900 sm:text-4xl md:text-5xl">
+      <h2
+        className={cn(
+          "mt-4 text-3xl font-extrabold leading-[1.05] tracking-[-0.018em] sm:text-4xl md:text-5xl lg:text-[56px]",
+          isDark ? "text-white" : "text-ink-900",
+        )}
+      >
         {title}
       </h2>
       {description && (
-        <p className="mt-4 text-base leading-relaxed text-ink-600 md:text-lg">{description}</p>
+        <p
+          className={cn(
+            "mt-5 text-base leading-relaxed md:text-lg",
+            isDark ? "text-ink-200" : "text-ink-600",
+          )}
+        >
+          {description}
+        </p>
       )}
     </div>
   );

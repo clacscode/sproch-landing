@@ -3,11 +3,9 @@
 import * as React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, CalendarDays, ChevronDown, MapPin, Pause, Play } from "lucide-react";
+import { ArrowRight, ChevronDown, Pause, Play } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { formatDateRange } from "@/lib/format";
-import { siteConfig } from "@/lib/site";
 import type { EventItem } from "@/lib/types";
 
 interface HeroCarouselProps {
@@ -22,7 +20,6 @@ interface Slide {
   primaryCta: { label: string; href: string };
   secondaryCta?: { label: string; href: string };
   image: { src: string; alt: string };
-  side?: React.ReactNode;
 }
 
 const ROTATION_MS = 7000;
@@ -69,7 +66,6 @@ export function HeroCarousel({ featured }: HeroCarouselProps) {
           ? { label: "Ver programa", href: `/eventos/${featured.slug}` }
           : { label: "Ver agenda", href: "/eventos" },
         secondaryCta: { label: "Quiero inscribirme", href: "/contacto" },
-        side: featured ? <CongressCard event={featured} /> : null,
         image: {
           src: "/brand/sproch-3.jpeg",
           alt: "Docente explicando un modelo dental como parte de la formación continua",
@@ -136,10 +132,15 @@ export function HeroCarousel({ featured }: HeroCarouselProps) {
         ))}
       </div>
 
-      {/* Overlay degradado: oscuro a la izquierda para legibilidad, transparente a la derecha */}
+      {/* Overlay: oscurece la base para legibilidad pero deja respirar la imagen.
+          Gradient vertical (más oscuro abajo) + un velo lateral suave. */}
       <div
         aria-hidden
-        className="absolute inset-0 bg-[linear-gradient(100deg,rgba(12,12,16,0.97)_0%,rgba(12,12,16,0.9)_35%,rgba(12,12,16,0.55)_70%,rgba(40,4,8,0.7)_100%)]"
+        className="absolute inset-0 bg-[linear-gradient(180deg,rgba(12,12,16,0.55)_0%,rgba(12,12,16,0.35)_40%,rgba(12,12,16,0.78)_100%)]"
+      />
+      <div
+        aria-hidden
+        className="absolute inset-0 bg-[linear-gradient(100deg,rgba(12,12,16,0.85)_0%,rgba(12,12,16,0.55)_45%,rgba(12,12,16,0.15)_75%,rgba(40,4,8,0.35)_100%)]"
       />
       <div
         aria-hidden
@@ -153,35 +154,23 @@ export function HeroCarousel({ featured }: HeroCarouselProps) {
         className="pointer-events-none absolute inset-0 opacity-[0.05] [background-image:radial-gradient(circle_at_1px_1px,white_1px,transparent_0)] [background-size:32px_32px]"
       />
 
-      <div className="container-page relative grid gap-10 py-14 md:grid-cols-12 md:py-28 lg:py-32">
-        <div className="md:col-span-7 lg:col-span-7">
-          {/* Sello compacto del logo solo en mobile */}
-          <div className="mb-6 inline-flex items-center gap-3 rounded-xl bg-white/95 p-2.5 pr-4 shadow-lift ring-1 ring-black/5 md:hidden">
-            <Image
-              src="/brand/logo.png"
-              alt={siteConfig.name}
-              width={140}
-              height={42}
-              priority
-              className="h-9 w-auto"
-            />
-          </div>
-
-          <p className="mb-6 hidden items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.28em] text-ink-300 md:inline-flex md:mb-8">
+      <div className="container-page relative pb-16 pt-28 md:pb-32 md:pt-36 lg:pb-40 lg:pt-44">
+        <div className="max-w-[68rem]">
+          <p className="mb-6 inline-flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.28em] text-ink-300 md:mb-8">
             <span aria-hidden className="h-px w-10 bg-brand-500" />
             Sociedad de Prótesis y Rehabilitación Oral · Chile
           </p>
 
-          <div className="carousel-fade relative min-h-[22rem] sm:min-h-[24rem] md:min-h-[28rem]">
+          <div className="carousel-fade relative min-h-[24rem] sm:min-h-[26rem] md:min-h-[30rem] lg:min-h-[34rem]">
             {slides.map((slide, i) => (
               <div key={slide.key} className="slide" data-active={i === index}>
                 <Badge variant="dark" className="bg-white/10 text-white">
                   {slide.eyebrow}
                 </Badge>
-                <h1 className="mt-5 font-display text-4xl uppercase leading-[0.95] tracking-tight text-white sm:text-5xl md:mt-6 md:text-7xl lg:text-[88px]">
+                <h1 className="mt-5 font-display text-5xl uppercase leading-[0.92] tracking-tight text-white sm:text-6xl md:mt-6 md:text-[88px] lg:text-[112px] xl:text-[128px]">
                   {slide.title}
                 </h1>
-                <p className="mt-6 max-w-xl text-base text-ink-100 md:text-lg">
+                <p className="mt-7 max-w-2xl text-base text-ink-100 md:text-lg">
                   {slide.description}
                 </p>
                 <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -237,41 +226,6 @@ export function HeroCarousel({ featured }: HeroCarouselProps) {
             </button>
           </div>
         </div>
-
-        <aside className="hidden md:col-span-5 md:block lg:col-span-5">
-          <div className="relative aspect-[5/6] w-full overflow-hidden rounded-2xl bg-[#f7f3ee] shadow-lift ring-1 ring-black/5">
-            <div
-              aria-hidden
-              className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-brand-600 via-brand-500 to-brand-700"
-            />
-            <div className="relative flex h-full flex-col items-center justify-center gap-7 p-10 text-center">
-              <Image
-                src="/brand/logo.png"
-                alt={siteConfig.name}
-                width={420}
-                height={150}
-                priority
-                className="h-auto w-full max-w-[300px] drop-shadow-[0_10px_28px_rgba(227,6,19,0.18)]"
-              />
-              <div>
-                <p className="font-display text-5xl uppercase leading-none tracking-tight text-ink-900">
-                  SPROCh
-                </p>
-                <p className="mt-2 text-xs font-semibold uppercase tracking-[0.32em] text-brand-700">
-                  Desde 1952
-                </p>
-              </div>
-              <p className="max-w-xs text-sm leading-relaxed text-ink-600">
-                Más de siete décadas formando a la comunidad odontológica chilena en prótesis y
-                rehabilitación oral.
-              </p>
-              <div aria-hidden className="h-px w-16 bg-ink-200" />
-              <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-ink-500">
-                Sociedad científica · Chile
-              </p>
-            </div>
-          </div>
-        </aside>
       </div>
 
       {/* Indicador de scroll */}
@@ -284,34 +238,11 @@ export function HeroCarousel({ featured }: HeroCarouselProps) {
         <ChevronDown size={18} className="scroll-pulse" aria-hidden />
       </a>
 
-      {/* Soft fade hacia la siguiente sección */}
+      {/* Soft fade hacia la siguiente sección (paper warm) */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent to-white"
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent to-[var(--color-paper)]"
       />
     </section>
-  );
-}
-
-function CongressCard({ event }: { event: EventItem }) {
-  return (
-    <div className="rounded-2xl border border-white/10 bg-ink-900/70 p-6 shadow-lift backdrop-blur md:p-7">
-      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-400">
-        Congreso destacado
-      </p>
-      <h3 className="mt-3 font-display text-2xl uppercase leading-tight md:text-3xl">
-        {event.title}
-      </h3>
-      <ul className="mt-5 space-y-2 text-sm text-ink-100">
-        <li className="flex items-center gap-2">
-          <CalendarDays size={16} className="text-brand-500" />
-          {formatDateRange(event.startDate, event.endDate)}
-        </li>
-        <li className="flex items-center gap-2">
-          <MapPin size={16} className="text-brand-500" />
-          {event.location}
-        </li>
-      </ul>
-    </div>
   );
 }

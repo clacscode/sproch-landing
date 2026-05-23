@@ -79,7 +79,7 @@ export default async function EventDetailPage({ params }: { params: Promise<Para
     <>
       <section className="relative isolate overflow-hidden bg-brand-mesh text-white">
         <div className="brand-bars" aria-hidden />
-        <div className="container-page relative py-14 md:py-20">
+        <div className="container-page relative pb-14 pt-24 md:pb-20 md:pt-32">
           <Breadcrumbs
             items={[
               { label: "Inicio", href: "/" },

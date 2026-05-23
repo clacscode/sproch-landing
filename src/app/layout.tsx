@@ -1,12 +1,13 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Bebas_Neue } from "next/font/google";
+import { Plus_Jakarta_Sans, Bebas_Neue } from "next/font/google";
 import { siteConfig } from "@/lib/site";
 import "@/styles/globals.css";
 
-const inter = Inter({
+const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
-  variable: "--font-inter",
+  variable: "--font-sans-brand",
   display: "swap",
+  weight: ["400", "500", "600", "700", "800"],
 });
 
 const bebas = Bebas_Neue({
@@ -73,7 +74,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es-CL" className={`${inter.variable} ${bebas.variable}`}>
+    <html lang="es-CL" className={`${jakarta.variable} ${bebas.variable}`}>
       <body className="min-h-screen bg-white text-ink-900 antialiased">{children}</body>
     </html>
   );

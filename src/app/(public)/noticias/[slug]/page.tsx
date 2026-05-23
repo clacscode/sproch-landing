@@ -62,7 +62,7 @@ export default async function NewsArticlePage({ params }: { params: Promise<Para
   return (
     <>
       <section className="relative isolate overflow-hidden bg-brand-fade text-white">
-        <div className="container-page py-14 md:py-20">
+        <div className="container-page pb-14 pt-24 md:pb-20 md:pt-32">
           <Breadcrumbs
             items={[
               { label: "Inicio", href: "/" },

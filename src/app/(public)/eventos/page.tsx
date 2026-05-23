@@ -21,7 +21,7 @@ export default async function EventsListingPage() {
   return (
     <>
       <section className="relative isolate overflow-hidden bg-brand-fade text-white">
-        <div className="container-page py-16 md:py-20">
+        <div className="container-page pb-16 pt-24 md:pb-20 md:pt-32">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-400">
             Agenda académica
           </p>

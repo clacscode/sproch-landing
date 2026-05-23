@@ -28,7 +28,7 @@ export function StatsStrip() {
                 <Icon size={20} aria-hidden />
               </span>
               <div>
-                <p className="font-display text-4xl leading-none text-ink-900 sm:text-5xl">
+                <p className="font-display text-4xl leading-none text-ink-900 tabular-nums sm:text-5xl">
                   <span className="text-brand-600">
                     <StatCounter value={stat.value} />
                   </span>
