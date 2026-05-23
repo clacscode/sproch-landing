@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Section } from "@/components/public/Section";
+import { ArrowRight, ArrowUpRight, CalendarDays, Newspaper } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { NewsCard } from "@/components/public/NewsCard";
+import { formatDate } from "@/lib/format";
 import { listAllTags, listNews } from "@/server/queries/news";
 
 function FilterPill({
@@ -53,40 +56,95 @@ export default async function NewsListingPage({
     listAllTags(),
   ]);
 
+  const [featured, ...rest] = articles;
+
   return (
     <>
-      <section className="relative isolate overflow-hidden bg-brand-fade text-white">
-        <div className="container-page pb-16 pt-24 md:pb-20 md:pt-32">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-400">
-            Noticias
-          </p>
-          <h1 className="mt-3 font-display text-5xl uppercase leading-[0.95] tracking-tight md:text-6xl">
-            Comunicados y novedades
-          </h1>
-          <p className="mt-4 max-w-2xl text-ink-200">
-            Mantente al día con la actividad académica, gremial y científica de la sociedad.
-          </p>
+      {/* ──────────────── HERO ──────────────── */}
+      <section className="grain-overlay relative isolate overflow-hidden bg-ink-950 text-white">
+        <div
+          aria-hidden
+          className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_color-mix(in_oklab,_var(--color-brand-700)_45%,_transparent)_0%,_transparent_55%),radial-gradient(ellipse_at_bottom_right,_color-mix(in_oklab,_var(--color-brand-900)_28%,_transparent)_0%,_transparent_55%)]"
+        />
+        <div className="brand-bars" aria-hidden />
+        <div className="hero-rays" aria-hidden />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-[0.06] [background-image:radial-gradient(circle_at_1px_1px,white_1px,transparent_0)] [background-size:32px_32px]"
+        />
+
+        <div className="container-page relative pb-20 pt-28 md:pb-28 md:pt-36 lg:pb-32 lg:pt-44">
+          <div className="grid items-end gap-12 md:grid-cols-12">
+            <div className="md:col-span-8">
+              <p className="inline-flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.28em] text-brand-300">
+                <span aria-hidden className="h-px w-10 bg-brand-500" />
+                Noticias · Comunicados oficiales
+              </p>
+              <h1 className="mt-7 font-display text-6xl uppercase leading-[0.9] tracking-tight md:text-[104px] lg:text-[140px]">
+                La sociedad
+                <span className="block text-brand-400 drop-shadow-[0_2px_14px_rgba(0,0,0,0.65)]">
+                  al día
+                </span>
+              </h1>
+            </div>
+            <div className="md:col-span-4 md:pb-4">
+              <p className="max-w-md text-base text-ink-200 md:text-lg">
+                Comunicados oficiales, novedades académicas, publicaciones científicas y
+                actividad gremial. Todo lo que pasa en SPROCh, en un solo lugar.
+              </p>
+            </div>
+          </div>
+
+          {/* Strip print-like */}
+          <div className="mt-16 flex flex-wrap items-center gap-x-3 gap-y-3 border-t border-white/10 pt-8 text-xs uppercase tracking-[0.22em] text-ink-300 md:mt-20 md:gap-x-6 md:text-sm">
+            <span className="inline-flex items-center gap-2">
+              <Newspaper size={14} className="text-brand-400" aria-hidden />
+              {articles.length} {articles.length === 1 ? "publicación" : "publicaciones"}
+            </span>
+            <span aria-hidden className="text-ink-600">
+              ·
+            </span>
+            <span>{tags.length} categorías</span>
+            <span aria-hidden className="text-ink-600">
+              ·
+            </span>
+            <span>Actualización continua</span>
+          </div>
         </div>
       </section>
 
-      <Section className="bg-white">
-        <div className="container-page">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink-500">
-              Filtrar por temática
-            </p>
-            <p className="text-xs text-ink-500">
-              {articles.length} {articles.length === 1 ? "noticia" : "noticias"}
-              {params.tag && (
-                <>
-                  {" "}con la etiqueta{" "}
-                  <span className="font-semibold text-ink-900">{params.tag}</span>
-                </>
-              )}
-            </p>
+      {/* ──────────────── FILTROS ──────────────── */}
+      <section className="bg-paper">
+        <div className="container-page py-12 md:py-16">
+          <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-brand-700">
+                Filtrar por temática
+              </p>
+              <h2 className="mt-3 font-display text-3xl uppercase leading-tight tracking-tight text-ink-900 md:text-4xl">
+                Explora {articles.length}{" "}
+                {articles.length === 1 ? "publicación" : "publicaciones"}
+                {params.tag && (
+                  <>
+                    {" "}
+                    <span className="text-ink-500">con etiqueta</span>{" "}
+                    <span className="text-brand-700">{params.tag}</span>
+                  </>
+                )}
+              </h2>
+            </div>
+            {params.tag && (
+              <Link
+                href="/noticias"
+                className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-700 hover:text-brand-800"
+              >
+                Limpiar filtro
+                <ArrowRight size={14} aria-hidden />
+              </Link>
+            )}
           </div>
 
-          <div className="mt-4 -mx-4 flex gap-2 overflow-x-auto px-4 pb-2 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0">
+          <div className="mt-6 -mx-4 flex gap-2 overflow-x-auto px-4 pb-2 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0">
             <FilterPill href="/noticias" active={!params.tag}>
               Todas
             </FilterPill>
@@ -100,28 +158,116 @@ export default async function NewsListingPage({
               </FilterPill>
             ))}
           </div>
+        </div>
+      </section>
 
+      {/* ──────────────── FEATURED ──────────────── */}
+      {!params.tag && featured && (
+        <section className="bg-paper">
+          <div className="container-page pb-12 md:pb-16">
+            <Link
+              href={`/noticias/${featured.slug}`}
+              className="card-lift group relative grid overflow-hidden rounded-3xl border border-ink-200 bg-white md:grid-cols-12"
+            >
+              {/* Visual side */}
+              <div className="relative col-span-12 aspect-[16/10] overflow-hidden md:col-span-7 md:aspect-auto">
+                <div
+                  aria-hidden
+                  className="absolute inset-0 bg-gradient-to-br from-brand-700 via-brand-900 to-ink-950 transition-transform duration-700 group-hover:scale-105"
+                />
+                <div
+                  aria-hidden
+                  className="absolute inset-0 opacity-15 [background-image:radial-gradient(circle_at_2px_2px,white_1px,transparent_0)] [background-size:24px_24px]"
+                />
+                <div aria-hidden className="brand-bars" />
+                <div className="absolute inset-0 flex flex-col justify-between p-6 md:p-10">
+                  <div className="flex flex-wrap gap-2">
+                    <Badge variant="dark" className="bg-white/15 text-white backdrop-blur">
+                      Destacado
+                    </Badge>
+                    {featured.tags.slice(0, 2).map((tag) => (
+                      <Badge
+                        key={tag}
+                        variant="dark"
+                        className="bg-white/10 text-white backdrop-blur"
+                      >
+                        {tag}
+                      </Badge>
+                    ))}
+                  </div>
+                  <span className="font-display text-6xl uppercase leading-none tracking-tight text-white/15 transition-colors group-hover:text-white/25 md:text-8xl">
+                    SPROCh
+                  </span>
+                </div>
+              </div>
+              {/* Text side */}
+              <div className="col-span-12 flex flex-col justify-center gap-5 p-8 md:col-span-5 md:p-10">
+                <p className="inline-flex items-center gap-2 text-xs font-medium text-ink-500">
+                  <CalendarDays size={14} className="text-brand-600" aria-hidden />
+                  {formatDate(featured.publishedAt)}
+                </p>
+                <h3 className="font-display text-3xl uppercase leading-tight tracking-tight text-ink-900 md:text-4xl">
+                  {featured.title}
+                </h3>
+                <p className="text-base leading-relaxed text-ink-600 md:text-lg">
+                  {featured.excerpt}
+                </p>
+                <p className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-700 transition-all group-hover:gap-2.5 group-hover:text-brand-800">
+                  Leer noticia destacada
+                  <ArrowUpRight
+                    size={16}
+                    aria-hidden
+                    className="transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                  />
+                </p>
+              </div>
+            </Link>
+          </div>
+        </section>
+      )}
+
+      {/* ──────────────── GRID ──────────────── */}
+      <section className="bg-paper">
+        <div className="container-page pb-20 md:pb-28">
           {articles.length === 0 ? (
-            <div className="mt-12 rounded-xl border border-dashed border-ink-200 bg-ink-50 px-6 py-12 text-center">
-              <p className="text-base text-ink-700">No hay noticias con este filtro.</p>
-              <Link
-                href="/noticias"
-                className="mt-3 inline-block text-sm font-semibold text-brand-700 hover:text-brand-800"
-              >
-                Ver todas las noticias →
-              </Link>
+            <div className="rounded-3xl border border-dashed border-ink-200 bg-white px-6 py-16 text-center">
+              <p className="font-display text-2xl uppercase text-ink-900">
+                Sin noticias con ese filtro
+              </p>
+              <p className="mt-3 text-ink-600">
+                Probemos limpiar el filtro o explorar otra etiqueta.
+              </p>
+              <Button asChild className="mt-6">
+                <Link href="/noticias">
+                  Ver todas las noticias
+                  <ArrowRight size={15} aria-hidden />
+                </Link>
+              </Button>
             </div>
           ) : (
-            <ul className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {articles.map((article) => (
-                <li key={article.id}>
-                  <NewsCard article={article} />
-                </li>
-              ))}
-            </ul>
+            <>
+              {(!params.tag && rest.length > 0) || params.tag ? (
+                <div className="mb-8 flex items-center justify-between border-b border-ink-200 pb-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-ink-500">
+                    {params.tag ? "Resultados" : "Más publicaciones"}
+                  </p>
+                  <p className="text-xs text-ink-500 tabular-nums">
+                    {params.tag ? articles.length : rest.length} resultados
+                  </p>
+                </div>
+              ) : null}
+
+              <ul className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {(params.tag ? articles : rest).map((article) => (
+                  <li key={article.id}>
+                    <NewsCard article={article} />
+                  </li>
+                ))}
+              </ul>
+            </>
           )}
         </div>
-      </Section>
+      </section>
     </>
   );
 }
