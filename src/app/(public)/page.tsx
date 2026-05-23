@@ -1,5 +1,15 @@
 import Link from "next/link";
-import { ArrowRight, BookOpen, GraduationCap, Mail, Newspaper, Phone, Users } from "lucide-react";
+import {
+  ArrowRight,
+  ArrowUpRight,
+  BookOpen,
+  GraduationCap,
+  Mail,
+  Newspaper,
+  Phone,
+  Quote,
+  Users,
+} from "lucide-react";
 import { AudienceSplit } from "@/components/public/AudienceSplit";
 import { Button } from "@/components/ui/button";
 import { EventCard } from "@/components/public/EventCard";
@@ -8,7 +18,7 @@ import { HeroCarousel } from "@/components/public/HeroCarousel";
 import { MemberBenefits } from "@/components/public/MemberBenefits";
 import { NewsCard } from "@/components/public/NewsCard";
 import { Reveal } from "@/components/public/Reveal";
-import { Section, SectionHeader } from "@/components/public/Section";
+import { Section } from "@/components/public/Section";
 import { SponsorsStrip } from "@/components/public/SponsorsStrip";
 import { StatsStrip } from "@/components/public/StatsStrip";
 import { Testimonials } from "@/components/public/Testimonials";
@@ -57,73 +67,155 @@ export default async function HomePage() {
 
       <StatsStrip />
 
-      <Section className="bg-white">
+      {/* ────────────── POR QUÉ SPROCH — bento asimétrico ────────────── */}
+      <Section className="bg-paper">
         <div className="container-page">
-          <SectionHeader
-            eyebrow="Por qué SPROCh"
-            title="Una sociedad científica con más de 70 años de tradición"
-            description="Acompañamos a la comunidad odontológica chilena e iberoamericana en su desarrollo clínico, académico y profesional."
-          />
-          <ul className="mt-14 grid gap-px overflow-hidden rounded-2xl bg-ink-200/60 md:grid-cols-2 lg:grid-cols-4">
-            {valueProps.map(({ icon: Icon, title, description }, idx) => (
-              <Reveal
-                as="li"
-                key={title}
-                delay={idx * 80}
-                className="group relative isolate flex min-h-[280px] flex-col bg-white p-8 transition-colors duration-300 hover:bg-paper md:min-h-[320px]"
-              >
-                <span
-                  aria-hidden
-                  className="pointer-events-none absolute -bottom-6 -right-2 font-display text-[140px] leading-none tracking-tighter text-ink-100 transition-colors duration-500 group-hover:text-brand-100"
+          <div className="grid items-end gap-10 md:grid-cols-12">
+            <div className="md:col-span-7">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-brand-700">
+                Por qué SPROCh
+              </p>
+              <h2 className="mt-4 font-display text-5xl uppercase leading-[0.92] tracking-tight text-ink-900 md:text-7xl">
+                Una sociedad
+                <br />
+                <span className="text-ink-500">con más de 70 años de historia</span>
+              </h2>
+            </div>
+            <div className="md:col-span-5">
+              <p className="text-ink-600 md:text-lg">
+                Acompañamos a la comunidad odontológica chilena e iberoamericana en su desarrollo
+                clínico, académico y profesional. Cuatro razones explican por qué seguimos siendo
+                la referencia.
+              </p>
+            </div>
+          </div>
+
+          <ul className="mt-14 grid gap-5 md:grid-cols-12 md:auto-rows-fr">
+            {valueProps.map(({ icon: Icon, title, description }, idx) => {
+              const layout = [
+                "md:col-span-7", // formación — wide
+                "md:col-span-5", // comunidad — narrow dark
+                "md:col-span-5", // conocimiento — narrow dark
+                "md:col-span-7", // investigación — wide
+              ][idx];
+              const dark = idx === 1 || idx === 2;
+              return (
+                <Reveal
+                  as="li"
+                  key={title}
+                  delay={idx * 80}
+                  className={`card-lift ${dark ? "grain-overlay" : ""} group relative col-span-12 flex flex-col justify-between overflow-hidden rounded-3xl border ${
+                    dark
+                      ? "border-ink-900 bg-ink-950 text-white"
+                      : "border-ink-200 bg-white text-ink-900"
+                  } p-8 md:p-10 ${layout}`}
                 >
-                  {String(idx + 1).padStart(2, "0")}
-                </span>
-                <span className="relative inline-flex h-12 w-12 items-center justify-center rounded-lg bg-brand-50 text-brand-700 ring-1 ring-brand-100 transition-all duration-300 group-hover:bg-brand-600 group-hover:text-white group-hover:ring-brand-600">
-                  <Icon size={22} />
-                </span>
-                <h3 className="relative mt-6 text-xl font-bold tracking-tight text-ink-900">
-                  {title}
-                </h3>
-                <p className="relative mt-2 text-sm leading-relaxed text-ink-600">
-                  {description}
-                </p>
-                <span
-                  aria-hidden
-                  className="absolute inset-x-0 bottom-0 h-0.5 origin-left scale-x-0 bg-brand-600 transition-transform duration-500 group-hover:scale-x-100"
-                />
-              </Reveal>
-            ))}
+                  {dark && (
+                    <div
+                      aria-hidden
+                      className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-[radial-gradient(circle,_color-mix(in_oklab,_var(--color-brand-700)_45%,_transparent)_0%,_transparent_70%)]"
+                    />
+                  )}
+                  <div className="relative">
+                    <div className="flex items-center justify-between">
+                      <span
+                        className={`inline-flex h-12 w-12 items-center justify-center rounded-xl ring-1 ${
+                          dark
+                            ? "bg-white/10 text-brand-300 ring-white/15"
+                            : "bg-brand-50 text-brand-700 ring-brand-100"
+                        }`}
+                      >
+                        <Icon size={22} aria-hidden />
+                      </span>
+                      <span
+                        aria-hidden
+                        className={`font-display text-2xl tabular-nums ${
+                          dark ? "text-ink-500" : "text-ink-300"
+                        }`}
+                      >
+                        {String(idx + 1).padStart(2, "0")}
+                      </span>
+                    </div>
+                    <h3
+                      className={`mt-10 font-display text-3xl uppercase leading-tight tracking-tight md:text-4xl ${
+                        dark ? "text-white" : "text-ink-900"
+                      }`}
+                    >
+                      {title}
+                    </h3>
+                    <p
+                      className={`mt-4 max-w-md leading-relaxed ${
+                        dark ? "text-ink-200" : "text-ink-600"
+                      }`}
+                    >
+                      {description}
+                    </p>
+                  </div>
+                </Reveal>
+              );
+            })}
           </ul>
         </div>
       </Section>
 
+      {/* ────────────── DOS CAMINOS ────────────── */}
       <Section className="bg-ink-50">
-        <SectionHeader
-          eyebrow="Para ti"
-          title="Dos caminos, una misma sociedad"
-          description="Si eres profesional, súmate a la comunidad. Si eres paciente, infórmate antes de tu próximo tratamiento."
-          align="center"
-        />
+        <div className="container-page">
+          <div className="grid items-end gap-10 md:grid-cols-12">
+            <div className="md:col-span-7">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-brand-700">
+                Para ti
+              </p>
+              <h2 className="mt-4 font-display text-5xl uppercase leading-[0.92] tracking-tight text-ink-900 md:text-7xl">
+                Dos caminos,
+                <br />
+                <span className="text-ink-500">una misma sociedad</span>
+              </h2>
+            </div>
+            <div className="md:col-span-5">
+              <p className="text-ink-600 md:text-lg">
+                Si eres profesional, súmate a la comunidad. Si eres paciente, infórmate antes
+                de tu próximo tratamiento.
+              </p>
+            </div>
+          </div>
+        </div>
         <AudienceSplit />
       </Section>
 
-      <Section className="bg-white">
+      {/* ────────────── PRÓXIMOS EVENTOS ────────────── */}
+      <Section className="bg-paper">
         <div className="container-page">
-          <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-            <SectionHeader
-              eyebrow="Agenda"
-              title="Próximos cursos y congresos"
-              description="Reserva tu lugar en las próximas instancias formativas y científicas organizadas por SPROCh."
-            />
-            <Button asChild variant="outline">
-              <Link href="/eventos">
-                Ver todos los eventos
-                <ArrowRight size={16} />
-              </Link>
-            </Button>
+          <div className="grid items-end gap-10 md:grid-cols-12">
+            <div className="md:col-span-8">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-brand-700">
+                Agenda
+              </p>
+              <h2 className="mt-4 font-display text-5xl uppercase leading-[0.92] tracking-tight text-ink-900 md:text-7xl">
+                Próximos cursos
+                <br />
+                <span className="text-ink-500">y congresos</span>
+              </h2>
+            </div>
+            <div className="flex md:col-span-4 md:justify-end md:pb-3">
+              <Button asChild variant="outline">
+                <Link href="/eventos">
+                  Ver toda la agenda
+                  <ArrowRight size={16} aria-hidden />
+                </Link>
+              </Button>
+            </div>
           </div>
+
           {upcoming.length === 0 ? (
-            <p className="mt-12 text-ink-500">Pronto anunciaremos nuevas fechas.</p>
+            <div className="mt-12 rounded-3xl border border-dashed border-ink-200 bg-white px-6 py-16 text-center">
+              <p className="font-display text-2xl uppercase text-ink-900">
+                Próximamente nuevas fechas
+              </p>
+              <p className="mt-3 text-ink-600">
+                Estamos preparando la próxima tanda de cursos y congresos.
+              </p>
+            </div>
           ) : (
             <ul className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {upcoming.map((event, i) => (
@@ -136,7 +228,8 @@ export default async function HomePage() {
         </div>
       </Section>
 
-      <Section className="relative isolate overflow-hidden bg-brand-fade text-white">
+      {/* ────────────── MEMBRESÍA (dark) ────────────── */}
+      <Section className="grain-overlay relative isolate overflow-hidden bg-brand-fade text-white">
         <div
           aria-hidden
           className="absolute -left-32 top-1/4 h-[420px] w-[420px] rounded-full bg-brand-600/20 blur-3xl"
@@ -144,30 +237,54 @@ export default async function HomePage() {
         <MemberBenefits />
       </Section>
 
+      {/* ────────────── TESTIMONIOS ────────────── */}
       <Section className="bg-ink-50">
-        <SectionHeader
-          eyebrow="Voces de la comunidad"
-          title="Lo que dicen nuestros socios"
-          description="Especialistas, docentes y residentes que ya forman parte de SPROCh."
-          align="center"
-        />
+        <div className="container-page">
+          <div className="grid items-end gap-10 md:grid-cols-12">
+            <div className="md:col-span-7">
+              <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-brand-700">
+                <Quote size={14} aria-hidden />
+                Voces de la comunidad
+              </p>
+              <h2 className="mt-4 font-display text-5xl uppercase leading-[0.92] tracking-tight text-ink-900 md:text-7xl">
+                Lo que dicen
+                <br />
+                <span className="text-ink-500">nuestros socios</span>
+              </h2>
+            </div>
+            <div className="md:col-span-5">
+              <p className="text-ink-600 md:text-lg">
+                Especialistas, docentes y residentes que ya forman parte de SPROCh comparten su
+                experiencia.
+              </p>
+            </div>
+          </div>
+        </div>
         <Testimonials />
       </Section>
 
-      <Section className="bg-white">
+      {/* ────────────── ÚLTIMAS NOTICIAS ────────────── */}
+      <Section className="bg-paper">
         <div className="container-page">
-          <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-            <SectionHeader
-              eyebrow="Noticias"
-              title="Lo último de la sociedad"
-              description="Comunicados, novedades académicas y publicaciones del comité directivo."
-            />
-            <Button asChild variant="outline">
-              <Link href="/noticias">
-                Ir a noticias
-                <ArrowRight size={16} />
-              </Link>
-            </Button>
+          <div className="grid items-end gap-10 md:grid-cols-12">
+            <div className="md:col-span-8">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-brand-700">
+                Noticias
+              </p>
+              <h2 className="mt-4 font-display text-5xl uppercase leading-[0.92] tracking-tight text-ink-900 md:text-7xl">
+                Lo último
+                <br />
+                <span className="text-ink-500">de la sociedad</span>
+              </h2>
+            </div>
+            <div className="flex md:col-span-4 md:justify-end md:pb-3">
+              <Button asChild variant="outline">
+                <Link href="/noticias">
+                  Ir a noticias
+                  <ArrowRight size={16} aria-hidden />
+                </Link>
+              </Button>
+            </div>
           </div>
           <ul className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {latestNews.map((article, i) => (
@@ -179,73 +296,90 @@ export default async function HomePage() {
         </div>
       </Section>
 
+      {/* ────────────── FAQ ────────────── */}
       <Section className="bg-ink-50">
         <FAQ />
       </Section>
 
+      {/* ────────────── SPONSORS ────────────── */}
       {featured?.sponsors?.length ? (
-        <Section className="bg-white">
+        <Section className="bg-paper">
           <div className="container-page">
             <SponsorsStrip sponsors={featured.sponsors} title="Auspiciadores Congreso 2026" />
           </div>
         </Section>
       ) : null}
 
-      <Section className="bg-white">
+      {/* ────────────── CTA FINAL ────────────── */}
+      <Section className="bg-paper">
         <div className="container-page">
-          <div className="relative isolate overflow-hidden rounded-2xl bg-brand-mesh px-5 py-10 text-white shadow-lift sm:rounded-3xl sm:px-8 md:px-12 md:py-14">
+          <div className="relative isolate grain-overlay overflow-hidden rounded-3xl bg-ink-950 px-6 py-12 text-white shadow-lift md:px-12 md:py-16 lg:px-16 lg:py-20">
             <div
               aria-hidden
-              className="absolute -right-32 -top-24 h-72 w-72 rounded-full bg-brand-600/25 blur-3xl"
+              className="absolute -right-32 -top-32 h-96 w-96 rounded-full bg-[radial-gradient(circle,_color-mix(in_oklab,_var(--color-brand-700)_55%,_transparent)_0%,_transparent_70%)]"
             />
             <div
               aria-hidden
               className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-brand-500 via-brand-600 to-brand-800"
             />
-            <div className="relative grid items-center gap-8 lg:grid-cols-12">
+            <div className="relative grid items-center gap-10 lg:grid-cols-12">
               <div className="lg:col-span-7">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-brand-400">
+                <p className="inline-flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.28em] text-brand-300">
+                  <span aria-hidden className="h-px w-10 bg-brand-500" />
                   Conversemos
                 </p>
-                <h2 className="mt-3 font-display text-3xl uppercase leading-[1.05] md:text-4xl lg:text-5xl">
-                  ¿Tienes una consulta o quieres
-                  <span className="block text-brand-400 drop-shadow-[0_2px_12px_rgba(0,0,0,0.5)]">colaborar con la sociedad?</span>
+                <h2 className="mt-5 font-display text-4xl uppercase leading-[0.95] tracking-tight md:text-6xl lg:text-7xl">
+                  ¿Tienes una consulta
+                  <br />
+                  <span className="text-brand-400 drop-shadow-[0_2px_12px_rgba(0,0,0,0.5)]">
+                    o quieres colaborar?
+                  </span>
                 </h2>
-                <p className="mt-4 max-w-xl text-base text-ink-200">
+                <p className="mt-6 max-w-xl text-base text-ink-200 md:text-lg">
                   Alianzas académicas, propuestas de cursos y consultas institucionales. Te
                   respondemos en menos de 48 horas hábiles.
                 </p>
               </div>
               <div className="lg:col-span-5">
-                <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap lg:flex-col">
-                  <Button asChild size="lg" className="btn-glow w-full sm:flex-1 lg:flex-none lg:w-full">
-                    <Link href="/contacto">Escríbenos</Link>
+                <div className="flex flex-col gap-3">
+                  <Button asChild size="lg" className="btn-glow w-full">
+                    <Link href="/contacto">
+                      Escríbenos ahora
+                      <ArrowRight size={16} aria-hidden />
+                    </Link>
                   </Button>
                   <Button
                     asChild
                     size="lg"
                     variant="outline"
-                    className="w-full border-white/25 bg-white/5 text-white hover:border-white/40 hover:bg-white/10 sm:flex-1 lg:flex-none lg:w-full"
+                    className="w-full border-white/25 bg-white/5 text-white hover:bg-white/10 hover:border-white/40"
                   >
-                    <Link href="/nosotros">Conoce SPROCh</Link>
+                    <Link href="/nosotros">
+                      Conoce SPROCh
+                      <ArrowUpRight size={16} aria-hidden />
+                    </Link>
                   </Button>
                 </div>
-                <div className="mt-5 flex flex-col gap-2 text-sm">
-                  <a
-                    href="mailto:soc.protesis@gmail.com"
-                    className="inline-flex items-center gap-2.5 transition-colors hover:text-brand-400"
-                  >
-                    <Mail size={16} aria-hidden className="shrink-0 text-brand-400" />
-                    <span className="break-all">soc.protesis@gmail.com</span>
-                  </a>
-                  <a
-                    href="tel:+56223348332"
-                    className="inline-flex items-center gap-2.5 transition-colors hover:text-brand-400"
-                  >
-                    <Phone size={16} aria-hidden className="shrink-0 text-brand-400" />
-                    <span>+56 2 2334 8332</span>
-                  </a>
-                </div>
+                <ul className="mt-7 space-y-2.5 border-t border-white/10 pt-6 text-sm text-ink-200">
+                  <li>
+                    <a
+                      href="mailto:soc.protesis@gmail.com"
+                      className="inline-flex items-center gap-2.5 transition-colors hover:text-brand-300"
+                    >
+                      <Mail size={15} aria-hidden className="shrink-0 text-brand-400" />
+                      <span className="break-all">soc.protesis@gmail.com</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="tel:+56223348332"
+                      className="inline-flex items-center gap-2.5 transition-colors hover:text-brand-300"
+                    >
+                      <Phone size={15} aria-hidden className="shrink-0 text-brand-400" />
+                      <span>+56 2 2334 8332</span>
+                    </a>
+                  </li>
+                </ul>
               </div>
             </div>
           </div>

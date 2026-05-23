@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowRight, Calendar, User } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Calendar, Mail, Share2, User } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Breadcrumbs } from "@/components/public/Breadcrumbs";
+import { Button } from "@/components/ui/button";
 import { NewsCard } from "@/components/public/NewsCard";
-import { Section } from "@/components/public/Section";
 import { formatDate } from "@/lib/format";
 import { siteConfig } from "@/lib/site";
 import { getNewsBySlug, listNews } from "@/server/queries/news";
@@ -61,8 +61,20 @@ export default async function NewsArticlePage({ params }: { params: Promise<Para
 
   return (
     <>
-      <section className="relative isolate overflow-hidden bg-brand-fade text-white">
-        <div className="container-page pb-14 pt-24 md:pb-20 md:pt-32">
+      {/* ─────────── HERO ─────────── */}
+      <section className="grain-overlay relative isolate overflow-hidden bg-ink-950 text-white">
+        <div
+          aria-hidden
+          className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_color-mix(in_oklab,_var(--color-brand-700)_42%,_transparent)_0%,_transparent_55%),radial-gradient(ellipse_at_bottom_right,_color-mix(in_oklab,_var(--color-brand-900)_28%,_transparent)_0%,_transparent_55%)]"
+        />
+        <div className="brand-bars" aria-hidden />
+        <div className="hero-rays" aria-hidden />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-[0.06] [background-image:radial-gradient(circle_at_1px_1px,white_1px,transparent_0)] [background-size:32px_32px]"
+        />
+
+        <div className="container-page relative pb-16 pt-24 md:pb-24 md:pt-32 lg:pt-40">
           <Breadcrumbs
             items={[
               { label: "Inicio", href: "/" },
@@ -70,65 +82,165 @@ export default async function NewsArticlePage({ params }: { params: Promise<Para
               { label: article.title },
             ]}
           />
-          <div className="mt-6 flex flex-wrap gap-2">
+          <div className="mt-8 flex flex-wrap gap-2">
             {article.tags.map((tag) => (
-              <Badge key={tag} variant="dark" className="bg-white/10">
+              <Badge
+                key={tag}
+                variant="dark"
+                className="bg-white/10 text-white backdrop-blur"
+              >
                 {tag}
               </Badge>
             ))}
           </div>
-          <h1 className="mt-4 max-w-4xl font-display text-4xl uppercase leading-[0.95] tracking-tight md:text-6xl">
+          <h1 className="mt-6 max-w-5xl font-display text-5xl uppercase leading-[0.92] tracking-tight md:text-7xl lg:text-[88px]">
             {article.title}
           </h1>
-          <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-ink-200">
+          <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-ink-300">
             <span className="inline-flex items-center gap-2">
-              <Calendar size={16} className="text-brand-500" />
+              <Calendar size={15} className="text-brand-400" aria-hidden />
               {formatDate(article.publishedAt)}
             </span>
             {article.authorName && (
-              <span className="inline-flex items-center gap-2">
-                <User size={16} className="text-brand-500" />
-                {article.authorName}
-              </span>
+              <>
+                <span aria-hidden className="text-ink-600">·</span>
+                <span className="inline-flex items-center gap-2">
+                  <User size={15} className="text-brand-400" aria-hidden />
+                  {article.authorName}
+                </span>
+              </>
             )}
+            <span aria-hidden className="text-ink-600">·</span>
+            <span className="uppercase tracking-[0.18em] text-ink-400">
+              Lectura · {Math.max(1, Math.ceil(article.content.length / 1400))} min
+            </span>
           </div>
         </div>
       </section>
 
-      <Section className="bg-white">
-        <article className="container-page max-w-3xl">
-          <p className="border-l-4 border-brand-600 pl-5 text-xl leading-relaxed text-ink-800 md:text-2xl">
-            {article.excerpt}
-          </p>
-          <div
-            className="mt-10 max-w-none text-base leading-relaxed text-ink-700 [&_a]:text-brand-700 [&_a]:underline-offset-4 [&_a:hover]:underline [&_h2]:mt-10 [&_h2]:font-display [&_h2]:text-2xl [&_h2]:uppercase [&_h2]:text-ink-900 [&_h3]:mt-8 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:text-ink-900 [&_li]:my-2 [&_p]:my-5 [&_strong]:font-semibold [&_strong]:text-ink-900 [&_ul]:my-5 [&_ul]:list-disc [&_ul]:pl-6"
-            // eslint-disable-next-line react/no-danger
-            dangerouslySetInnerHTML={{ __html: article.content }}
-          />
-        </article>
-      </Section>
+      {/* ─────────── ARTICLE BODY ─────────── */}
+      <section className="bg-paper">
+        <div className="container-page py-16 md:py-24">
+          <div className="grid gap-12 md:grid-cols-12 md:gap-16">
+            {/* Article content */}
+            <article className="md:col-span-8">
+              <p className="border-l-4 border-brand-600 pl-6 font-display text-xl uppercase leading-tight tracking-tight text-ink-900 md:text-3xl">
+                {article.excerpt}
+              </p>
+              <div
+                className="mt-12 max-w-none text-base leading-relaxed text-ink-700 [&_a]:text-brand-700 [&_a]:underline-offset-4 [&_a:hover]:underline [&_h2]:mt-12 [&_h2]:font-display [&_h2]:text-3xl [&_h2]:uppercase [&_h2]:tracking-tight [&_h2]:text-ink-900 [&_h3]:mt-10 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:text-ink-900 [&_li]:my-2 [&_p]:my-5 [&_strong]:font-semibold [&_strong]:text-ink-900 [&_ul]:my-5 [&_ul]:list-disc [&_ul]:pl-6 md:text-lg"
+                // eslint-disable-next-line react/no-danger
+                dangerouslySetInnerHTML={{ __html: article.content }}
+              />
 
+              {/* Footer del artículo */}
+              <div className="mt-16 border-t border-ink-200 pt-8">
+                <div className="flex flex-wrap items-center justify-between gap-4">
+                  <p className="text-xs uppercase tracking-[0.22em] text-ink-500">
+                    Publicado el {formatDate(article.publishedAt)}
+                  </p>
+                  <Link
+                    href="/noticias"
+                    className="inline-flex items-center gap-2 text-sm font-semibold text-brand-700 transition-colors hover:text-brand-800"
+                  >
+                    <ArrowRight size={14} aria-hidden className="rotate-180" />
+                    Volver a noticias
+                  </Link>
+                </div>
+              </div>
+            </article>
+
+            {/* Sticky aside */}
+            <aside className="md:col-span-4">
+              <div className="md:sticky md:top-32 md:self-start space-y-5">
+                {/* Tags */}
+                {article.tags.length > 0 && (
+                  <div className="rounded-2xl border border-ink-200 bg-white p-6">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-brand-700">
+                      Temáticas
+                    </p>
+                    <ul className="mt-4 flex flex-wrap gap-2">
+                      {article.tags.map((tag) => (
+                        <li key={tag}>
+                          <Link
+                            href={`/noticias?tag=${encodeURIComponent(tag)}`}
+                            className="inline-flex items-center rounded-full border border-ink-200 px-3 py-1 text-xs font-medium text-ink-700 transition-colors hover:border-brand-300 hover:bg-brand-50 hover:text-brand-700"
+                          >
+                            {tag}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Share / contacto */}
+                <div className="rounded-2xl border border-brand-100 bg-brand-50/60 p-6">
+                  <p className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-brand-700">
+                    <Share2 size={14} aria-hidden />
+                    Comparte
+                  </p>
+                  <p className="mt-3 text-sm leading-relaxed text-ink-700">
+                    Comparte esta noticia con tu equipo o cita a SPROCh en tus publicaciones.
+                  </p>
+                  <a
+                    href={`mailto:?subject=${encodeURIComponent(article.title)}&body=${encodeURIComponent(`${siteConfig.url}/noticias/${article.slug}`)}`}
+                    className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-brand-700 transition-colors hover:text-brand-800"
+                  >
+                    <Mail size={14} aria-hidden />
+                    Enviar por correo
+                  </a>
+                </div>
+
+                {/* Newsletter */}
+                <div className="grain-overlay overflow-hidden rounded-2xl border border-ink-900 bg-ink-950 p-6 text-white">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-brand-300">
+                    Mantente al día
+                  </p>
+                  <p className="mt-3 font-display text-xl uppercase tracking-tight">
+                    Recibe nuestras novedades
+                  </p>
+                  <p className="mt-2 text-sm text-ink-300">
+                    Comunicados y publicaciones oficiales directo a tu correo.
+                  </p>
+                  <Button asChild variant="outline" size="sm" className="mt-4 border-white/25 bg-white/5 text-white hover:bg-white/10 hover:border-white/40">
+                    <Link href="/contacto">
+                      Suscribirme
+                      <ArrowUpRight size={14} aria-hidden />
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </section>
+
+      {/* ─────────── RELATED ─────────── */}
       {related.length > 0 && (
-        <Section className="bg-ink-50">
-          <div className="container-page">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
+        <section className="bg-ink-50">
+          <div className="container-page py-16 md:py-24">
+            <div className="grid items-end gap-8 md:grid-cols-12">
+              <div className="md:col-span-8">
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-brand-700">
                   Sigue leyendo
                 </p>
-                <h2 className="mt-1 font-display text-3xl uppercase text-ink-900 md:text-4xl">
+                <h2 className="mt-3 font-display text-4xl uppercase leading-[0.92] tracking-tight text-ink-900 md:text-6xl">
                   Otras noticias
+                  <br />
+                  <span className="text-ink-500">de la sociedad</span>
                 </h2>
               </div>
-              <Link
-                href="/noticias"
-                className="inline-flex items-center gap-1 text-sm font-semibold text-brand-700 hover:text-brand-800"
-              >
-                Ver todas
-                <ArrowRight size={14} />
-              </Link>
+              <div className="flex md:col-span-4 md:justify-end md:pb-2">
+                <Button asChild variant="outline">
+                  <Link href="/noticias">
+                    Ver todas
+                    <ArrowRight size={14} aria-hidden />
+                  </Link>
+                </Button>
+              </div>
             </div>
-            <ul className="mt-8 grid gap-6 md:grid-cols-3">
+            <ul className="mt-12 grid gap-6 md:grid-cols-3">
               {related.map((r) => (
                 <li key={r.id}>
                   <NewsCard article={r} />
@@ -136,7 +248,7 @@ export default async function NewsArticlePage({ params }: { params: Promise<Para
               ))}
             </ul>
           </div>
-        </Section>
+        </section>
       )}
 
       <script

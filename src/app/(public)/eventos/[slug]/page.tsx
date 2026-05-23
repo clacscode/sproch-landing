@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { CalendarDays, MapPin, Ticket, Users } from "lucide-react";
+import { ArrowRight, ArrowUpRight, CalendarDays, MapPin, Ticket, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Breadcrumbs } from "@/components/public/Breadcrumbs";
 import { Button } from "@/components/ui/button";
-import { Section, SectionHeader } from "@/components/public/Section";
 import { SponsorsStrip } from "@/components/public/SponsorsStrip";
 import { formatCLP, formatDateRange } from "@/lib/format";
 import { siteConfig } from "@/lib/site";
@@ -77,9 +76,20 @@ export default async function EventDetailPage({ params }: { params: Promise<Para
 
   return (
     <>
-      <section className="relative isolate overflow-hidden bg-brand-mesh text-white">
+      {/* ─────────── HERO ─────────── */}
+      <section className="grain-overlay relative isolate overflow-hidden bg-ink-950 text-white">
+        <div
+          aria-hidden
+          className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_color-mix(in_oklab,_var(--color-brand-700)_45%,_transparent)_0%,_transparent_55%),radial-gradient(ellipse_at_bottom_right,_color-mix(in_oklab,_var(--color-brand-900)_28%,_transparent)_0%,_transparent_55%)]"
+        />
         <div className="brand-bars" aria-hidden />
-        <div className="container-page relative pb-14 pt-24 md:pb-20 md:pt-32">
+        <div className="hero-rays" aria-hidden />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-[0.06] [background-image:radial-gradient(circle_at_1px_1px,white_1px,transparent_0)] [background-size:32px_32px]"
+        />
+
+        <div className="container-page relative pb-16 pt-24 md:pb-24 md:pt-32 lg:pt-40">
           <Breadcrumbs
             items={[
               { label: "Inicio", href: "/" },
@@ -87,139 +97,245 @@ export default async function EventDetailPage({ params }: { params: Promise<Para
               { label: event.title },
             ]}
           />
-          <div className="mt-6 flex flex-wrap gap-2">
+          <div className="mt-8 flex flex-wrap gap-2">
             <Badge variant={event.category === "CONGRESO" ? "brand" : "dark"}>
               {event.category}
             </Badge>
-            {event.featured && <Badge variant="dark">Destacado</Badge>}
+            {event.featured && (
+              <Badge variant="dark" className="bg-white/15 text-white backdrop-blur">
+                Destacado
+              </Badge>
+            )}
           </div>
-          <h1 className="mt-4 font-display text-4xl uppercase leading-[0.95] tracking-tight md:text-6xl">
+          <h1 className="mt-6 max-w-5xl font-display text-5xl uppercase leading-[0.92] tracking-tight md:text-7xl lg:text-[88px]">
             {event.title}
           </h1>
-          <p className="mt-6 max-w-2xl text-ink-200">{event.summary}</p>
+          <p className="mt-7 max-w-2xl text-base text-ink-200 md:text-lg">{event.summary}</p>
 
-          <dl className="mt-8 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3">
-            <div className="rounded-lg border border-white/10 bg-white/5 p-3 sm:p-4">
-              <dt className="text-[10px] font-semibold uppercase tracking-widest text-ink-400 sm:text-xs">
+          {/* Quick facts strip */}
+          <dl className="mt-12 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur md:grid-cols-3">
+            <div className="bg-ink-950 p-5 md:p-6">
+              <dt className="text-[10px] font-semibold uppercase tracking-[0.22em] text-ink-400">
                 Fechas
               </dt>
-              <dd className="mt-2 flex items-start gap-2 text-sm text-white">
-                <CalendarDays size={16} className="mt-0.5 shrink-0 text-brand-500" />
+              <dd className="mt-3 flex items-start gap-2.5 text-sm font-medium text-white md:text-base">
+                <CalendarDays size={16} className="mt-0.5 shrink-0 text-brand-400" aria-hidden />
                 <span>{formatDateRange(event.startDate, event.endDate)}</span>
               </dd>
             </div>
-            <div className="rounded-lg border border-white/10 bg-white/5 p-3 sm:p-4">
-              <dt className="text-[10px] font-semibold uppercase tracking-widest text-ink-400 sm:text-xs">
+            <div className="bg-ink-950 p-5 md:p-6">
+              <dt className="text-[10px] font-semibold uppercase tracking-[0.22em] text-ink-400">
                 Sede
               </dt>
-              <dd className="mt-2 flex items-start gap-2 text-sm text-white">
-                <MapPin size={16} className="mt-0.5 shrink-0 text-brand-500" />
+              <dd className="mt-3 flex items-start gap-2.5 text-sm font-medium text-white md:text-base">
+                <MapPin size={16} className="mt-0.5 shrink-0 text-brand-400" aria-hidden />
                 <span>{event.location}</span>
               </dd>
             </div>
-            <div className="col-span-2 rounded-lg border border-white/10 bg-white/5 p-3 sm:p-4 md:col-span-1">
-              <dt className="text-[10px] font-semibold uppercase tracking-widest text-ink-400 sm:text-xs">
-                Valor
+            <div className="col-span-2 bg-ink-950 p-5 md:col-span-1 md:p-6">
+              <dt className="text-[10px] font-semibold uppercase tracking-[0.22em] text-ink-400">
+                Inversión
               </dt>
-              <dd className="mt-2 flex items-center gap-2 text-sm text-white">
-                <Ticket size={16} className="shrink-0 text-brand-500" />
-                <span className="font-display text-base">
+              <dd className="mt-3 flex items-center gap-2.5 text-white">
+                <Ticket size={16} className="shrink-0 text-brand-400" aria-hidden />
+                <span className="font-display text-xl uppercase tracking-tight md:text-2xl">
                   {event.priceCLP === 0 ? "Sin costo" : formatCLP(event.priceCLP)}
                 </span>
               </dd>
             </div>
           </dl>
 
-          <div className="mt-8">
+          <div className="mt-10 flex flex-wrap items-center gap-4">
             {enrollDisabled ? (
               <Button size="lg" disabled className="cursor-not-allowed opacity-70">
-                Inscripción próximamente disponible
+                Inscripción próximamente
               </Button>
             ) : (
-              <Button asChild size="lg">
-                <Link href={`/eventos/${event.slug}/inscripcion`}>Inscribirme ahora</Link>
+              <Button asChild size="lg" className="btn-glow">
+                <Link href={`/eventos/${event.slug}/inscripcion`}>
+                  Inscribirme ahora
+                  <ArrowRight size={16} aria-hidden />
+                </Link>
               </Button>
             )}
+            <Button asChild size="lg" variant="outline" className="border-white/25 bg-white/5 text-white hover:bg-white/10 hover:border-white/40">
+              <Link href="/contacto">
+                Consultar
+                <ArrowUpRight size={15} aria-hidden />
+              </Link>
+            </Button>
             {!isWebpayConfigured() && event.priceCLP > 0 && (
-              <p className="mt-3 text-xs text-ink-400">
-                Estamos habilitando la pasarela de pago WebPay. Te avisaremos cuando se abran
-                las inscripciones.
+              <p className="text-xs text-ink-400">
+                La pasarela de pago WebPay se habilitará próximamente.
               </p>
             )}
           </div>
         </div>
       </section>
 
-      <Section className="bg-white">
-        <div className="container-page grid gap-12 md:grid-cols-3">
-          <article className="md:col-span-2">
-            <SectionHeader eyebrow="Acerca del evento" title="Programa académico" />
-            <div
-              className="prose prose-neutral mt-6 max-w-none text-ink-700"
-              // eslint-disable-next-line react/no-danger
-              dangerouslySetInnerHTML={{ __html: event.content }}
-            />
+      {/* ─────────── CONTENIDO + SIDEBAR ─────────── */}
+      <section className="bg-paper">
+        <div className="container-page py-16 md:py-24">
+          <div className="grid gap-12 md:grid-cols-12 md:gap-16">
+            {/* Article */}
+            <article className="md:col-span-8">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-brand-700">
+                Acerca del evento
+              </p>
+              <h2 className="mt-4 font-display text-4xl uppercase leading-[0.92] tracking-tight text-ink-900 md:text-5xl">
+                Programa
+                <br />
+                <span className="text-ink-500">académico</span>
+              </h2>
 
-            {event.program?.length ? (
-              <ol className="mt-10 space-y-6">
-                {event.program.map((day) => (
-                  <li key={day.day} className="rounded-xl border border-ink-100 p-6">
-                    <h3 className="font-display text-2xl text-brand-700">{day.day}</h3>
-                    <ul className="mt-4 divide-y divide-ink-100">
-                      {day.items.map((item, idx) => (
-                        <li key={idx} className="flex items-center gap-4 py-3 text-sm">
-                          <span className="w-16 shrink-0 font-mono text-ink-500">{item.time}</span>
-                          <span className="text-ink-800">{item.title}</span>
+              <div
+                className="mt-10 max-w-none text-base leading-relaxed text-ink-700 [&_a]:text-brand-700 [&_a]:underline-offset-4 [&_a:hover]:underline [&_h2]:mt-10 [&_h2]:font-display [&_h2]:text-2xl [&_h2]:uppercase [&_h2]:text-ink-900 [&_h3]:mt-8 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:text-ink-900 [&_li]:my-2 [&_p]:my-5 [&_strong]:font-semibold [&_strong]:text-ink-900 [&_ul]:my-5 [&_ul]:list-disc [&_ul]:pl-6 md:text-lg"
+                // eslint-disable-next-line react/no-danger
+                dangerouslySetInnerHTML={{ __html: event.content }}
+              />
+
+              {event.program?.length ? (
+                <div className="mt-16">
+                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-brand-700">
+                    Programa día a día
+                  </p>
+                  <h3 className="mt-3 font-display text-3xl uppercase leading-tight tracking-tight text-ink-900 md:text-4xl">
+                    Cronograma
+                  </h3>
+                  <ol className="mt-8 space-y-4">
+                    {event.program.map((day, idx) => (
+                      <li
+                        key={day.day}
+                        className="overflow-hidden rounded-2xl border border-ink-200 bg-white"
+                      >
+                        <div className="flex items-baseline gap-5 border-b border-ink-100 bg-paper px-6 py-4 md:px-8">
+                          <span className="font-display text-2xl text-brand-700 tabular-nums">
+                            {String(idx + 1).padStart(2, "0")}
+                          </span>
+                          <h4 className="font-display text-xl uppercase tracking-tight text-ink-900 md:text-2xl">
+                            {day.day}
+                          </h4>
+                        </div>
+                        <ul className="divide-y divide-ink-100 px-6 md:px-8">
+                          {day.items.map((item, i) => (
+                            <li key={i} className="flex items-baseline gap-5 py-4 text-sm md:gap-8">
+                              <span className="w-20 shrink-0 font-mono text-xs uppercase tracking-wider text-brand-600 tabular-nums">
+                                {item.time}
+                              </span>
+                              <span className="text-ink-800 md:text-base">{item.title}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              ) : null}
+            </article>
+
+            {/* Sidebar */}
+            <aside className="md:col-span-4">
+              <div className="md:sticky md:top-32 md:self-start space-y-5">
+                {/* Inscripción card */}
+                <div className="card-lift overflow-hidden rounded-3xl border border-ink-200 bg-white p-6 md:p-7">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-brand-700">
+                    Inscripción
+                  </p>
+                  <p className="mt-3 font-display text-3xl uppercase tracking-tight text-ink-900">
+                    {event.priceCLP === 0 ? "Sin costo" : formatCLP(event.priceCLP)}
+                  </p>
+                  <p className="mt-1 text-xs uppercase tracking-[0.18em] text-ink-500">
+                    {event.priceCLP === 0 ? "Acceso libre con registro" : "Por persona · IVA incluido"}
+                  </p>
+
+                  <ul className="mt-6 space-y-3 border-t border-ink-100 pt-5 text-sm">
+                    <li className="flex items-start gap-2.5 text-ink-700">
+                      <CalendarDays size={15} className="mt-0.5 shrink-0 text-brand-600" aria-hidden />
+                      {formatDateRange(event.startDate, event.endDate)}
+                    </li>
+                    <li className="flex items-start gap-2.5 text-ink-700">
+                      <MapPin size={15} className="mt-0.5 shrink-0 text-brand-600" aria-hidden />
+                      {event.location}
+                    </li>
+                    {event.capacity ? (
+                      <li className="flex items-start gap-2.5 text-ink-700">
+                        <Users size={15} className="mt-0.5 shrink-0 text-brand-600" aria-hidden />
+                        {event.capacity} cupos · inscripción anticipada recomendada
+                      </li>
+                    ) : null}
+                  </ul>
+
+                  {enrollDisabled ? (
+                    <Button disabled className="mt-6 w-full cursor-not-allowed opacity-70">
+                      Inscripción próximamente
+                    </Button>
+                  ) : (
+                    <Button asChild className="btn-glow mt-6 w-full">
+                      <Link href={`/eventos/${event.slug}/inscripcion`}>
+                        Inscribirme
+                        <ArrowRight size={15} aria-hidden />
+                      </Link>
+                    </Button>
+                  )}
+                </div>
+
+                {/* Expositores */}
+                {event.speakers?.length ? (
+                  <div className="overflow-hidden rounded-3xl border border-ink-200 bg-white p-6 md:p-7">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-brand-700">
+                      Expositores
+                    </p>
+                    <ul className="mt-5 divide-y divide-ink-100">
+                      {event.speakers.map((s, idx) => (
+                        <li key={s.name} className="flex items-start gap-4 py-3.5 first:pt-0 last:pb-0">
+                          <span className="font-display text-base text-ink-400 tabular-nums">
+                            {String(idx + 1).padStart(2, "0")}
+                          </span>
+                          <div className="min-w-0">
+                            <p className="text-sm font-semibold text-ink-900">{s.name}</p>
+                            {s.country && (
+                              <p className="text-xs uppercase tracking-[0.16em] text-ink-500">
+                                {s.country}
+                              </p>
+                            )}
+                          </div>
                         </li>
                       ))}
                     </ul>
-                  </li>
-                ))}
-              </ol>
-            ) : null}
-          </article>
+                  </div>
+                ) : null}
 
-          <aside className="md:col-span-1">
-            {event.capacity ? (
-              <div className="rounded-xl border border-ink-100 bg-ink-50 p-6">
-                <p className="text-xs font-semibold uppercase tracking-widest text-ink-500">
-                  Cupos
-                </p>
-                <p className="mt-2 flex items-center gap-2 text-2xl font-semibold text-ink-900">
-                  <Users size={20} className="text-brand-600" />
-                  {event.capacity}
-                </p>
-                <p className="mt-2 text-sm text-ink-600">
-                  Cupos limitados. Te recomendamos inscribirte con anticipación.
-                </p>
+                {/* CTA contacto */}
+                <div className="rounded-3xl border border-brand-100 bg-brand-50/60 p-6 md:p-7">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-brand-700">
+                    ¿Dudas?
+                  </p>
+                  <p className="mt-3 font-display text-lg uppercase tracking-tight text-ink-900">
+                    Habla con el equipo
+                  </p>
+                  <p className="mt-2 text-sm leading-relaxed text-ink-700">
+                    Si necesitas información adicional sobre cupos, alianzas o facturación,
+                    escríbenos directamente.
+                  </p>
+                  <Button asChild variant="secondary" size="sm" className="mt-4">
+                    <Link href="/contacto">
+                      Contactar
+                      <ArrowRight size={14} aria-hidden />
+                    </Link>
+                  </Button>
+                </div>
               </div>
-            ) : null}
-
-            {event.speakers?.length ? (
-              <div className="mt-6 rounded-xl border border-ink-100 p-6">
-                <p className="text-xs font-semibold uppercase tracking-widest text-ink-500">
-                  Expositores
-                </p>
-                <ul className="mt-4 space-y-3">
-                  {event.speakers.map((s) => (
-                    <li key={s.name} className="text-sm">
-                      <p className="font-semibold text-ink-900">{s.name}</p>
-                      {s.country && <p className="text-xs text-ink-500">{s.country}</p>}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ) : null}
-          </aside>
+            </aside>
+          </div>
         </div>
-      </Section>
+      </section>
 
       {event.sponsors?.length ? (
-        <Section className="bg-ink-50">
-          <div className="container-page">
+        <section className="bg-ink-50">
+          <div className="container-page py-16 md:py-20">
             <SponsorsStrip sponsors={event.sponsors} title="Auspiciadores" />
           </div>
-        </Section>
+        </section>
       ) : null}
 
       <script
