@@ -1,6 +1,8 @@
 export interface Sponsor {
   /** Nombre visible del sponsor. */
   name: string;
+  /** Ruta del logo (preferentemente PNG con fondo transparente). */
+  logo?: string;
   /** URL del sitio oficial (opcional). */
   url?: string;
   /** Tier comercial cuando aplica. */
@@ -10,11 +12,15 @@ export interface Sponsor {
 /**
  * Auspiciadores anuales SPROCh — programa que acompaña la operación de la
  * sociedad y los cursos a lo largo del año.
+ * Logos entregados por el cliente en /public/sponsors/.
  */
 export const sponsorsAnuales: Sponsor[] = [
-  { name: "Dentaid" },
-  { name: "Envista — 4 Lodos" },
-  { name: "Haleon — Corega" },
+  { name: "Dentaid", logo: "/sponsors/6.png" },
+  { name: "Corega", logo: "/sponsors/1.png" },
+  { name: "Kerr", logo: "/sponsors/2.png" },
+  { name: "Nobel Biocare", logo: "/sponsors/3.png" },
+  { name: "AlphaBio", logo: "/sponsors/4.png" },
+  { name: "Dexis", logo: "/sponsors/5.png" },
 ];
 
 /**
