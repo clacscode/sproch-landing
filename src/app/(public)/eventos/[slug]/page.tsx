@@ -354,7 +354,7 @@ export default async function EventDetailPage({ params }: { params: Promise<Para
       {event.sponsors?.length ? (
         <section className="bg-ink-50">
           <div className="container-page py-16 md:py-20">
-            <SponsorsStrip sponsors={event.sponsors} title="Auspiciadores" />
+            <SponsorsStrip sponsors={event.sponsors} title="Auspiciadores" variant="marquee" />
           </div>
         </section>
       ) : null}

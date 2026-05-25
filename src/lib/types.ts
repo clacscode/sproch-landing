@@ -26,6 +26,7 @@ export interface EventSpeaker {
 export interface EventSponsor {
   name: string;
   logo?: string;
+  url?: string;
   tier?: "platinum" | "gold" | "silver" | "bronze";
 }
 

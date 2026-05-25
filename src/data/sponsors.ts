@@ -12,15 +12,43 @@ export interface Sponsor {
 /**
  * Auspiciadores anuales SPROCh — programa que acompaña la operación de la
  * sociedad y los cursos a lo largo del año.
+ *
  * Logos entregados por el cliente en /public/sponsors/.
+ * URLs: el cliente entregará la URL específica de cada marca; mientras
+ * tanto se usan los sitios oficiales públicos. Reemplazar cuando llegue
+ * el listado definitivo.
  */
 export const sponsorsAnuales: Sponsor[] = [
-  { name: "Dentaid", logo: "/sponsors/6.png" },
-  { name: "Corega", logo: "/sponsors/1.png" },
-  { name: "Kerr", logo: "/sponsors/2.png" },
-  { name: "Nobel Biocare", logo: "/sponsors/3.png" },
-  { name: "AlphaBio", logo: "/sponsors/4.png" },
-  { name: "Dexis", logo: "/sponsors/5.png" },
+  {
+    name: "Dentaid",
+    logo: "/sponsors/6.png",
+    url: "https://www.dentaid.com/es-cl",
+  },
+  {
+    name: "Corega",
+    logo: "/sponsors/1.png",
+    url: "https://www.corega.cl/",
+  },
+  {
+    name: "Kerr",
+    logo: "/sponsors/2.png",
+    url: "https://www.kerrdental.com/",
+  },
+  {
+    name: "Nobel Biocare",
+    logo: "/sponsors/3.png",
+    url: "https://www.nobelbiocare.com/es-cl",
+  },
+  {
+    name: "AlphaBio",
+    logo: "/sponsors/4.png",
+    url: "https://www.alpha-bio.net/",
+  },
+  {
+    name: "Dexis",
+    logo: "/sponsors/5.png",
+    url: "https://www.dexis.com/",
+  },
 ];
 
 /**
