@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight, ArrowUpRight, Award, Compass, HeartHandshake, Lightbulb, Mail, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { directorioSantiago, milestones } from "@/data/board";
@@ -52,6 +53,19 @@ export default function NosotrosPage() {
     <>
       {/* ───────────────────────── HERO ───────────────────────── */}
       <section className="grain-overlay relative isolate overflow-hidden bg-ink-950 text-white">
+        <Image
+          src="/brand/DSC05591.jpg"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          aria-hidden
+          className="absolute inset-0 object-cover object-center opacity-30"
+        />
+        <div
+          aria-hidden
+          className="absolute inset-0 bg-[linear-gradient(100deg,rgba(12,12,16,0.92)_0%,rgba(12,12,16,0.78)_45%,rgba(12,12,16,0.55)_75%,rgba(40,4,8,0.55)_100%)]"
+        />
         <div
           aria-hidden
           className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_color-mix(in_oklab,_var(--color-brand-700)_45%,_transparent)_0%,_transparent_55%),radial-gradient(ellipse_at_bottom_right,_color-mix(in_oklab,_var(--color-brand-900)_28%,_transparent)_0%,_transparent_55%)]"

@@ -41,8 +41,8 @@ export function HeroCarousel({ featured }: HeroCarouselProps) {
         primaryCta: { label: "Cursos y congresos", href: "/eventos" },
         secondaryCta: { label: "Conoce SPROCh", href: "/nosotros" },
         image: {
-          src: "/brand/sproch1.jpg",
-          alt: "Instrumental clínico de odontología y modelo dental sobre superficie de trabajo",
+          src: "/brand/DSC05641.jpg",
+          alt: "Auditorio del Congreso SPROCh con asistentes y pantalla principal iluminada",
         },
       },
       {
@@ -67,8 +67,8 @@ export function HeroCarousel({ featured }: HeroCarouselProps) {
           : { label: "Ver agenda", href: "/eventos" },
         secondaryCta: { label: "Quiero inscribirme", href: "/contacto" },
         image: {
-          src: "/brand/sproch-3.jpeg",
-          alt: "Docente explicando un modelo dental como parte de la formación continua",
+          src: "/brand/DSC08378.jpg",
+          alt: "Sala plenaria del Congreso SPROCh 2026 — De lo análogo y digital a la AI",
         },
       },
       {
@@ -85,8 +85,8 @@ export function HeroCarousel({ featured }: HeroCarouselProps) {
         primaryCta: { label: "Quiero hacerme socio", href: "/socios" },
         secondaryCta: { label: "Ver beneficios", href: "/nosotros" },
         image: {
-          src: "/brand/sproch-2.jpeg",
-          alt: "Paciente recibiendo atención odontológica especializada",
+          src: "/brand/DSC08374.jpg",
+          alt: "Comunidad SPROCh reunida en una jornada académica con escenografía roja",
         },
       },
     ];

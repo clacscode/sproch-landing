@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, CalendarDays, Newspaper } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -63,9 +64,22 @@ export default async function NewsListingPage({
     <>
       {/* ──────────────── HERO ──────────────── */}
       <section className="grain-overlay relative isolate overflow-hidden bg-ink-950 text-white">
+        <Image
+          src="/brand/DSC05470.jpg"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          aria-hidden
+          className="absolute inset-0 object-cover object-center opacity-25"
+        />
         <div
           aria-hidden
-          className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_color-mix(in_oklab,_var(--color-brand-700)_45%,_transparent)_0%,_transparent_55%),radial-gradient(ellipse_at_bottom_right,_color-mix(in_oklab,_var(--color-brand-900)_28%,_transparent)_0%,_transparent_55%)]"
+          className="absolute inset-0 bg-[linear-gradient(100deg,rgba(12,12,16,0.94)_0%,rgba(12,12,16,0.82)_45%,rgba(12,12,16,0.6)_75%,rgba(40,4,8,0.5)_100%)]"
+        />
+        <div
+          aria-hidden
+          className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_color-mix(in_oklab,_var(--color-brand-700)_42%,_transparent)_0%,_transparent_55%),radial-gradient(ellipse_at_bottom_right,_color-mix(in_oklab,_var(--color-brand-900)_28%,_transparent)_0%,_transparent_55%)]"
         />
         <div className="brand-bars" aria-hidden />
         <div className="hero-rays" aria-hidden />

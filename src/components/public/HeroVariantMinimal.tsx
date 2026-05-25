@@ -9,7 +9,7 @@ export function HeroVariantMinimal() {
     <section className="relative isolate overflow-hidden bg-ink-950 text-white">
       <div aria-hidden className="absolute inset-0">
         <Image
-          src="/brand/sproch1.jpg"
+          src="/brand/DSC05641.jpg"
           alt=""
           fill
           priority

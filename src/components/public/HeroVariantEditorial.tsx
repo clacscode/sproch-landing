@@ -60,7 +60,7 @@ export function HeroVariantEditorial() {
         <div className="relative md:col-span-6">
           <div className="relative aspect-[4/5] md:aspect-auto md:h-full md:min-h-[600px]">
             <Image
-              src="/brand/sproch1.jpg"
+              src="/brand/DSC05641.jpg"
               alt=""
               fill
               priority
