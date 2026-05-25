@@ -24,23 +24,23 @@ export function SponsorsStrip({ sponsors, title = "Auspiciadores" }: SponsorsStr
         style={{ "--marquee-duration": `${duration}s` } as React.CSSProperties}
         aria-label={title}
       >
-        <ul className="marquee-track gap-10 sm:gap-14" role="list">
+        <ul className="marquee-track gap-12 sm:gap-16" role="list">
           {loop.map((sponsor, i) => (
             <li
               key={`${sponsor.name}-${i}`}
               aria-hidden={i >= sponsors.length || undefined}
-              className="flex h-16 shrink-0 items-center justify-center"
+              className="flex h-24 shrink-0 items-center justify-center sm:h-28"
             >
               {sponsor.logo ? (
                 <Image
                   src={sponsor.logo}
                   alt={sponsor.name}
-                  width={160}
-                  height={64}
-                  className="h-12 w-auto max-w-[160px] object-contain opacity-70 grayscale transition duration-300 hover:opacity-100 hover:grayscale-0 sm:h-14"
+                  width={240}
+                  height={96}
+                  className="h-20 w-auto max-w-[200px] object-contain transition-transform duration-300 hover:scale-105 sm:h-24 sm:max-w-[220px]"
                 />
               ) : (
-                <span className="whitespace-nowrap font-display text-lg font-semibold tracking-tight text-ink-500 transition-colors duration-300 hover:text-ink-900 sm:text-xl">
+                <span className="whitespace-nowrap font-display text-xl font-semibold tracking-tight text-ink-700 transition-colors duration-300 hover:text-ink-900 sm:text-2xl">
                   {sponsor.name}
                 </span>
               )}
