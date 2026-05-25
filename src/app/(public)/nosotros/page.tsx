@@ -243,6 +243,84 @@ export default function NosotrosPage() {
         </div>
       </section>
 
+      {/* ───────────────────── DIRECTORIO ───────────────────── */}
+      <section className="grain-overlay relative isolate overflow-hidden bg-ink-950 text-white">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -left-40 top-10 h-[24rem] w-[24rem] rounded-full bg-[radial-gradient(circle,_color-mix(in_oklab,_var(--color-brand-700)_40%,_transparent)_0%,_transparent_70%)]"
+        />
+        <div className="container-page relative py-20 md:py-28">
+          <div className="grid items-end gap-10 md:grid-cols-12">
+            <div className="md:col-span-7">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-brand-300">
+                Comité directivo
+              </p>
+              <h2 className="mt-4 font-display text-5xl uppercase leading-[0.92] tracking-tight md:text-7xl">
+                El equipo
+                <br />
+                <span className="text-ink-400">que lidera SPROCh</span>
+              </h2>
+            </div>
+            <div className="md:col-span-5">
+              <p className="text-ink-300 md:text-lg">
+                Directorio nacional con sede en Santiago. Especialistas reconocidos en la
+                disciplina que coordinan las actividades académicas, científicas y gremiales
+                del período.
+              </p>
+            </div>
+          </div>
+
+          <ul className="mt-14 grid gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/10 sm:grid-cols-2 lg:grid-cols-3">
+            {directorioSantiago.map((m, idx) => (
+              <li
+                key={m.name}
+                className="group relative flex items-start gap-5 bg-ink-950 p-6 transition-colors hover:bg-white/[0.03] md:p-7"
+              >
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand-700 to-brand-900 font-display text-xl text-white shadow-[inset_0_-8px_24px_rgba(0,0,0,0.25)]">
+                  {initials(m.name)}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="font-display text-base uppercase leading-tight tracking-tight text-white md:text-lg">
+                    {m.name}
+                  </p>
+                  <p className="mt-1 text-[11px] uppercase tracking-[0.18em] text-brand-300">
+                    {m.role}
+                  </p>
+                  {m.email && (
+                    <a
+                      href={`mailto:${m.email}`}
+                      className="mt-2 inline-flex items-center gap-1.5 break-all text-[11px] text-ink-400 transition-colors hover:text-brand-300"
+                    >
+                      <Mail size={11} aria-hidden />
+                      {m.email}
+                    </a>
+                  )}
+                </div>
+                <span
+                  aria-hidden
+                  className="font-display text-base text-ink-700 tabular-nums"
+                >
+                  {String(idx + 1).padStart(2, "0")}
+                </span>
+              </li>
+            ))}
+          </ul>
+
+          <div className="mt-12 flex flex-wrap items-center justify-between gap-6 border-t border-white/10 pt-8">
+            <p className="max-w-xl text-sm text-ink-300">
+              ¿Quieres saber más sobre cómo se eligen los cargos o cómo postular al comité? El
+              proceso está abierto a socios activos.
+            </p>
+            <Button asChild className="btn-glow">
+              <Link href="/socios">
+                Conoce el proceso
+                <ArrowRight size={15} aria-hidden />
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
       {/* ───────────────────── FILIALES (mapa nacional) ───────────────────── */}
       <section className="bg-paper">
         <div className="container-page py-20 md:py-28">
@@ -259,8 +337,9 @@ export default function NosotrosPage() {
             </div>
             <div className="md:col-span-5">
               <p className="text-ink-600 md:text-lg">
-                Estamos presentes a lo largo de Chile a través de filiales regionales que
-                coordinan la actividad académica y gremial en cada macrozona.
+                Además del directorio nacional, SPROCh se articula a lo largo de Chile a través
+                de filiales regionales que coordinan la actividad académica y gremial en cada
+                macrozona.
               </p>
             </div>
           </div>
@@ -375,83 +454,6 @@ export default function NosotrosPage() {
               );
             })}
           </ul>
-        </div>
-      </section>
-
-      {/* ───────────────────── DIRECTORIO ───────────────────── */}
-      <section className="grain-overlay relative isolate overflow-hidden bg-ink-950 text-white">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -left-40 top-10 h-[24rem] w-[24rem] rounded-full bg-[radial-gradient(circle,_color-mix(in_oklab,_var(--color-brand-700)_40%,_transparent)_0%,_transparent_70%)]"
-        />
-        <div className="container-page relative py-20 md:py-28">
-          <div className="grid items-end gap-10 md:grid-cols-12">
-            <div className="md:col-span-7">
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-brand-300">
-                Comité directivo
-              </p>
-              <h2 className="mt-4 font-display text-5xl uppercase leading-[0.92] tracking-tight md:text-7xl">
-                El equipo
-                <br />
-                <span className="text-ink-400">que lidera SPROCh</span>
-              </h2>
-            </div>
-            <div className="md:col-span-5">
-              <p className="text-ink-300 md:text-lg">
-                Especialistas reconocidos en la disciplina, que coordinan las actividades
-                académicas, científicas y gremiales del período.
-              </p>
-            </div>
-          </div>
-
-          <ul className="mt-14 grid gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/10 sm:grid-cols-2 lg:grid-cols-3">
-            {directorioSantiago.map((m, idx) => (
-              <li
-                key={m.name}
-                className="group relative flex items-start gap-5 bg-ink-950 p-6 transition-colors hover:bg-white/[0.03] md:p-7"
-              >
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand-700 to-brand-900 font-display text-xl text-white shadow-[inset_0_-8px_24px_rgba(0,0,0,0.25)]">
-                  {initials(m.name)}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="font-display text-base uppercase leading-tight tracking-tight text-white md:text-lg">
-                    {m.name}
-                  </p>
-                  <p className="mt-1 text-[11px] uppercase tracking-[0.18em] text-brand-300">
-                    {m.role}
-                  </p>
-                  {m.email && (
-                    <a
-                      href={`mailto:${m.email}`}
-                      className="mt-2 inline-flex items-center gap-1.5 break-all text-[11px] text-ink-400 transition-colors hover:text-brand-300"
-                    >
-                      <Mail size={11} aria-hidden />
-                      {m.email}
-                    </a>
-                  )}
-                </div>
-                <span
-                  aria-hidden
-                  className="font-display text-base text-ink-700 tabular-nums"
-                >
-                  {String(idx + 1).padStart(2, "0")}
-                </span>
-              </li>
-            ))}
-          </ul>
-
-          <div className="mt-12 flex flex-wrap items-center justify-between gap-6 border-t border-white/10 pt-8">
-            <p className="max-w-xl text-sm text-ink-300">
-              ¿Quieres saber más sobre cómo se eligen los cargos o cómo postular al comité? El
-              proceso está abierto a socios activos.
-            </p>
-            <Button asChild className="btn-glow">
-              <Link href="/socios">
-                Conoce el proceso
-                <ArrowRight size={15} aria-hidden />
-              </Link>
-            </Button>
-          </div>
         </div>
       </section>
 
