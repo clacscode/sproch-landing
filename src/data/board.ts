@@ -1,13 +1,69 @@
 import type { BoardMember } from "@/lib/types";
 
-export const boardMock: BoardMember[] = [
-  { name: "Dra. María Elena Soto", role: "Presidenta" },
-  { name: "Dr. Joaquín Pérez Carrasco", role: "Vicepresidente" },
-  { name: "Dra. Carolina Reyes Vidal", role: "Secretaria General" },
-  { name: "Dr. Felipe Núñez Toro", role: "Tesorero" },
-  { name: "Dra. Andrea Castro Mella", role: "Directora Académica" },
-  { name: "Dr. Sebastián Morales Pinto", role: "Director de Comunicaciones" },
+/**
+ * Directorio nacional SPROCh con sede en Santiago.
+ * Período actualizado al 2026.
+ */
+export const directorioSantiago: BoardMember[] = [
+  {
+    name: "Dr. Roque Cona Trujillo",
+    role: "Presidente",
+    email: "roquejct@gmail.com",
+  },
+  {
+    name: "Dr. Héctor González Bustamante",
+    role: "Vicepresidente",
+    email: "hgonzalez@hgdental.cl",
+  },
+  {
+    name: "Dr. Jorge Biotti Picand",
+    role: "Secretario",
+    email: "jbiotti@gmail.com",
+  },
+  {
+    name: "Dr. Alfredo Zunino Belmar",
+    role: "Tesorero",
+    email: "alfredo.zunino@gmail.com",
+  },
+  {
+    name: "Dr. Mario Barbano Maturana",
+    role: "Director",
+    email: "mbarbano@gmail.com",
+  },
+  {
+    name: "Dr. Roberto Santana Leiva",
+    role: "Director",
+    email: "roansale@gmail.com",
+  },
+  {
+    name: "Dr. Carlos Parra Atala",
+    role: "Director",
+    email: "carlos.parra.atala@gmail.com",
+  },
+  {
+    name: "Dra. Paulina Barrientos Ramwell",
+    role: "Directora",
+    email: "pbarrientosr@gmail.com",
+  },
+  {
+    name: "Dra. Marcela Hormazábal",
+    role: "Directora",
+    email: "marcehormazabal@gmail.com",
+  },
+  {
+    name: "Dr. Eugenio Nieto Grez",
+    role: "Past President",
+    email: "eugenio.nieto@gmail.com",
+  },
+  {
+    name: "Margarita Castro",
+    role: "Secretaría",
+    email: "soc.protesis@gmail.com",
+  },
 ];
+
+/** Alias de retro-compatibilidad mientras quedan referencias antiguas. */
+export const boardMock = directorioSantiago;
 
 export const milestones = [
   {

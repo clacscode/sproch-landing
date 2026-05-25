@@ -52,5 +52,6 @@ export interface EventItem {
 export interface BoardMember {
   name: string;
   role: string;
+  email?: string;
   photo?: string;
 }

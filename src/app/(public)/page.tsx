@@ -20,6 +20,7 @@ import { NewsCard } from "@/components/public/NewsCard";
 import { Reveal } from "@/components/public/Reveal";
 import { Section } from "@/components/public/Section";
 import { SponsorsStrip } from "@/components/public/SponsorsStrip";
+import { sponsorsAnuales } from "@/data/sponsors";
 import { StatsStrip } from "@/components/public/StatsStrip";
 import { Testimonials } from "@/components/public/Testimonials";
 import { getFeaturedEvent, listEvents } from "@/server/queries/events";
@@ -301,14 +302,12 @@ export default async function HomePage() {
         <FAQ />
       </Section>
 
-      {/* ────────────── SPONSORS ────────────── */}
-      {featured?.sponsors?.length ? (
-        <Section className="bg-paper">
-          <div className="container-page">
-            <SponsorsStrip sponsors={featured.sponsors} title="Auspiciadores Congreso 2026" />
-          </div>
-        </Section>
-      ) : null}
+      {/* ────────────── SPONSORS ANUALES ────────────── */}
+      <Section className="bg-paper">
+        <div className="container-page">
+          <SponsorsStrip sponsors={sponsorsAnuales} title="Nos acompañan todo el año" />
+        </div>
+      </Section>
 
       {/* ────────────── CTA FINAL ────────────── */}
       <Section className="bg-paper">

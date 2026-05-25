@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight, Award, Compass, HeartHandshake, Lightbulb, MapPin } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Award, Compass, HeartHandshake, Lightbulb, Mail, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { boardMock, milestones } from "@/data/board";
+import { directorioSantiago, milestones } from "@/data/board";
 import { filiales } from "@/data/filiales";
 
 export const metadata: Metadata = {
@@ -91,7 +91,7 @@ export default function NosotrosPage() {
             {[
               { k: "1952", v: "Año de fundación" },
               { k: "+70", v: "Años de historia" },
-              { k: "04", v: "Filiales regionales" },
+              { k: "05", v: "Filiales regionales" },
               { k: "+1k", v: "Especialistas conectados" },
             ].map((s) => (
               <div key={s.k} className="bg-ink-950 p-6 md:p-7">
@@ -252,7 +252,7 @@ export default function NosotrosPage() {
                 Red nacional
               </p>
               <h2 className="mt-4 font-display text-5xl uppercase leading-[0.92] tracking-tight text-ink-900 md:text-7xl">
-                Cuatro filiales,
+                Cinco filiales,
                 <br />
                 <span className="text-ink-500">un mismo país</span>
               </h2>
@@ -268,14 +268,17 @@ export default function NosotrosPage() {
           <ul className="mt-14 grid gap-5 md:grid-cols-12 md:auto-rows-fr">
             {filiales.map((f, idx) => {
               const layouts = [
-                "md:col-span-6 lg:col-span-3",
-                "md:col-span-6 lg:col-span-5",
                 "md:col-span-6 lg:col-span-4",
-                "md:col-span-6 lg:col-span-6",
+                "md:col-span-6 lg:col-span-8",
+                "md:col-span-6 lg:col-span-8",
+                "md:col-span-6 lg:col-span-4",
+                "md:col-span-12",
               ];
+              const president = f.board.find((m) => /presidente/i.test(m.role));
+              const rest = f.board.filter((m) => m !== president);
               return (
                 <li
-                  key={f.zone}
+                  key={f.slug}
                   className={`card-lift group relative col-span-12 flex flex-col justify-between overflow-hidden rounded-3xl border border-ink-200 bg-white p-7 md:p-8 ${layouts[idx]}`}
                 >
                   <div>
@@ -284,7 +287,7 @@ export default function NosotrosPage() {
                         <MapPin size={22} aria-hidden />
                       </span>
                       <span className="font-display text-xs uppercase tracking-[0.22em] text-ink-400 tabular-nums">
-                        Zona · {String(idx + 1).padStart(2, "0")}
+                        Zona {f.zone} · {String(idx + 1).padStart(2, "0")}
                       </span>
                     </div>
                     <h3 className="mt-8 font-display text-2xl uppercase leading-tight tracking-tight text-ink-900 md:text-3xl">
@@ -294,13 +297,79 @@ export default function NosotrosPage() {
                       {f.description}
                     </p>
                   </div>
-                  <div className="mt-6 border-t border-ink-100 pt-5">
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-ink-500">
-                      Ciudades
-                    </p>
-                    <p className="mt-2 text-sm font-medium text-ink-800">
-                      {f.cities.join(" · ")}
-                    </p>
+
+                  <div className="mt-6 space-y-5">
+                    {/* Presidente destacado */}
+                    {president && (
+                      <div className="rounded-2xl border border-ink-100 bg-paper p-4">
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-brand-700">
+                          Presidente
+                        </p>
+                        <p className="mt-2 font-semibold text-ink-900">{president.name}</p>
+                        {president.email && (
+                          <a
+                            href={`mailto:${president.email}`}
+                            className="mt-1 inline-flex items-center gap-1.5 text-xs text-ink-600 transition-colors hover:text-brand-700"
+                          >
+                            <Mail size={12} aria-hidden />
+                            {president.email}
+                          </a>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Comité expandible */}
+                    {rest.length > 0 && (
+                      <details className="group/details rounded-2xl border border-ink-100">
+                        <summary className="flex cursor-pointer items-center justify-between gap-2 list-none p-4 text-sm">
+                          <span className="inline-flex items-center gap-2 font-semibold text-ink-800">
+                            Ver comité completo
+                            <span className="text-xs text-ink-500 tabular-nums">
+                              ({rest.length + 1})
+                            </span>
+                          </span>
+                          <span
+                            aria-hidden
+                            className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-ink-200 text-ink-600 transition-transform group-open/details:rotate-45"
+                          >
+                            +
+                          </span>
+                        </summary>
+                        <ul className="border-t border-ink-100 px-4 py-3 text-sm">
+                          {rest.map((m) => (
+                            <li
+                              key={m.name}
+                              className="flex flex-col gap-0.5 border-b border-ink-100 py-2.5 last:border-b-0 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4"
+                            >
+                              <div className="flex flex-col">
+                                <span className="font-medium text-ink-900">{m.name}</span>
+                                <span className="text-[11px] uppercase tracking-[0.16em] text-ink-500">
+                                  {m.role}
+                                </span>
+                              </div>
+                              {m.email && (
+                                <a
+                                  href={`mailto:${m.email}`}
+                                  className="break-all text-xs text-ink-600 transition-colors hover:text-brand-700"
+                                >
+                                  {m.email}
+                                </a>
+                              )}
+                            </li>
+                          ))}
+                        </ul>
+                      </details>
+                    )}
+
+                    {/* Ciudades */}
+                    <div className="border-t border-ink-100 pt-5">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-ink-500">
+                        Cobertura
+                      </p>
+                      <p className="mt-2 text-sm font-medium text-ink-800">
+                        {f.cities.join(" · ")}
+                      </p>
+                    </div>
                   </div>
                 </li>
               );
@@ -336,25 +405,34 @@ export default function NosotrosPage() {
           </div>
 
           <ul className="mt-14 grid gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/10 sm:grid-cols-2 lg:grid-cols-3">
-            {boardMock.map((m, idx) => (
+            {directorioSantiago.map((m, idx) => (
               <li
                 key={m.name}
-                className="group relative flex items-center gap-5 bg-ink-950 p-6 transition-colors hover:bg-white/[0.03] md:p-7"
+                className="group relative flex items-start gap-5 bg-ink-950 p-6 transition-colors hover:bg-white/[0.03] md:p-7"
               >
-                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand-700 to-brand-900 font-display text-2xl text-white shadow-[inset_0_-8px_24px_rgba(0,0,0,0.25)]">
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand-700 to-brand-900 font-display text-xl text-white shadow-[inset_0_-8px_24px_rgba(0,0,0,0.25)]">
                   {initials(m.name)}
                 </div>
-                <div className="min-w-0">
-                  <p className="font-display text-lg uppercase leading-tight tracking-tight text-white md:text-xl">
+                <div className="min-w-0 flex-1">
+                  <p className="font-display text-base uppercase leading-tight tracking-tight text-white md:text-lg">
                     {m.name}
                   </p>
-                  <p className="mt-1 text-xs uppercase tracking-[0.18em] text-brand-300">
+                  <p className="mt-1 text-[11px] uppercase tracking-[0.18em] text-brand-300">
                     {m.role}
                   </p>
+                  {m.email && (
+                    <a
+                      href={`mailto:${m.email}`}
+                      className="mt-2 inline-flex items-center gap-1.5 break-all text-[11px] text-ink-400 transition-colors hover:text-brand-300"
+                    >
+                      <Mail size={11} aria-hidden />
+                      {m.email}
+                    </a>
+                  )}
                 </div>
                 <span
                   aria-hidden
-                  className="ml-auto font-display text-xl text-ink-700 tabular-nums"
+                  className="font-display text-base text-ink-700 tabular-nums"
                 >
                   {String(idx + 1).padStart(2, "0")}
                 </span>
