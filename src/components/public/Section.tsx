@@ -33,7 +33,7 @@ export function SectionHeader({
         <p
           className={cn(
             "inline-flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.24em]",
-            isDark ? "text-brand-400" : "text-brand-700",
+            isDark ? "text-brand-600" : "text-brand-700",
           )}
         >
           <span

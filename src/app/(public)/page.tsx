@@ -122,7 +122,7 @@ export default async function HomePage() {
                       <span
                         className={`inline-flex h-12 w-12 items-center justify-center rounded-xl ring-1 ${
                           dark
-                            ? "bg-white/10 text-brand-300 ring-white/15"
+                            ? "bg-white/10 text-brand-500 ring-white/15"
                             : "bg-brand-50 text-brand-700 ring-brand-100"
                         }`}
                       >
@@ -323,14 +323,14 @@ export default async function HomePage() {
             />
             <div className="relative grid items-center gap-10 lg:grid-cols-12">
               <div className="lg:col-span-7">
-                <p className="inline-flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.28em] text-brand-300">
+                <p className="inline-flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.28em] text-brand-500">
                   <span aria-hidden className="h-px w-10 bg-brand-500" />
                   Conversemos
                 </p>
                 <h2 className="mt-5 font-display text-4xl uppercase leading-[0.95] tracking-tight md:text-6xl lg:text-7xl">
                   ¿Tienes una consulta
                   <br />
-                  <span className="text-brand-400 drop-shadow-[0_2px_12px_rgba(0,0,0,0.5)]">
+                  <span className="text-brand-600 drop-shadow-[0_2px_12px_rgba(0,0,0,0.5)]">
                     o quieres colaborar?
                   </span>
                 </h2>
@@ -363,18 +363,18 @@ export default async function HomePage() {
                   <li>
                     <a
                       href="mailto:soc.protesis@gmail.com"
-                      className="inline-flex items-center gap-2.5 transition-colors hover:text-brand-300"
+                      className="inline-flex items-center gap-2.5 transition-colors hover:text-brand-500"
                     >
-                      <Mail size={15} aria-hidden className="shrink-0 text-brand-400" />
+                      <Mail size={15} aria-hidden className="shrink-0 text-brand-600" />
                       <span className="break-all">soc.protesis@gmail.com</span>
                     </a>
                   </li>
                   <li>
                     <a
                       href="tel:+56223348332"
-                      className="inline-flex items-center gap-2.5 transition-colors hover:text-brand-300"
+                      className="inline-flex items-center gap-2.5 transition-colors hover:text-brand-500"
                     >
-                      <Phone size={15} aria-hidden className="shrink-0 text-brand-400" />
+                      <Phone size={15} aria-hidden className="shrink-0 text-brand-600" />
                       <span>+56 2 2334 8332</span>
                     </a>
                   </li>

@@ -56,13 +56,13 @@ export default async function EventsListingPage() {
         <div className="container-page relative pb-20 pt-28 md:pb-28 md:pt-36 lg:pb-32 lg:pt-44">
           <div className="grid items-end gap-12 md:grid-cols-12">
             <div className="md:col-span-8">
-              <p className="inline-flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.28em] text-brand-300">
+              <p className="inline-flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.28em] text-brand-500">
                 <span aria-hidden className="h-px w-10 bg-brand-500" />
                 Agenda académica · {new Date().getFullYear()}
               </p>
               <h1 className="mt-7 font-display text-6xl uppercase leading-[0.9] tracking-tight md:text-[104px] lg:text-[136px]">
                 Cursos
-                <span className="block text-brand-400 drop-shadow-[0_2px_14px_rgba(0,0,0,0.65)]">
+                <span className="block text-brand-600 drop-shadow-[0_2px_14px_rgba(0,0,0,0.65)]">
                   & congresos
                 </span>
               </h1>
@@ -256,13 +256,13 @@ export default async function EventsListingPage() {
                 aria-hidden
                 className="pointer-events-none absolute -left-32 -bottom-24 h-80 w-80 rounded-full bg-[radial-gradient(circle,_color-mix(in_oklab,_var(--color-brand-700)_45%,_transparent)_0%,_transparent_70%)]"
               />
-              <span className="relative inline-flex h-12 w-12 items-center justify-center rounded-xl bg-white/10 text-brand-300 ring-1 ring-white/15">
+              <span className="relative inline-flex h-12 w-12 items-center justify-center rounded-xl bg-white/10 text-brand-500 ring-1 ring-white/15">
                 <Users size={22} aria-hidden />
               </span>
               <h3 className="relative mt-8 font-display text-3xl uppercase leading-tight tracking-tight md:text-4xl">
                 Tarifa preferente
                 <br />
-                <span className="text-brand-300">para socios</span>
+                <span className="text-brand-500">para socios</span>
               </h3>
               <p className="relative mt-4 max-w-md text-ink-300">
                 Los socios activos acceden con descuento a cursos, talleres y congresos, y

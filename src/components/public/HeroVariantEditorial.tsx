@@ -85,7 +85,7 @@ export function HeroVariantEditorial() {
 
             {/* Card de congreso pegada abajo derecha */}
             <div className="absolute inset-x-4 bottom-4 rounded-xl bg-ink-950/85 p-4 text-white shadow-lift backdrop-blur md:inset-x-8 md:bottom-8 md:p-5">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-brand-400">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-brand-600">
                 Próximo Congreso
               </p>
               <p className="mt-1 font-display text-base uppercase leading-tight md:text-lg">
@@ -93,11 +93,11 @@ export function HeroVariantEditorial() {
               </p>
               <ul className="mt-3 grid grid-cols-1 gap-1.5 text-xs text-ink-200 sm:grid-cols-2">
                 <li className="flex items-center gap-1.5">
-                  <CalendarDays size={14} className="text-brand-400" aria-hidden />
+                  <CalendarDays size={14} className="text-brand-600" aria-hidden />
                   29 jul — 1 ago 2026
                 </li>
                 <li className="flex items-center gap-1.5">
-                  <MapPin size={14} className="text-brand-400" aria-hidden />
+                  <MapPin size={14} className="text-brand-600" aria-hidden />
                   Marina Las Condes
                 </li>
               </ul>

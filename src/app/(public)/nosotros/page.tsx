@@ -80,13 +80,13 @@ export default function NosotrosPage() {
         <div className="container-page relative pb-20 pt-28 md:pb-28 md:pt-36 lg:pb-32 lg:pt-44">
           <div className="grid items-end gap-12 md:grid-cols-12">
             <div className="md:col-span-8">
-              <p className="inline-flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.28em] text-brand-300">
+              <p className="inline-flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.28em] text-brand-500">
                 <span aria-hidden className="h-px w-10 bg-brand-500" />
                 Quiénes somos · Desde 1952
               </p>
               <h1 className="mt-7 font-display text-6xl uppercase leading-[0.9] tracking-tight md:text-[104px] lg:text-[136px]">
                 Setenta años
-                <span className="block text-brand-400 drop-shadow-[0_2px_14px_rgba(0,0,0,0.65)]">
+                <span className="block text-brand-600 drop-shadow-[0_2px_14px_rgba(0,0,0,0.65)]">
                   rehabilitando
                 </span>
               </h1>
@@ -172,7 +172,7 @@ export default function NosotrosPage() {
                       <span
                         className={`inline-flex h-12 w-12 items-center justify-center rounded-xl ring-1 ${
                           dark
-                            ? "bg-white/10 text-brand-300 ring-white/15"
+                            ? "bg-white/10 text-brand-500 ring-white/15"
                             : "bg-brand-50 text-brand-700 ring-brand-100"
                         }`}
                       >
@@ -266,7 +266,7 @@ export default function NosotrosPage() {
         <div className="container-page relative py-20 md:py-28">
           <div className="grid items-end gap-10 md:grid-cols-12">
             <div className="md:col-span-7">
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-brand-300">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-brand-500">
                 Comité directivo
               </p>
               <h2 className="mt-4 font-display text-5xl uppercase leading-[0.92] tracking-tight md:text-7xl">
@@ -297,13 +297,13 @@ export default function NosotrosPage() {
                   <p className="font-display text-base uppercase leading-tight tracking-tight text-white md:text-lg">
                     {m.name}
                   </p>
-                  <p className="mt-1 text-[11px] uppercase tracking-[0.18em] text-brand-300">
+                  <p className="mt-1 text-[11px] uppercase tracking-[0.18em] text-brand-500">
                     {m.role}
                   </p>
                   {m.email && (
                     <a
                       href={`mailto:${m.email}`}
-                      className="mt-2 inline-flex items-center gap-1.5 break-all text-[11px] text-ink-400 transition-colors hover:text-brand-300"
+                      className="mt-2 inline-flex items-center gap-1.5 break-all text-[11px] text-ink-400 transition-colors hover:text-brand-500"
                     >
                       <Mail size={11} aria-hidden />
                       {m.email}

@@ -55,7 +55,7 @@ export function AudienceSplit() {
             <span
               className={
                 isDark
-                  ? "inline-flex h-12 w-12 items-center justify-center rounded-lg bg-white/10 text-brand-400"
+                  ? "inline-flex h-12 w-12 items-center justify-center rounded-lg bg-white/10 text-brand-600"
                   : "inline-flex h-12 w-12 items-center justify-center rounded-lg bg-brand-50 text-brand-700"
               }
             >
@@ -64,7 +64,7 @@ export function AudienceSplit() {
             <p
               className={
                 "mt-6 text-xs font-semibold uppercase tracking-[0.18em] " +
-                (isDark ? "text-brand-400" : "text-brand-700")
+                (isDark ? "text-brand-600" : "text-brand-700")
               }
             >
               {eyebrow}
@@ -93,7 +93,7 @@ export function AudienceSplit() {
               href={cta.href}
               className={
                 "mt-8 inline-flex items-center gap-2 text-sm font-semibold transition-colors " +
-                (isDark ? "text-white hover:text-brand-400" : "text-brand-700 hover:text-brand-800")
+                (isDark ? "text-white hover:text-brand-600" : "text-brand-700 hover:text-brand-800")
               }
             >
               {cta.label}

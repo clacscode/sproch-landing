@@ -89,13 +89,13 @@ export default function SociosPage() {
         <div className="container-page relative pb-20 pt-28 md:pb-28 md:pt-36 lg:pb-32 lg:pt-44">
           <div className="grid items-end gap-12 md:grid-cols-12">
             <div className="md:col-span-8">
-              <p className="inline-flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.28em] text-brand-300">
+              <p className="inline-flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.28em] text-brand-500">
                 <span aria-hidden className="h-px w-10 bg-brand-500" />
                 Hazte socio · Desde 1952
               </p>
               <h1 className="mt-7 font-display text-6xl uppercase leading-[0.9] tracking-tight md:text-[104px] lg:text-[136px]">
                 Suma tu
-                <span className="block text-brand-400 drop-shadow-[0_2px_14px_rgba(0,0,0,0.65)]">
+                <span className="block text-brand-600 drop-shadow-[0_2px_14px_rgba(0,0,0,0.65)]">
                   trayectoria
                 </span>
               </h1>
@@ -180,7 +180,7 @@ export default function SociosPage() {
                       <span
                         className={`inline-flex h-12 w-12 items-center justify-center rounded-xl ring-1 ${
                           dark
-                            ? "bg-white/10 text-brand-300 ring-white/15"
+                            ? "bg-white/10 text-brand-500 ring-white/15"
                             : "bg-brand-50 text-brand-700 ring-brand-100"
                         }`}
                       >
@@ -307,7 +307,7 @@ export default function SociosPage() {
                 </div>
 
                 <div className="grain-overlay overflow-hidden rounded-2xl border border-ink-900 bg-ink-950 p-6 text-white">
-                  <p className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-brand-300">
+                  <p className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-brand-500">
                     <Clock size={13} aria-hidden />
                     Respuesta en 48 hrs
                   </p>

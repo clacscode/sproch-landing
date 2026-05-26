@@ -122,14 +122,14 @@ export default async function NewsArticlePage({ params }: { params: Promise<Para
           </h1>
           <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-ink-300">
             <span className="inline-flex items-center gap-2">
-              <Calendar size={15} className="text-brand-400" aria-hidden />
+              <Calendar size={15} className="text-brand-600" aria-hidden />
               {formatDate(article.publishedAt)}
             </span>
             {article.authorName && (
               <>
                 <span aria-hidden className="text-ink-600">·</span>
                 <span className="inline-flex items-center gap-2">
-                  <User size={15} className="text-brand-400" aria-hidden />
+                  <User size={15} className="text-brand-600" aria-hidden />
                   {article.authorName}
                 </span>
               </>
@@ -188,7 +188,7 @@ export default async function NewsArticlePage({ params }: { params: Promise<Para
                         <li key={tag}>
                           <Link
                             href={`/noticias?tag=${encodeURIComponent(tag)}`}
-                            className="inline-flex items-center rounded-full border border-ink-200 px-3 py-1 text-xs font-medium text-ink-700 transition-colors hover:border-brand-300 hover:bg-brand-50 hover:text-brand-700"
+                            className="inline-flex items-center rounded-full border border-ink-200 px-3 py-1 text-xs font-medium text-ink-700 transition-colors hover:border-brand-500 hover:bg-brand-50 hover:text-brand-700"
                           >
                             {tag}
                           </Link>
@@ -218,7 +218,7 @@ export default async function NewsArticlePage({ params }: { params: Promise<Para
 
                 {/* Newsletter */}
                 <div className="grain-overlay overflow-hidden rounded-2xl border border-ink-900 bg-ink-950 p-6 text-white">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-brand-300">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-brand-500">
                     Mantente al día
                   </p>
                   <p className="mt-3 font-display text-xl uppercase tracking-tight">

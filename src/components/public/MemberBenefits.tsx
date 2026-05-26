@@ -8,7 +8,7 @@ export function MemberBenefits() {
     <div className="container-page">
       <div className="grid gap-10 md:grid-cols-12 md:items-end">
         <div className="md:col-span-7">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-400">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-600">
             Hazte socio
           </p>
           <h2 className="mt-2 font-display text-4xl uppercase leading-tight md:text-5xl">
@@ -34,7 +34,7 @@ export function MemberBenefits() {
       <ul className="mt-12 grid gap-px overflow-hidden rounded-2xl bg-white/10 md:grid-cols-2 lg:grid-cols-3">
         {memberBenefits.map(({ icon: Icon, title, description }) => (
           <li key={title} className="bg-ink-950 p-6 md:p-8">
-            <span className="inline-flex h-11 w-11 items-center justify-center rounded-lg bg-brand-600/15 text-brand-400">
+            <span className="inline-flex h-11 w-11 items-center justify-center rounded-lg bg-brand-600/15 text-brand-600">
               <Icon size={20} />
             </span>
             <h3 className="mt-4 text-lg font-semibold text-white">{title}</h3>

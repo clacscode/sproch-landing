@@ -78,7 +78,7 @@ export function NewsletterForm() {
         aria-hidden
       />
       {state && !state.ok && (
-        <p className="text-xs text-brand-300">{state.error}</p>
+        <p className="text-xs text-brand-500">{state.error}</p>
       )}
       <p className="text-xs text-ink-400">
         Recibe noticias, congresos y convocatorias. Sin spam.

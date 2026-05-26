@@ -106,8 +106,8 @@ export function EventCard({ event, variant = "default" }: EventCardProps) {
               <p className="font-display text-[88px] uppercase leading-[0.85] tracking-tight text-white drop-shadow-[0_2px_14px_rgba(0,0,0,0.65)]">
                 {day}
               </p>
-              <p className="mt-2 inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-brand-300">
-                <span aria-hidden className="h-px w-6 bg-brand-400" />
+              <p className="mt-2 inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-brand-500">
+                <span aria-hidden className="h-px w-6 bg-brand-600" />
                 {month} · 20{year}
               </p>
             </div>

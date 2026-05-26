@@ -37,7 +37,7 @@ export function Footer() {
 
       {/* Top eyebrow strip */}
       <div className="container-page relative pt-16 md:pt-20">
-        <p className="inline-flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.28em] text-brand-300">
+        <p className="inline-flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.28em] text-brand-500">
           <span aria-hidden className="h-px w-10 bg-brand-500" />
           Sociedad de Prótesis · Desde 1952
         </p>
@@ -78,7 +78,7 @@ export function Footer() {
 
         {/* Navegación */}
         <nav aria-label="Navegación pie de página" className="md:col-span-3">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-brand-300">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-brand-500">
             Navegación
           </p>
           <ul className="mt-5 space-y-3.5">
@@ -86,7 +86,7 @@ export function Footer() {
               <li key={item.href}>
                 <Link
                   href={item.href}
-                  className="group inline-flex items-center gap-1.5 font-display text-base uppercase tracking-tight text-ink-100 transition-colors hover:text-brand-300"
+                  className="group inline-flex items-center gap-1.5 font-display text-base uppercase tracking-tight text-ink-100 transition-colors hover:text-brand-500"
                 >
                   {item.label}
                   <ArrowUpRight
@@ -100,7 +100,7 @@ export function Footer() {
             <li>
               <Link
                 href="/socios"
-                className="group inline-flex items-center gap-1.5 font-display text-base uppercase tracking-tight text-ink-100 transition-colors hover:text-brand-300"
+                className="group inline-flex items-center gap-1.5 font-display text-base uppercase tracking-tight text-ink-100 transition-colors hover:text-brand-500"
               >
                 Hazte socio
                 <ArrowUpRight
@@ -115,34 +115,34 @@ export function Footer() {
 
         {/* Contacto */}
         <div className="md:col-span-4">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-brand-300">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-brand-500">
             Contacto
           </p>
           <ul className="mt-5 space-y-4 text-sm text-ink-100">
             <li className="flex items-start gap-3">
-              <MapPin size={16} className="mt-0.5 shrink-0 text-brand-400" aria-hidden />
+              <MapPin size={16} className="mt-0.5 shrink-0 text-brand-600" aria-hidden />
               <span className="leading-relaxed">{siteConfig.address}</span>
             </li>
             <li>
               <a
                 href={`mailto:${siteConfig.email}`}
-                className="group flex items-start gap-3 transition-colors hover:text-brand-300"
+                className="group flex items-start gap-3 transition-colors hover:text-brand-500"
               >
-                <Mail size={16} className="mt-0.5 shrink-0 text-brand-400" aria-hidden />
+                <Mail size={16} className="mt-0.5 shrink-0 text-brand-600" aria-hidden />
                 <span className="break-all leading-relaxed">{siteConfig.email}</span>
               </a>
             </li>
             <li>
               <a
                 href={`tel:${siteConfig.phone.replace(/\s/g, "")}`}
-                className="group flex items-start gap-3 transition-colors hover:text-brand-300"
+                className="group flex items-start gap-3 transition-colors hover:text-brand-500"
               >
-                <Phone size={16} className="mt-0.5 shrink-0 text-brand-400" aria-hidden />
+                <Phone size={16} className="mt-0.5 shrink-0 text-brand-600" aria-hidden />
                 <span className="leading-relaxed">{siteConfig.phone}</span>
               </a>
             </li>
             <li className="flex items-start gap-3 text-ink-300">
-              <Clock size={16} className="mt-0.5 shrink-0 text-brand-400" aria-hidden />
+              <Clock size={16} className="mt-0.5 shrink-0 text-brand-600" aria-hidden />
               <span className="leading-relaxed">Lunes a viernes · 09 a 18 hrs</span>
             </li>
           </ul>

@@ -26,7 +26,7 @@ function FilterPill({
         "shrink-0 rounded-full border px-4 py-2 text-sm font-medium transition-all " +
         (active
           ? "border-brand-600 bg-brand-600 text-white shadow-sm"
-          : "border-ink-200 bg-white text-ink-700 hover:border-brand-300 hover:bg-brand-50 hover:text-brand-700")
+          : "border-ink-200 bg-white text-ink-700 hover:border-brand-500 hover:bg-brand-50 hover:text-brand-700")
       }
     >
       {children}
@@ -91,13 +91,13 @@ export default async function NewsListingPage({
         <div className="container-page relative pb-20 pt-28 md:pb-28 md:pt-36 lg:pb-32 lg:pt-44">
           <div className="grid items-end gap-12 md:grid-cols-12">
             <div className="md:col-span-8">
-              <p className="inline-flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.28em] text-brand-300">
+              <p className="inline-flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.28em] text-brand-500">
                 <span aria-hidden className="h-px w-10 bg-brand-500" />
                 Noticias · Comunicados oficiales
               </p>
               <h1 className="mt-7 font-display text-6xl uppercase leading-[0.9] tracking-tight md:text-[104px] lg:text-[140px]">
                 La sociedad
-                <span className="block text-brand-400 drop-shadow-[0_2px_14px_rgba(0,0,0,0.65)]">
+                <span className="block text-brand-600 drop-shadow-[0_2px_14px_rgba(0,0,0,0.65)]">
                   al día
                 </span>
               </h1>
@@ -113,7 +113,7 @@ export default async function NewsListingPage({
           {/* Strip print-like */}
           <div className="mt-16 flex flex-wrap items-center gap-x-3 gap-y-3 border-t border-white/10 pt-8 text-xs uppercase tracking-[0.22em] text-ink-300 md:mt-20 md:gap-x-6 md:text-sm">
             <span className="inline-flex items-center gap-2">
-              <Newspaper size={14} className="text-brand-400" aria-hidden />
+              <Newspaper size={14} className="text-brand-600" aria-hidden />
               {articles.length} {articles.length === 1 ? "publicación" : "publicaciones"}
             </span>
             <span aria-hidden className="text-ink-600">

@@ -263,7 +263,7 @@ body {
 }
 .btn-glow:hover {
   box-shadow:
-    0 0 0 1px color-mix(in oklab, var(--color-brand-400) 60%, transparent),
+    0 0 0 1px color-mix(in oklab, var(--color-brand-500) 60%, transparent),
     0 0 40px -2px color-mix(in oklab, var(--color-brand-500) 80%, transparent),
     0 16px 40px -8px color-mix(in oklab, var(--color-brand-700) 85%, transparent);
 }
@@ -286,7 +286,7 @@ body {
     180deg,
     transparent 0%,
     color-mix(in oklab, var(--color-brand-500) 35%, transparent) 30%,
-    color-mix(in oklab, var(--color-brand-400) 55%, transparent) 50%,
+    color-mix(in oklab, var(--color-brand-600) 55%, transparent) 50%,
     color-mix(in oklab, var(--color-brand-500) 35%, transparent) 70%,
     transparent 100%
   );

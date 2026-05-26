@@ -41,7 +41,7 @@ export default function NotFound() {
       {/* Tiny brand mark top-left */}
       <Link
         href="/"
-        className="container-page relative mt-6 inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.28em] text-brand-300 transition-colors hover:text-brand-200"
+        className="container-page relative mt-6 inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.28em] text-brand-500 transition-colors hover:text-brand-200"
       >
         <span aria-hidden className="h-px w-10 bg-brand-500" />
         SPROCh · {siteConfig.legalName}
@@ -50,8 +50,8 @@ export default function NotFound() {
       <div className="container-page relative flex flex-1 flex-col justify-center py-16 md:py-24">
         <div className="grid items-end gap-12 md:grid-cols-12">
           <div className="md:col-span-8">
-            <p className="inline-flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.28em] text-brand-300">
-              <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-brand-400" />
+            <p className="inline-flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.28em] text-brand-500">
+              <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-brand-600" />
               Error 404
             </p>
             <p
@@ -62,7 +62,7 @@ export default function NotFound() {
             </p>
             <h1 className="-mt-16 font-display text-5xl uppercase leading-[0.92] tracking-tight md:-mt-24 md:text-7xl lg:text-[96px]">
               Esta página
-              <span className="block text-brand-400 drop-shadow-[0_2px_14px_rgba(0,0,0,0.65)]">
+              <span className="block text-brand-600 drop-shadow-[0_2px_14px_rgba(0,0,0,0.65)]">
                 se nos perdió
               </span>
             </h1>
@@ -104,13 +104,13 @@ export default function NotFound() {
               >
                 <div>
                   <div className="flex items-start justify-between">
-                    <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 text-brand-300 ring-1 ring-white/15">
+                    <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 text-brand-500 ring-1 ring-white/15">
                       <Icon size={20} aria-hidden />
                     </span>
                     <ArrowUpRight
                       size={18}
                       aria-hidden
-                      className="text-ink-400 transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-brand-300"
+                      className="text-ink-400 transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-brand-500"
                     />
                   </div>
                   <p className="mt-6 font-display text-xl uppercase leading-tight tracking-tight text-white md:text-2xl">

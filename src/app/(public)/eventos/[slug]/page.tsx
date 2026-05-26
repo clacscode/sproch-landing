@@ -140,7 +140,7 @@ export default async function EventDetailPage({ params }: { params: Promise<Para
                 Fechas
               </dt>
               <dd className="mt-3 flex items-start gap-2.5 text-sm font-medium text-white md:text-base">
-                <CalendarDays size={16} className="mt-0.5 shrink-0 text-brand-400" aria-hidden />
+                <CalendarDays size={16} className="mt-0.5 shrink-0 text-brand-600" aria-hidden />
                 <span>{formatDateRange(event.startDate, event.endDate)}</span>
               </dd>
             </div>
@@ -149,7 +149,7 @@ export default async function EventDetailPage({ params }: { params: Promise<Para
                 Sede
               </dt>
               <dd className="mt-3 flex items-start gap-2.5 text-sm font-medium text-white md:text-base">
-                <MapPin size={16} className="mt-0.5 shrink-0 text-brand-400" aria-hidden />
+                <MapPin size={16} className="mt-0.5 shrink-0 text-brand-600" aria-hidden />
                 <span>{event.location}</span>
               </dd>
             </div>
@@ -158,7 +158,7 @@ export default async function EventDetailPage({ params }: { params: Promise<Para
                 Inversión
               </dt>
               <dd className="mt-3 flex items-center gap-2.5 text-white">
-                <Ticket size={16} className="shrink-0 text-brand-400" aria-hidden />
+                <Ticket size={16} className="shrink-0 text-brand-600" aria-hidden />
                 <span className="font-display text-xl uppercase tracking-tight md:text-2xl">
                   {event.priceCLP === 0 ? "Sin costo" : formatCLP(event.priceCLP)}
                 </span>

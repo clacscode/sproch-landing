@@ -41,7 +41,7 @@ export function HeroVariantMinimal() {
         </p>
         <h1 className="mt-4 font-display text-5xl uppercase leading-[0.95] tracking-tight md:text-7xl lg:text-8xl">
           Excelencia en
-          <span className="block text-brand-400 drop-shadow-[0_2px_14px_rgba(0,0,0,0.6)]">
+          <span className="block text-brand-600 drop-shadow-[0_2px_14px_rgba(0,0,0,0.6)]">
             rehabilitación oral
           </span>
         </h1>

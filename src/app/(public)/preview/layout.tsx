@@ -20,7 +20,7 @@ export default function PreviewLayout({ children }: { children: React.ReactNode 
               <Link
                 key={v.id}
                 href={v.href}
-                className="rounded-full border border-ink-200 bg-white px-3 py-1 transition-colors hover:border-brand-300 hover:text-brand-700"
+                className="rounded-full border border-ink-200 bg-white px-3 py-1 transition-colors hover:border-brand-500 hover:text-brand-700"
               >
                 {v.label}
               </Link>
