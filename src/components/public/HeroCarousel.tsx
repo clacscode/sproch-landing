@@ -33,7 +33,7 @@ export function HeroCarousel({ featured }: HeroCarouselProps) {
         title: (
           <>
             Avanzando la
-            <span className="block text-brand-400 drop-shadow-[0_2px_14px_rgba(0,0,0,0.65)]">rehabilitación oral</span>
+            <span className="block text-brand-600 drop-shadow-[0_2px_18px_rgba(0,0,0,0.75)]">rehabilitación oral</span>
           </>
         ),
         description:
@@ -51,12 +51,12 @@ export function HeroCarousel({ featured }: HeroCarouselProps) {
         title: featured ? (
           <>
             Congreso
-            <span className="block text-brand-400 drop-shadow-[0_2px_14px_rgba(0,0,0,0.65)]">SPROCh 2026</span>
+            <span className="block text-brand-600 drop-shadow-[0_2px_18px_rgba(0,0,0,0.75)]">SPROCh 2026</span>
           </>
         ) : (
           <>
             Congreso
-            <span className="block text-brand-400 drop-shadow-[0_2px_14px_rgba(0,0,0,0.65)]">SPROCh 2026</span>
+            <span className="block text-brand-600 drop-shadow-[0_2px_18px_rgba(0,0,0,0.75)]">SPROCh 2026</span>
           </>
         ),
         description:
@@ -77,7 +77,7 @@ export function HeroCarousel({ featured }: HeroCarouselProps) {
         title: (
           <>
             Una comunidad
-            <span className="block text-brand-400 drop-shadow-[0_2px_14px_rgba(0,0,0,0.65)]">que respalda tu carrera</span>
+            <span className="block text-brand-600 drop-shadow-[0_2px_18px_rgba(0,0,0,0.75)]">que respalda tu carrera</span>
           </>
         ),
         description:
