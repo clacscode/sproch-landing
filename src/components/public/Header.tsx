@@ -34,35 +34,6 @@ export function Header() {
           : "bg-transparent",
       )}
     >
-      {/* Top bar fina: contacto rápido */}
-      <div
-        className={cn(
-          "hidden transition-colors md:block",
-          scrolled && "bg-black/20",
-        )}
-      >
-        <div className="container-page flex h-8 items-center justify-between text-xs text-white/65">
-          <p className="font-medium tracking-wide text-white/85">
-            Sociedad de Prótesis y Rehabilitación Oral de Chile
-          </p>
-          <div className="flex items-center gap-5">
-            <a
-              href={`tel:${siteConfig.phone.replace(/\s/g, "")}`}
-              className="inline-flex items-center gap-1.5 transition-colors hover:text-brand-300"
-            >
-              <Phone size={12} aria-hidden />
-              {siteConfig.phone}
-            </a>
-            <a
-              href={`mailto:${siteConfig.email}`}
-              className="transition-colors hover:text-brand-300"
-            >
-              {siteConfig.email}
-            </a>
-          </div>
-        </div>
-      </div>
-
       {/* Bar principal */}
       <div className="relative overflow-hidden">
         {/* Sutil gradiente rojo a la derecha para reforzar identidad sin tapar el logo */}
@@ -74,7 +45,12 @@ export function Header() {
               "radial-gradient(ellipse 70% 140% at 80% 50%, color-mix(in oklab, var(--color-brand-700) 28%, transparent) 0%, transparent 65%)",
           }}
         />
-        <div className="container-page relative flex h-16 items-center justify-between gap-6 md:h-20">
+        <div
+          className={cn(
+            "container-page relative flex items-center justify-between gap-6 transition-[height] duration-500 ease-out",
+            scrolled ? "h-16 md:h-20" : "h-20 md:h-32 lg:h-36",
+          )}
+        >
           <Link
             href="/"
             aria-label={siteConfig.legalName}
@@ -83,10 +59,13 @@ export function Header() {
             <Image
               src="/brand/logo-dark.png"
               alt={siteConfig.name}
-              width={260}
-              height={96}
+              width={320}
+              height={120}
               priority
-              className="h-10 w-auto md:h-14"
+              className={cn(
+                "w-auto transition-[height] duration-500 ease-out",
+                scrolled ? "h-10 md:h-14" : "h-14 md:h-24 lg:h-28",
+              )}
             />
           </Link>
 
