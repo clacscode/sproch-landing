@@ -4,19 +4,29 @@ export const eventsMock: EventItem[] = [
   {
     id: "e1",
     slug: "congreso-sproch-2026",
-    title: "Congreso SPROCh 2026 — ADA: De lo análogo y digital a la AI",
+    title: "Congreso SPROCh 2026 — ADAI: De lo analógico y digital a la AI",
     summary:
-      "Tres días con expositores internacionales en Santiago. De lo análogo y digital a la inteligencia artificial.",
+      "XIX Reunión Internacional de la SIOLA. Tres días con expositores internacionales de Brasil y España en el Hotel Marina Las Condes, Santiago — de lo analógico y digital a la inteligencia artificial.",
     content: `
-<p>El congreso anual de SPROCh reúne a la comunidad iberoamericana en torno a la prótesis y rehabilitación oral. La edición 2026 propone un recorrido desde lo análogo y digital hacia la inteligencia artificial aplicada a la práctica clínica.</p>
+<p>El congreso anual de SPROCh reúne a la comunidad iberoamericana en torno a la prótesis y rehabilitación oral. La edición 2026 —ADAI— propone un recorrido desde lo analógico y digital hacia la inteligencia artificial aplicada a la práctica clínica.</p>
+<p>Esta edición se desarrolla junto a la <strong>XIX Reunión Internacional de la SIOLA</strong> (Sociedad de Implantología Oral Latinoamericana), con expositores internacionales de Brasil y España.</p>
 <p>Tres días de conferencias, talleres y networking en el Hotel Marina Las Condes, Santiago.</p>
+<h2>Tarifas de inscripción</h2>
+<ul>
+  <li><strong>Socios SPROCh:</strong> $130.000</li>
+  <li><strong>Alumnos de pre y postgrado:</strong> $95.000</li>
+  <li><strong>FESODECH / Colegiado:</strong> $160.000</li>
+  <li><strong>No socio:</strong> $190.000</li>
+</ul>
+<p>Valores sujetos a cargo por servicio de la plataforma. Inscripciones a través de Welcu.</p>
     `.trim(),
     startDate: "2026-07-30",
     endDate: "2026-08-01",
     location: "Hotel Marina Las Condes, Santiago",
-    coverImage: "/brand/logo.png",
-    capacity: 600,
-    priceCLP: 380000,
+    coverImage: "/congreso1.jpeg",
+    priceCLP: 95000,
+    priceFrom: true,
+    registrationUrl: "https://welcu.com/sproch/congreso-sproch-2026",
     category: "CONGRESO",
     status: "PUBLISHED",
     featured: true,
@@ -34,79 +44,27 @@ export const eventsMock: EventItem[] = [
       { name: "Dr. Paulino Sánchez Palomino", country: "España" },
       { name: "Dr. Eugenio Velasco Ortega", country: "España" },
     ],
+    // Auspiciadores del afiche oficial — específicos de este congreso.
     sponsors: [
-      { name: "Haleon" },
-      { name: "Solara" },
-      { name: "Laboratorios Dentaid" },
+      { name: "MIS" },
+      { name: "FGM Dental Group" },
+      { name: "P Dental" },
+      { name: "Straumann" },
+      { name: "Kerr" },
+      { name: "Nobel Biocare" },
+      { name: "AlphaBio Simplantology" },
+      { name: "DEXIS" },
+      { name: "Dentaid" },
+      { name: "Corega" },
+      { name: "Hiossen Implant" },
       { name: "Punto Dental Ortotek" },
-      { name: "Envista" },
-      { name: "Hiossen Chile" },
       { name: "Solventum" },
-      { name: "FGM y SP Dental" },
-      { name: "3Dental" },
+      { name: "3Dental Digital" },
       { name: "Megagen Chile" },
-      { name: "MBM Business Group SpA" },
+      { name: "Solara Group" },
     ],
-    program: [
-      {
-        day: "Jueves 30 de julio",
-        items: [
-          { time: "09:00", title: "Acreditación y bienvenida" },
-          { time: "10:00", title: "Conferencia inaugural" },
-          { time: "12:30", title: "Almuerzo con auspiciadores" },
-          { time: "14:30", title: "Bloque clínico digital" },
-          { time: "18:30", title: "Cóctel de bienvenida" },
-        ],
-      },
-      {
-        day: "Viernes 31 de julio",
-        items: [
-          { time: "09:00", title: "Bloque rehabilitación implanto-soportada" },
-          { time: "12:00", title: "Mesas de discusión" },
-          { time: "14:30", title: "Talleres prácticos" },
-        ],
-      },
-      {
-        day: "Sábado 1 de agosto",
-        items: [
-          { time: "09:00", title: "Bloque inteligencia artificial en odontología" },
-          { time: "12:00", title: "Cierre y entrega de certificados" },
-        ],
-      },
-    ],
+    // El programa día a día se publicará más adelante (la página muestra "Programa próximamente").
   },
-  {
-    id: "e2",
-    slug: "curso-rehabilitacion-sobre-implantes-2026",
-    title: "Curso: Rehabilitación sobre implantes — flujos digitales",
-    summary:
-      "Curso de actualización de dos días dirigido a especialistas y residentes en rehabilitación oral.",
-    content:
-      "<p>Curso intensivo orientado a clínicos que quieran integrar flujos digitales en rehabilitación implanto-soportada. Incluye casos clínicos y prácticas.</p>",
-    startDate: "2026-09-12",
-    endDate: "2026-09-13",
-    location: "Sede SPROCh, Santiago",
-    coverImage: "/brand/logo.png",
-    capacity: 40,
-    priceCLP: 280000,
-    category: "CURSO",
-    status: "PUBLISHED",
-  },
-  {
-    id: "e3",
-    slug: "taller-oclusion-y-articuladores",
-    title: "Taller: Oclusión y articuladores",
-    summary:
-      "Taller hands-on de un día sobre fundamentos de oclusión, articuladores y planificación protésica.",
-    content:
-      "<p>Taller práctico para especialistas y residentes. Incluye materiales y certificación.</p>",
-    startDate: "2026-06-21",
-    endDate: "2026-06-21",
-    location: "Sede SPROCh, Santiago",
-    coverImage: "/brand/logo.png",
-    capacity: 25,
-    priceCLP: 120000,
-    category: "CURSO",
-    status: "PUBLISHED",
-  },
+  // Próximamente se cargarán más cursos y congresos. Por ahora solo está
+  // publicado el congreso de lanzamiento (ver siteConfig.features.eventsComingSoon).
 ];

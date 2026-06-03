@@ -42,6 +42,10 @@ export interface EventItem {
   coverImage: string;
   capacity?: number;
   priceCLP: number;
+  /** Cuando es true, el precio se muestra como "Desde …" (tarifa más baja de varias). */
+  priceFrom?: boolean;
+  /** URL de inscripción externa (ej. Welcu). Si está presente, el CTA la usa en vez del flujo interno. */
+  registrationUrl?: string;
   category: EventCategory;
   status: EventStatus;
   featured?: boolean;

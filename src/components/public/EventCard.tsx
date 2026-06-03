@@ -3,7 +3,7 @@ import { ArrowRight, CalendarDays, MapPin, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { formatCLP, formatDateRange } from "@/lib/format";
+import { formatDateRange, formatEventPrice } from "@/lib/format";
 import type { EventItem } from "@/lib/types";
 
 interface EventCardProps {
@@ -151,7 +151,7 @@ export function EventCard({ event, variant = "default" }: EventCardProps) {
               {event.priceCLP === 0 ? "Acceso" : "Inversión"}
             </p>
             <p className="font-display text-xl uppercase tracking-tight text-ink-900">
-              {event.priceCLP === 0 ? "Sin costo" : formatCLP(event.priceCLP)}
+              {formatEventPrice(event.priceCLP, { from: event.priceFrom })}
             </p>
           </div>
           <Button asChild size="sm" variant={isFeatured ? "primary" : "outline"}>

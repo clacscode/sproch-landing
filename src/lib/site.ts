@@ -17,6 +17,15 @@ export const siteConfig = {
     name: "Korr",
     url: "https://www.korr.cl/es",
   },
+  features: {
+    /**
+     * Modo "próximamente" para Cursos y Congresos. Mientras la agenda aún no
+     * tiene su catálogo completo cargado, las categorías sin eventos muestran
+     * un estado "Próximamente más información" en vez del vacío genérico.
+     * Cambiar a `false` cuando se carguen los cursos y congresos definitivos.
+     */
+    eventsComingSoon: true,
+  },
   navigation: [
     { label: "Inicio", href: "/" },
     { label: "Nosotros", href: "/nosotros" },

@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Breadcrumbs } from "@/components/public/Breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { SponsorsStrip } from "@/components/public/SponsorsStrip";
-import { formatCLP, formatDateRange } from "@/lib/format";
+import { formatDateRange, formatEventPrice } from "@/lib/format";
 import { siteConfig } from "@/lib/site";
 import { getEventBySlug, listEvents } from "@/server/queries/events";
 
@@ -49,7 +49,9 @@ export default async function EventDetailPage({ params }: { params: Promise<Para
   const event = await getEventBySlug(slug);
   if (!event) notFound();
 
-  const enrollDisabled = !isWebpayConfigured() || event.priceCLP === 0;
+  const isExternal = Boolean(event.registrationUrl);
+  const enrollDisabled = !isExternal && (!isWebpayConfigured() || event.priceCLP === 0);
+  const priceLabel = formatEventPrice(event.priceCLP, { from: event.priceFrom });
 
   const eventJsonLd = {
     "@context": "https://schema.org",
@@ -70,7 +72,7 @@ export default async function EventDetailPage({ params }: { params: Promise<Para
             price: event.priceCLP,
             priceCurrency: "CLP",
             availability: "https://schema.org/InStock",
-            url: `${siteConfig.url}/eventos/${event.slug}`,
+            url: event.registrationUrl ?? `${siteConfig.url}/eventos/${event.slug}`,
           }
         : undefined,
   };
@@ -160,7 +162,7 @@ export default async function EventDetailPage({ params }: { params: Promise<Para
               <dd className="mt-3 flex items-center gap-2.5 text-white">
                 <Ticket size={16} className="shrink-0 text-brand-600" aria-hidden />
                 <span className="font-display text-xl uppercase tracking-tight md:text-2xl">
-                  {event.priceCLP === 0 ? "Sin costo" : formatCLP(event.priceCLP)}
+                  {priceLabel}
                 </span>
               </dd>
             </div>
@@ -170,6 +172,13 @@ export default async function EventDetailPage({ params }: { params: Promise<Para
             {enrollDisabled ? (
               <Button size="lg" disabled className="cursor-not-allowed opacity-70">
                 Inscripción próximamente
+              </Button>
+            ) : isExternal ? (
+              <Button asChild size="lg" className="btn-glow">
+                <a href={event.registrationUrl} target="_blank" rel="noopener noreferrer">
+                  Inscribirme en Welcu
+                  <ArrowUpRight size={16} aria-hidden />
+                </a>
               </Button>
             ) : (
               <Button asChild size="lg" className="btn-glow">
@@ -185,7 +194,7 @@ export default async function EventDetailPage({ params }: { params: Promise<Para
                 <ArrowUpRight size={15} aria-hidden />
               </Link>
             </Button>
-            {!isWebpayConfigured() && event.priceCLP > 0 && (
+            {!isExternal && !isWebpayConfigured() && event.priceCLP > 0 && (
               <p className="text-xs text-ink-400">
                 La pasarela de pago WebPay se habilitará próximamente.
               </p>
@@ -215,14 +224,14 @@ export default async function EventDetailPage({ params }: { params: Promise<Para
                 dangerouslySetInnerHTML={{ __html: event.content }}
               />
 
-              {event.program?.length ? (
-                <div className="mt-16">
-                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-brand-700">
-                    Programa día a día
-                  </p>
-                  <h3 className="mt-3 font-display text-3xl uppercase leading-tight tracking-tight text-ink-900 md:text-4xl">
-                    Cronograma
-                  </h3>
+              <div className="mt-16">
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-brand-700">
+                  Programa día a día
+                </p>
+                <h3 className="mt-3 font-display text-3xl uppercase leading-tight tracking-tight text-ink-900 md:text-4xl">
+                  Cronograma
+                </h3>
+                {event.program?.length ? (
                   <ol className="mt-8 space-y-4">
                     {event.program.map((day, idx) => (
                       <li
@@ -250,8 +259,18 @@ export default async function EventDetailPage({ params }: { params: Promise<Para
                       </li>
                     ))}
                   </ol>
-                </div>
-              ) : null}
+                ) : (
+                  <div className="mt-8 rounded-2xl border border-dashed border-ink-200 bg-white px-6 py-12 text-center">
+                    <p className="font-display text-xl uppercase tracking-tight text-ink-900">
+                      Programa próximamente
+                    </p>
+                    <p className="mx-auto mt-3 max-w-md text-ink-600">
+                      Estamos finalizando la agenda día a día del congreso. Muy pronto publicaremos
+                      el cronograma completo de conferencias y talleres.
+                    </p>
+                  </div>
+                )}
+              </div>
             </article>
 
             {/* Sidebar */}
@@ -263,10 +282,14 @@ export default async function EventDetailPage({ params }: { params: Promise<Para
                     Inscripción
                   </p>
                   <p className="mt-3 font-display text-3xl uppercase tracking-tight text-ink-900">
-                    {event.priceCLP === 0 ? "Sin costo" : formatCLP(event.priceCLP)}
+                    {priceLabel}
                   </p>
                   <p className="mt-1 text-xs uppercase tracking-[0.18em] text-ink-500">
-                    {event.priceCLP === 0 ? "Acceso libre con registro" : "Por persona · IVA incluido"}
+                    {event.priceCLP === 0
+                      ? "Acceso libre con registro"
+                      : event.priceFrom
+                        ? "Según categoría · ver todas las tarifas"
+                        : "Por persona · IVA incluido"}
                   </p>
 
                   <ul className="mt-6 space-y-3 border-t border-ink-100 pt-5 text-sm">
@@ -289,6 +312,13 @@ export default async function EventDetailPage({ params }: { params: Promise<Para
                   {enrollDisabled ? (
                     <Button disabled className="mt-6 w-full cursor-not-allowed opacity-70">
                       Inscripción próximamente
+                    </Button>
+                  ) : isExternal ? (
+                    <Button asChild className="btn-glow mt-6 w-full">
+                      <a href={event.registrationUrl} target="_blank" rel="noopener noreferrer">
+                        Inscribirme en Welcu
+                        <ArrowUpRight size={15} aria-hidden />
+                      </a>
                     </Button>
                   ) : (
                     <Button asChild className="btn-glow mt-6 w-full">

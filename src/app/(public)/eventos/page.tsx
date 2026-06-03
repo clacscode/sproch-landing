@@ -5,7 +5,8 @@ import { ArrowRight, ArrowUpRight, CalendarDays, GraduationCap, MapPin, Users } 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EventsTabs } from "@/components/public/EventsTabs";
-import { formatCLP, formatDateRange } from "@/lib/format";
+import { formatDateRange, formatEventPrice } from "@/lib/format";
+import { siteConfig } from "@/lib/site";
 import { listEvents } from "@/server/queries/events";
 
 export const revalidate = 60;
@@ -120,18 +121,21 @@ export default async function EventsListingPage() {
               href={`/eventos/${featured.slug}`}
               className="card-lift group relative grid overflow-hidden rounded-3xl border border-ink-200 bg-white md:grid-cols-12"
             >
-              <div className="relative col-span-12 aspect-[16/10] overflow-hidden md:col-span-7 md:aspect-auto">
+              <div className="relative col-span-12 aspect-[4/5] overflow-hidden bg-ink-950 md:col-span-7 md:aspect-auto">
                 <div
                   aria-hidden
-                  className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--color-brand-700)_0%,_transparent_60%),linear-gradient(140deg,#0c0c10_0%,#16161c_70%)] transition-transform duration-700 group-hover:scale-105"
+                  className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_color-mix(in_oklab,_var(--color-brand-700)_55%,_transparent)_0%,_transparent_60%),linear-gradient(140deg,#0c0c10_0%,#16161c_70%)]"
                 />
                 <div
                   aria-hidden
                   className="absolute -left-2 inset-y-0 w-3 bg-brand-600 [clip-path:polygon(0_0,100%_0,60%_100%,0_100%)]"
                 />
-                <div
-                  aria-hidden
-                  className="absolute inset-0 opacity-10 [background-image:linear-gradient(60deg,rgba(255,255,255,0.4)_1px,transparent_1px)] [background-size:24px_24px]"
+                <Image
+                  src={featured.coverImage}
+                  alt={`Afiche ${featured.title}`}
+                  fill
+                  sizes="(min-width: 768px) 58vw, 100vw"
+                  className="object-contain p-5 transition-transform duration-700 group-hover:scale-[1.02] md:p-8"
                 />
                 <div className="absolute inset-0 flex flex-col justify-between p-6 md:p-10">
                   <div className="flex flex-wrap gap-2">
@@ -141,11 +145,6 @@ export default async function EventsListingPage() {
                     <Badge variant="dark" className="bg-white/15 text-white backdrop-blur">
                       Destacado
                     </Badge>
-                  </div>
-                  <div>
-                    <p className="font-display text-7xl uppercase leading-none tracking-tight text-white/15 transition-colors group-hover:text-white/25 md:text-8xl">
-                      SPROCh
-                    </p>
                   </div>
                 </div>
               </div>
@@ -178,7 +177,7 @@ export default async function EventsListingPage() {
                       {featured.priceCLP === 0 ? "Acceso" : "Inversión"}
                     </p>
                     <p className="font-display text-2xl uppercase tracking-tight text-ink-900">
-                      {featured.priceCLP === 0 ? "Sin costo" : formatCLP(featured.priceCLP)}
+                      {formatEventPrice(featured.priceCLP, { from: featured.priceFrom })}
                     </p>
                   </div>
                   <Button asChild size="sm" className="btn-glow">
@@ -216,7 +215,12 @@ export default async function EventsListingPage() {
             </div>
           </div>
 
-          <EventsTabs todos={todos} cursos={cursos} congresos={congresos} />
+          <EventsTabs
+            todos={todos}
+            cursos={cursos}
+            congresos={congresos}
+            comingSoon={siteConfig.features.eventsComingSoon}
+          />
         </div>
       </section>
 
