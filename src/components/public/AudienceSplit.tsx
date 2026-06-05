@@ -25,7 +25,7 @@ const cards = [
     bullets: [
       "Especialistas con foco en evidencia",
       "Actualización clínica permanente",
-      "Sociedad con más de 70 años de historia",
+      "Sociedad con más de 74 años de historia",
     ],
     cta: { label: "Conocer SPROCh", href: "/nosotros" },
     tone: "light" as const,

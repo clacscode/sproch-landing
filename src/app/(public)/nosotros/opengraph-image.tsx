@@ -1,7 +1,7 @@
 import { OG_CONTENT_TYPE, OG_SIZE, renderOg } from "@/lib/og";
 
 export const runtime = "edge";
-export const alt = "Nosotros — SPROCh, más de 70 años rehabilitando";
+export const alt = "Nosotros — SPROCh, más de 74 años rehabilitando";
 export const size = OG_SIZE;
 export const contentType = OG_CONTENT_TYPE;
 

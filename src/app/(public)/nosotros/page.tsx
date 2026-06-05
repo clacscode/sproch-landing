@@ -104,7 +104,7 @@ export default function NosotrosPage() {
           <div className="mt-16 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur md:mt-20 md:grid-cols-4">
             {[
               { k: "1952", v: "Año de fundación" },
-              { k: "+70", v: "Años de historia" },
+              { k: "+74", v: "Años de historia" },
               { k: "05", v: "Filiales regionales" },
               { k: "+1k", v: "Especialistas conectados" },
             ].map((s) => (

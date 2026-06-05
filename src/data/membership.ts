@@ -88,7 +88,7 @@ export interface StatItem {
 }
 
 export const stats: StatItem[] = [
-  { value: "70+", label: "años de historia" },
+  { value: "74+", label: "años de historia" },
   { value: "12+", label: "países en nuestra red iberoamericana" },
   { value: "20+", label: "cursos y jornadas anuales" },
   { value: "100%", label: "actividades con aval científico" },

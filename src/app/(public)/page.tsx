@@ -79,7 +79,7 @@ export default async function HomePage() {
               <h2 className="mt-4 font-display text-5xl uppercase leading-[0.92] tracking-tight text-ink-900 md:text-7xl">
                 Una sociedad
                 <br />
-                <span className="text-ink-500">con más de 70 años de historia</span>
+                <span className="text-ink-500">con más de 74 años de historia</span>
               </h2>
             </div>
             <div className="md:col-span-5">
