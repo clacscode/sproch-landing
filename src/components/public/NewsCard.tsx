@@ -8,6 +8,10 @@ import type { NewsArticle } from "@/lib/types";
 interface NewsCardProps {
   article: NewsArticle;
   variant?: "default" | "featured";
+  /** Ruta base para los enlaces (por defecto "/noticias"; usar "/pacientes" para reutilizar). */
+  basePath?: string;
+  /** Texto del CTA inferior. */
+  readLabel?: string;
 }
 
 const DEFAULT_ACCENT = "from-brand-700 to-ink-900";
@@ -25,7 +29,12 @@ function getAccent(tag?: string): string {
   return accentForTag[tag.toLowerCase()] ?? DEFAULT_ACCENT;
 }
 
-export function NewsCard({ article, variant = "default" }: NewsCardProps) {
+export function NewsCard({
+  article,
+  variant = "default",
+  basePath = "/noticias",
+  readLabel = "Leer noticia",
+}: NewsCardProps) {
   const primaryTag = article.tags[0];
   const accent = getAccent(primaryTag);
   const initial = article.title.trim().charAt(0).toUpperCase();
@@ -33,7 +42,7 @@ export function NewsCard({ article, variant = "default" }: NewsCardProps) {
   return (
     <Card className="group card-lift flex h-full flex-col overflow-hidden">
       <Link
-        href={`/noticias/${article.slug}`}
+        href={`${basePath}/${article.slug}`}
         className="relative block aspect-[16/10] w-full overflow-hidden"
         aria-label={article.title}
       >
@@ -106,7 +115,7 @@ export function NewsCard({ article, variant = "default" }: NewsCardProps) {
           {formatDate(article.publishedAt)}
         </p>
         <Link
-          href={`/noticias/${article.slug}`}
+          href={`${basePath}/${article.slug}`}
           className="font-display text-lg uppercase leading-tight tracking-tight text-ink-900 transition-colors group-hover:text-brand-700 md:text-xl"
         >
           {article.title}
@@ -120,10 +129,10 @@ export function NewsCard({ article, variant = "default" }: NewsCardProps) {
         </p>
         <div className="mt-auto pt-2">
           <Link
-            href={`/noticias/${article.slug}`}
+            href={`${basePath}/${article.slug}`}
             className="inline-flex items-center gap-1.5 text-sm font-semibold uppercase tracking-wider text-brand-700 transition-all group-hover:gap-2.5 group-hover:text-brand-800"
           >
-            Leer noticia
+            {readLabel}
             <ArrowUpRight
               size={14}
               aria-hidden

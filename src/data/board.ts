@@ -73,19 +73,19 @@ export const milestones = [
       "Un grupo de odontólogos pioneros funda la Sociedad de Prótesis y Rehabilitación Oral de Chile.",
   },
   {
-    year: "1980s",
+    year: "1980",
     title: "Expansión académica",
     description:
       "Se consolidan los primeros programas de formación continua en prótesis y rehabilitación oral.",
   },
   {
-    year: "2000s",
+    year: "2000",
     title: "Integración latinoamericana",
     description:
       "Vinculación activa con sociedades científicas hermanas de Iberoamérica y participación en redes regionales.",
   },
   {
-    year: "2020s",
+    year: "2020",
     title: "Transformación digital",
     description:
       "Adopción de flujos digitales, escaneo intraoral, CAD/CAM e inteligencia artificial aplicada a rehabilitación.",

@@ -146,14 +146,18 @@ export function EventCard({ event, variant = "default" }: EventCardProps) {
           ) : null}
         </ul>
         <div className="mt-auto flex items-center justify-between gap-3 border-t border-ink-100 pt-4">
-          <div>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-ink-500">
-              {event.priceCLP === 0 ? "Acceso" : "Inversión"}
-            </p>
-            <p className="font-display text-xl uppercase tracking-tight text-ink-900">
-              {formatEventPrice(event.priceCLP, { from: event.priceFrom })}
-            </p>
-          </div>
+          {event.hidePrice ? (
+            <span aria-hidden />
+          ) : (
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-ink-500">
+                {event.priceCLP === 0 ? "Acceso" : "Inversión"}
+              </p>
+              <p className="font-display text-xl uppercase tracking-tight text-ink-900">
+                {formatEventPrice(event.priceCLP, { from: event.priceFrom })}
+              </p>
+            </div>
+          )}
           <Button asChild size="sm" variant={isFeatured ? "primary" : "outline"}>
             <Link href={`/eventos/${event.slug}`}>
               Ver detalle

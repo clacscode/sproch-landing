@@ -7,9 +7,11 @@ import { Search, X } from "lucide-react";
 interface NewsSearchProps {
   initialQuery?: string;
   initialTag?: string;
+  /** Ruta base a la que se envía la búsqueda (por defecto "/noticias"). */
+  basePath?: string;
 }
 
-export function NewsSearch({ initialQuery = "", initialTag }: NewsSearchProps) {
+export function NewsSearch({ initialQuery = "", initialTag, basePath = "/noticias" }: NewsSearchProps) {
   const router = useRouter();
   const [value, setValue] = React.useState(initialQuery);
   const inputRef = React.useRef<HTMLInputElement | null>(null);
@@ -24,7 +26,7 @@ export function NewsSearch({ initialQuery = "", initialTag }: NewsSearchProps) {
     const trimmed = next.trim();
     if (trimmed) sp.set("q", trimmed);
     const queryString = sp.toString();
-    router.push(`/noticias${queryString ? `?${queryString}` : ""}`);
+    router.push(`${basePath}${queryString ? `?${queryString}` : ""}`);
   };
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {

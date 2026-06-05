@@ -172,14 +172,18 @@ export default async function EventsListingPage() {
                   ) : null}
                 </ul>
                 <div className="mt-2 flex items-center justify-between gap-4 border-t border-ink-100 pt-5">
-                  <div>
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-ink-500">
-                      {featured.priceCLP === 0 ? "Acceso" : "Inversión"}
-                    </p>
-                    <p className="font-display text-2xl uppercase tracking-tight text-ink-900">
-                      {formatEventPrice(featured.priceCLP, { from: featured.priceFrom })}
-                    </p>
-                  </div>
+                  {featured.hidePrice ? (
+                    <span aria-hidden />
+                  ) : (
+                    <div>
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-ink-500">
+                        {featured.priceCLP === 0 ? "Acceso" : "Inversión"}
+                      </p>
+                      <p className="font-display text-2xl uppercase tracking-tight text-ink-900">
+                        {formatEventPrice(featured.priceCLP, { from: featured.priceFrom })}
+                      </p>
+                    </div>
+                  )}
                   <Button asChild size="sm" className="btn-glow">
                     <span>
                       Ver detalle

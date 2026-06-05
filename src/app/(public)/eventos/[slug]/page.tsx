@@ -136,7 +136,11 @@ export default async function EventDetailPage({ params }: { params: Promise<Para
           <p className="mt-7 max-w-2xl text-base text-ink-200 md:text-lg">{event.summary}</p>
 
           {/* Quick facts strip */}
-          <dl className="mt-12 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur md:grid-cols-3">
+          <dl
+            className={`mt-12 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur ${
+              event.hidePrice ? "md:grid-cols-2" : "md:grid-cols-3"
+            }`}
+          >
             <div className="bg-ink-950 p-5 md:p-6">
               <dt className="text-[10px] font-semibold uppercase tracking-[0.22em] text-ink-400">
                 Fechas
@@ -155,17 +159,19 @@ export default async function EventDetailPage({ params }: { params: Promise<Para
                 <span>{event.location}</span>
               </dd>
             </div>
-            <div className="col-span-2 bg-ink-950 p-5 md:col-span-1 md:p-6">
-              <dt className="text-[10px] font-semibold uppercase tracking-[0.22em] text-ink-400">
-                Inversión
-              </dt>
-              <dd className="mt-3 flex items-center gap-2.5 text-white">
-                <Ticket size={16} className="shrink-0 text-brand-600" aria-hidden />
-                <span className="font-display text-xl uppercase tracking-tight md:text-2xl">
-                  {priceLabel}
-                </span>
-              </dd>
-            </div>
+            {!event.hidePrice && (
+              <div className="col-span-2 bg-ink-950 p-5 md:col-span-1 md:p-6">
+                <dt className="text-[10px] font-semibold uppercase tracking-[0.22em] text-ink-400">
+                  Inversión
+                </dt>
+                <dd className="mt-3 flex items-center gap-2.5 text-white">
+                  <Ticket size={16} className="shrink-0 text-brand-600" aria-hidden />
+                  <span className="font-display text-xl uppercase tracking-tight md:text-2xl">
+                    {priceLabel}
+                  </span>
+                </dd>
+              </div>
+            )}
           </dl>
 
           <div className="mt-10 flex flex-wrap items-center gap-4">
@@ -176,7 +182,7 @@ export default async function EventDetailPage({ params }: { params: Promise<Para
             ) : isExternal ? (
               <Button asChild size="lg" className="btn-glow">
                 <a href={event.registrationUrl} target="_blank" rel="noopener noreferrer">
-                  Inscribirme en Welcu
+                  Inscribirme
                   <ArrowUpRight size={16} aria-hidden />
                 </a>
               </Button>
@@ -281,16 +287,20 @@ export default async function EventDetailPage({ params }: { params: Promise<Para
                   <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-brand-700">
                     Inscripción
                   </p>
-                  <p className="mt-3 font-display text-3xl uppercase tracking-tight text-ink-900">
-                    {priceLabel}
-                  </p>
-                  <p className="mt-1 text-xs uppercase tracking-[0.18em] text-ink-500">
-                    {event.priceCLP === 0
-                      ? "Acceso libre con registro"
-                      : event.priceFrom
-                        ? "Según categoría · ver todas las tarifas"
-                        : "Por persona · IVA incluido"}
-                  </p>
+                  {!event.hidePrice && (
+                    <>
+                      <p className="mt-3 font-display text-3xl uppercase tracking-tight text-ink-900">
+                        {priceLabel}
+                      </p>
+                      <p className="mt-1 text-xs uppercase tracking-[0.18em] text-ink-500">
+                        {event.priceCLP === 0
+                          ? "Acceso libre con registro"
+                          : event.priceFrom
+                            ? "Según categoría · ver todas las tarifas"
+                            : "Por persona · IVA incluido"}
+                      </p>
+                    </>
+                  )}
 
                   <ul className="mt-6 space-y-3 border-t border-ink-100 pt-5 text-sm">
                     <li className="flex items-start gap-2.5 text-ink-700">
@@ -316,7 +326,7 @@ export default async function EventDetailPage({ params }: { params: Promise<Para
                   ) : isExternal ? (
                     <Button asChild className="btn-glow mt-6 w-full">
                       <a href={event.registrationUrl} target="_blank" rel="noopener noreferrer">
-                        Inscribirme en Welcu
+                        Inscribirme
                         <ArrowUpRight size={15} aria-hidden />
                       </a>
                     </Button>

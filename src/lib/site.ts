@@ -31,6 +31,7 @@ export const siteConfig = {
     { label: "Nosotros", href: "/nosotros" },
     { label: "Noticias", href: "/noticias" },
     { label: "Cursos y Congresos", href: "/eventos" },
+    { label: "Pacientes", href: "/pacientes" },
     { label: "Contacto", href: "/contacto" },
   ],
 } as const;

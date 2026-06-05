@@ -44,6 +44,8 @@ export interface EventItem {
   priceCLP: number;
   /** Cuando es true, el precio se muestra como "Desde …" (tarifa más baja de varias). */
   priceFrom?: boolean;
+  /** Cuando es true, oculta el precio destacado en tarjetas/hero/sidebar (las tarifas pueden ir en el contenido). */
+  hidePrice?: boolean;
   /** URL de inscripción externa (ej. Welcu). Si está presente, el CTA la usa en vez del flujo interno. */
   registrationUrl?: string;
   category: EventCategory;

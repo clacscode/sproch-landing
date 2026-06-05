@@ -26,6 +26,7 @@ export const eventsMock: EventItem[] = [
     coverImage: "/congreso1.jpeg",
     priceCLP: 95000,
     priceFrom: true,
+    hidePrice: true,
     registrationUrl: "https://welcu.com/sproch/congreso-sproch-2026",
     category: "CONGRESO",
     status: "PUBLISHED",
