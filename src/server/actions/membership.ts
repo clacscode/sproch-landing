@@ -1,7 +1,7 @@
 "use server";
 
 import { membershipSchema, type MembershipInput } from "@/lib/validations/membership";
-import { siteConfig } from "@/lib/site";
+import { emailLayout, fieldsTable, sendEmail } from "@/server/email";
 
 export type MembershipResult =
   | { ok: true }
@@ -29,64 +29,6 @@ const FIELD_LABELS: { key: keyof MembershipInput; label: string }[] = [
   { key: "languages", label: "Idiomas" },
   { key: "sponsor", label: "Patrocinante" },
 ];
-
-function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
-
-function buildEmailHtml(data: MembershipInput): string {
-  const rows = FIELD_LABELS.filter(({ key }) => (data[key] as string)?.trim())
-    .map(
-      ({ key, label }) => `
-        <tr>
-          <td style="padding:8px 12px;border:1px solid #e5e5e5;background:#fafafa;font-weight:600;vertical-align:top;white-space:nowrap;">${label}</td>
-          <td style="padding:8px 12px;border:1px solid #e5e5e5;white-space:pre-wrap;">${escapeHtml(String(data[key]))}</td>
-        </tr>`,
-    )
-    .join("");
-
-  return `
-    <div style="font-family:system-ui,Arial,sans-serif;color:#111;max-width:680px;">
-      <h2 style="margin:0 0 4px;">Nueva solicitud de incorporación</h2>
-      <p style="margin:0 0 16px;color:#555;">Socio de Número — Sociedad de Prótesis y Rehabilitación Oral de Chile</p>
-      <table style="border-collapse:collapse;width:100%;font-size:14px;">${rows}</table>
-      <p style="margin:18px 0 0;color:#888;font-size:12px;">El postulante declaró conocer y comprometerse a respetar los Estatutos de la Sociedad.</p>
-    </div>`;
-}
-
-/** Envía la solicitud por email vía Resend. Devuelve true si se envió. */
-async function sendByResend(data: MembershipInput): Promise<boolean> {
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) return false;
-
-  const from = process.env.EMAIL_FROM ?? "SPROCh <onboarding@resend.dev>";
-  const to = process.env.CONTACT_INBOX ?? siteConfig.email;
-
-  const res = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      from,
-      to,
-      reply_to: data.email,
-      subject: `Nueva solicitud de incorporación — ${data.fullName}`,
-      html: buildEmailHtml(data),
-    }),
-  });
-
-  if (!res.ok) {
-    console.error("[membership] Resend respondió con error:", res.status, await res.text());
-    return false;
-  }
-  return true;
-}
 
 export async function submitMembershipAction(
   _: MembershipResult | null,
@@ -129,7 +71,17 @@ export async function submitMembershipAction(
   // Honeypot: bot detectado → respondemos ok sin procesar.
   if (parsed.data.hp) return { ok: true };
 
-  const sent = await sendByResend(parsed.data);
+  const data = parsed.data;
+  const sent = await sendEmail({
+    subject: `Nueva solicitud de incorporación — ${data.fullName}`,
+    replyTo: data.email,
+    html: emailLayout({
+      title: "Nueva solicitud de incorporación",
+      subtitle: "Socio de Número — Sociedad de Prótesis y Rehabilitación Oral de Chile",
+      bodyHtml: fieldsTable(FIELD_LABELS.map(({ key, label }) => ({ label, value: data[key] as string }))),
+      footer: "El postulante declaró conocer y comprometerse a respetar los Estatutos de la Sociedad.",
+    }),
+  });
 
   // Red de seguridad: si no se pudo enviar (sin RESEND_API_KEY o fallo),
   // dejamos la solicitud completa en los logs del servidor para no perderla.

@@ -1,6 +1,12 @@
 "use server";
 
-import { contactSchema, type ContactInput } from "@/lib/validations/contact";
+import {
+  contactSchema,
+  INQUIRY_LABELS,
+  type ContactInput,
+  type InquiryType,
+} from "@/lib/validations/contact";
+import { emailLayout, fieldsTable, sendEmail } from "@/server/email";
 
 export type ContactResult =
   | { ok: true }
@@ -22,14 +28,35 @@ export async function submitContactAction(input: ContactInput): Promise<ContactR
     return { ok: true };
   }
 
-  // TODO (F2): persistir en Prisma (ContactMessage) y enviar email con Resend.
-  // Por ahora, registramos en logs del servidor para no perder el mensaje en desarrollo.
-  if (process.env.NODE_ENV !== "production") {
-    console.info("[contact] nuevo mensaje:", {
-      name: parsed.data.name,
-      email: parsed.data.email,
-      inquiryType: parsed.data.inquiryType ?? "general",
-      subject: parsed.data.subject,
+  const data = parsed.data;
+  const inquiry = data.inquiryType
+    ? (INQUIRY_LABELS[data.inquiryType as InquiryType] ?? data.inquiryType)
+    : "Consulta general";
+
+  const sent = await sendEmail({
+    subject: `Contacto: ${data.subject}`,
+    replyTo: data.email,
+    html: emailLayout({
+      title: "Nuevo mensaje de contacto",
+      subtitle: `Tipo: ${inquiry}`,
+      bodyHtml: fieldsTable([
+        { label: "Nombre", value: data.name },
+        { label: "E-mail", value: data.email },
+        { label: "Teléfono", value: data.phone },
+        { label: "Asunto", value: data.subject },
+        { label: "Mensaje", value: data.message },
+      ]),
+    }),
+  });
+
+  // Red de seguridad: si no se pudo enviar, dejamos el mensaje en los logs.
+  if (!sent) {
+    console.error("[contact] mensaje NO enviado por email — payload de respaldo:", {
+      name: data.name,
+      email: data.email,
+      inquiryType: data.inquiryType ?? "general",
+      subject: data.subject,
+      message: data.message,
     });
   }
 

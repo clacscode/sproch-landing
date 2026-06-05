@@ -1,6 +1,7 @@
 "use server";
 
 import { newsletterSchema } from "@/lib/validations/newsletter";
+import { emailLayout, fieldsTable, sendEmail } from "@/server/email";
 
 export type NewsletterResult =
   | { ok: true }
@@ -22,9 +23,17 @@ export async function subscribeNewsletterAction(
     return { ok: true };
   }
 
-  // TODO (F2.1): persistir suscripción / integrar Resend audiences
-  if (process.env.NODE_ENV !== "production") {
-    console.info("[newsletter] nuevo suscriptor:", parsed.data.email);
+  const sent = await sendEmail({
+    subject: `Nuevo suscriptor al newsletter — ${parsed.data.email}`,
+    replyTo: parsed.data.email,
+    html: emailLayout({
+      title: "Nuevo suscriptor al newsletter",
+      bodyHtml: fieldsTable([{ label: "E-mail", value: parsed.data.email }]),
+    }),
+  });
+
+  if (!sent) {
+    console.error("[newsletter] suscripción NO notificada por email:", parsed.data.email);
   }
   return { ok: true };
 }
