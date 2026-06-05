@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { ArrowRight, CheckCircle2, ChevronDown, Loader2, Mail } from "lucide-react";
+import { ArrowRight, CheckCircle2, Loader2, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,20 +12,9 @@ import {
 } from "@/server/actions/membership";
 import { siteConfig } from "@/lib/site";
 
-const COMMENT_MAX = 1000;
-
-const categoryOptions = [
-  { value: "ESPECIALISTA", label: "Especialista titulado" },
-  { value: "DOCENTE", label: "Docente universitario" },
-  { value: "RESIDENTE", label: "Residente de postgrado" },
-  { value: "ESTUDIANTE", label: "Estudiante de pregrado" },
-  { value: "OTRO", label: "Otro" },
-] as const;
-
 export function MembershipForm() {
   const [pending, startTransition] = React.useTransition();
   const [state, setState] = React.useState<MembershipResult | null>(null);
-  const [messageLen, setMessageLen] = React.useState(0);
   const formRef = React.useRef<HTMLFormElement | null>(null);
 
   const fieldErr = (k: string) =>
@@ -33,7 +22,6 @@ export function MembershipForm() {
 
   const reset = () => {
     formRef.current?.reset();
-    setMessageLen(0);
     setState(null);
   };
 
@@ -43,10 +31,7 @@ export function MembershipForm() {
     startTransition(async () => {
       const res = await submitMembershipAction(state, fd);
       setState(res);
-      if (res.ok) {
-        e.currentTarget.reset();
-        setMessageLen(0);
-      }
+      if (res.ok) e.currentTarget.reset();
     });
   };
 
@@ -65,12 +50,12 @@ export function MembershipForm() {
             Solicitud recibida
           </p>
           <h3 className="mt-2 font-display text-3xl uppercase leading-tight tracking-tight text-emerald-950 md:text-4xl">
-            Bienvenido a la comunidad
+            Gracias por postular
           </h3>
           <p className="mt-4 max-w-md text-base leading-relaxed text-emerald-900/80">
-            Recibimos tu solicitud para sumarte a SPROCh. Te contactaremos en un plazo máximo de{" "}
-            <strong className="font-semibold">48 horas hábiles</strong> con los próximos pasos —
-            cuota anual, formulario formal y acceso a tu paquete de beneficios.
+            Recibimos tu Solicitud de Incorporación como Socio de Número. El Directorio revisará tus
+            antecedentes y te contactaremos con los próximos pasos formales (firma, fotografía y
+            resolución).
           </p>
           <div className="mt-7 flex flex-wrap gap-3">
             <Button type="button" onClick={reset} variant="outline" size="sm">
@@ -91,116 +76,106 @@ export function MembershipForm() {
   }
 
   return (
-    <form ref={formRef} onSubmit={onSubmit} className="space-y-6" noValidate>
-      <div className="grid gap-5 sm:grid-cols-2">
-        <Field label="Nombre completo" required htmlFor="fullName" error={fieldErr("fullName")}>
-          <Input id="fullName" name="fullName" autoComplete="name" />
-        </Field>
-        <Field label="Correo electrónico" required htmlFor="email" error={fieldErr("email")}>
-          <Input id="email" name="email" type="email" autoComplete="email" />
-        </Field>
-      </div>
+    <form ref={formRef} onSubmit={onSubmit} className="space-y-8" noValidate>
+      {/* — Datos personales — */}
+      <fieldset className="space-y-5">
+        <SectionTitle n="01">Datos personales</SectionTitle>
+        <div className="grid gap-5 sm:grid-cols-2">
+          <Field label="Nombre completo" required htmlFor="fullName" error={fieldErr("fullName")}>
+            <Input id="fullName" name="fullName" autoComplete="name" />
+          </Field>
+          <Field label="Cédula de identidad" required htmlFor="rut" error={fieldErr("rut")}>
+            <Input id="rut" name="rut" placeholder="12.345.678-9" />
+          </Field>
+        </div>
+        <div className="grid gap-5 sm:grid-cols-2">
+          <Field label="Fecha de nacimiento" hint="Opcional" htmlFor="birthDate" error={fieldErr("birthDate")}>
+            <Input id="birthDate" name="birthDate" type="date" />
+          </Field>
+          <Field label="Dirección particular" hint="Opcional" htmlFor="addressPersonal" error={fieldErr("addressPersonal")}>
+            <Input id="addressPersonal" name="addressPersonal" autoComplete="street-address" />
+          </Field>
+        </div>
+        <div className="grid gap-5 sm:grid-cols-2">
+          <Field label="E-mail" required htmlFor="email" error={fieldErr("email")}>
+            <Input id="email" name="email" type="email" autoComplete="email" />
+          </Field>
+          <Field label="Teléfono" required htmlFor="phone" error={fieldErr("phone")}>
+            <Input id="phone" name="phone" type="tel" autoComplete="tel" placeholder="+56 9 1234 5678" />
+          </Field>
+        </div>
+      </fieldset>
 
-      <div className="grid gap-5 sm:grid-cols-2">
-        <Field label="Teléfono" hint="Opcional" htmlFor="phone" error={fieldErr("phone")}>
-          <Input
-            id="phone"
-            name="phone"
-            type="tel"
-            autoComplete="tel"
-            placeholder="+56 9 1234 5678"
-          />
+      {/* — Datos profesionales — */}
+      <fieldset className="space-y-5">
+        <SectionTitle n="02">Datos profesionales</SectionTitle>
+        <div className="grid gap-5 sm:grid-cols-2">
+          <Field label="Fecha de título" hint="Opcional" htmlFor="degreeDate" error={fieldErr("degreeDate")}>
+            <Input id="degreeDate" name="degreeDate" type="date" />
+          </Field>
+          <Field label="Teléfono profesional" hint="Opcional" htmlFor="phoneProfessional" error={fieldErr("phoneProfessional")}>
+            <Input id="phoneProfessional" name="phoneProfessional" type="tel" />
+          </Field>
+        </div>
+        <Field label="Dirección profesional" hint="Opcional" htmlFor="addressProfessional" error={fieldErr("addressProfessional")}>
+          <Input id="addressProfessional" name="addressProfessional" placeholder="Clínica, consulta, universidad…" />
         </Field>
-        <Field label="RUT" hint="Opcional" htmlFor="rut" error={fieldErr("rut")}>
-          <Input id="rut" name="rut" placeholder="12.345.678-9" />
-        </Field>
-      </div>
+      </fieldset>
 
-      <div className="grid gap-5 sm:grid-cols-2">
-        <Field label="Categoría" required htmlFor="category" error={fieldErr("category")}>
-          <div className="relative">
-            <select
-              id="category"
-              name="category"
-              defaultValue=""
-              className="flex h-11 w-full appearance-none rounded-md border border-ink-200 bg-white px-3 pr-9 py-2 text-sm text-ink-900 transition-colors focus-visible:border-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-1"
-            >
-              <option value="" disabled>
-                Selecciona…
-              </option>
-              {categoryOptions.map((o) => (
-                <option key={o.value} value={o.value}>
-                  {o.label}
-                </option>
-              ))}
-            </select>
-            <ChevronDown
-              size={16}
-              aria-hidden
-              className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-ink-400"
-            />
-          </div>
+      {/* — Antecedentes — */}
+      <fieldset className="space-y-5">
+        <SectionTitle n="03">Antecedentes académicos y profesionales</SectionTitle>
+        <p className="-mt-2 text-xs text-ink-500">Todos los campos de esta sección son opcionales.</p>
+        <div className="grid gap-5 sm:grid-cols-2">
+          <AreaField label="Estudios universitarios" name="universityStudies" err={fieldErr("universityStudies")} />
+          <AreaField label="Cursos de post-grado" name="postgrad" err={fieldErr("postgrad")} />
+          <AreaField label="Becas" name="scholarships" err={fieldErr("scholarships")} />
+          <AreaField label="Experiencia docente" name="teaching" err={fieldErr("teaching")} />
+          <AreaField label="Sociedades a las que pertenece" name="societies" err={fieldErr("societies")} />
+          <AreaField label="Cargos profesionales" name="professionalRoles" err={fieldErr("professionalRoles")} />
+          <AreaField label="Cargos gremiales" name="guildRoles" err={fieldErr("guildRoles")} />
+          <AreaField label="Trabajos científicos realizados" name="scientificWork" err={fieldErr("scientificWork")} />
+        </div>
+        <Field label="Idiomas" hint="Opcional" htmlFor="languages" error={fieldErr("languages")}>
+          <Input id="languages" name="languages" placeholder="Ej. Español, Inglés, Portugués" />
         </Field>
-        <Field label="Ciudad" hint="Opcional" htmlFor="city" error={fieldErr("city")}>
-          <Input id="city" name="city" placeholder="Santiago" />
+      </fieldset>
+
+      {/* — Patrocinante — */}
+      <fieldset className="space-y-5">
+        <SectionTitle n="04">Patrocinante</SectionTitle>
+        <Field
+          label="Socio que te presenta"
+          hint="Opcional"
+          htmlFor="sponsor"
+          error={fieldErr("sponsor")}
+        >
+          <Input id="sponsor" name="sponsor" placeholder="Nombre y apellidos del socio patrocinante" />
         </Field>
-      </div>
-
-      <Field
-        label="Institución o lugar de trabajo"
-        hint="Opcional"
-        htmlFor="institution"
-        error={fieldErr("institution")}
-      >
-        <Input
-          id="institution"
-          name="institution"
-          placeholder="Universidad, clínica, hospital, consulta privada…"
-        />
-      </Field>
-
-      <Field
-        label="Comentarios"
-        hint="Opcional"
-        htmlFor="message"
-        error={fieldErr("message")}
-        counter={
-          <span
-            className={messageLen > COMMENT_MAX ? "text-brand-700" : "text-ink-500"}
-          >
-            {messageLen.toLocaleString("es-CL")}/{COMMENT_MAX.toLocaleString("es-CL")}
-          </span>
-        }
-      >
-        <Textarea
-          id="message"
-          name="message"
-          rows={4}
-          placeholder="Cuéntanos brevemente sobre tu interés en sumarte a SPROCh."
-          onChange={(e) => setMessageLen(e.target.value.length)}
-        />
-      </Field>
+      </fieldset>
 
       {/* Honeypot */}
       <div className="hidden" aria-hidden>
         <Input id="hp" name="hp" tabIndex={-1} autoComplete="off" />
       </div>
 
+      {/* — Declaración — */}
       <div className="rounded-xl border border-ink-100 bg-ink-50/60 p-4">
         <label className="flex items-start gap-3 text-sm leading-relaxed text-ink-700">
           <input
             type="checkbox"
-            name="acceptTerms"
+            name="acceptStatutes"
             required
             className="mt-0.5 h-4 w-4 shrink-0 rounded border-ink-300 text-brand-600 focus:ring-brand-600"
           />
           <span>
-            Acepto que SPROCh utilice mis datos para gestionar mi solicitud de membresía y
-            contactarme con información institucional.
+            Declaro estar en conocimiento de los Estatutos de la Sociedad de Prótesis y
+            Rehabilitación Oral de Chile y me comprometo a respetarlos. Acepto que SPROCh utilice
+            mis datos para gestionar esta solicitud.
           </span>
         </label>
-        {fieldErr("acceptTerms") && (
-          <p className="mt-2 pl-7 text-xs font-medium text-brand-700">{fieldErr("acceptTerms")}</p>
+        {fieldErr("acceptStatutes") && (
+          <p className="mt-2 pl-7 text-xs font-medium text-brand-700">{fieldErr("acceptStatutes")}</p>
         )}
       </div>
 
@@ -215,8 +190,8 @@ export function MembershipForm() {
 
       <div className="flex flex-col gap-4 border-t border-ink-100 pt-6 sm:flex-row sm:items-center sm:justify-between">
         <p className="max-w-md text-xs leading-relaxed text-ink-500">
-          Enviar la solicitud no genera cobro automático. La cuota se gestiona en una segunda
-          etapa una vez validados tus antecedentes.
+          Tras revisar tus antecedentes te solicitaremos la copia firmada y una fotografía para
+          completar el registro. Enviar la solicitud no genera cobro automático.
         </p>
         <Button type="submit" size="lg" disabled={pending} className="btn-glow min-w-52">
           {pending ? (
@@ -236,17 +211,26 @@ export function MembershipForm() {
   );
 }
 
+function SectionTitle({ n, children }: { n: string; children: React.ReactNode }) {
+  return (
+    <div className="flex items-center gap-3">
+      <span className="font-display text-sm text-brand-600 tabular-nums">{n}</span>
+      <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-ink-700">{children}</h3>
+      <span aria-hidden className="h-px flex-1 bg-ink-100" />
+    </div>
+  );
+}
+
 interface FieldProps {
   label: string;
   htmlFor: string;
   required?: boolean;
   hint?: string;
   error?: string;
-  counter?: React.ReactNode;
   children: React.ReactNode;
 }
 
-function Field({ label, htmlFor, required, hint, error, counter, children }: FieldProps) {
+function Field({ label, htmlFor, required, hint, error, children }: FieldProps) {
   return (
     <div>
       <div className="mb-1.5 flex items-baseline justify-between gap-2">
@@ -262,7 +246,6 @@ function Field({ label, htmlFor, required, hint, error, counter, children }: Fie
             </span>
           )}
         </Label>
-        {counter && <span className="text-[11px] tabular-nums text-ink-500">{counter}</span>}
       </div>
       {children}
       {error && (
@@ -271,5 +254,13 @@ function Field({ label, htmlFor, required, hint, error, counter, children }: Fie
         </p>
       )}
     </div>
+  );
+}
+
+function AreaField({ label, name, err }: { label: string; name: string; err?: string }) {
+  return (
+    <Field label={label} hint="Opcional" htmlFor={name} error={err}>
+      <Textarea id={name} name={name} rows={3} />
+    </Field>
   );
 }
