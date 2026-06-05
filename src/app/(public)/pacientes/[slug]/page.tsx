@@ -155,7 +155,6 @@ export default async function PatientArticlePage({ params }: { params: Promise<P
               </p>
               <div
                 className="mt-12 max-w-none text-base leading-relaxed text-ink-700 [&_a]:text-brand-700 [&_a]:underline-offset-4 [&_a:hover]:underline [&_h2]:mt-12 [&_h2]:font-display [&_h2]:text-3xl [&_h2]:uppercase [&_h2]:tracking-tight [&_h2]:text-ink-900 [&_h3]:mt-10 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:text-ink-900 [&_li]:my-2 [&_p]:my-5 [&_strong]:font-semibold [&_strong]:text-ink-900 [&_ul]:my-5 [&_ul]:list-disc [&_ul]:pl-6 md:text-lg"
-                // eslint-disable-next-line react/no-danger
                 dangerouslySetInnerHTML={{ __html: article.content }}
               />
 
@@ -279,12 +278,10 @@ export default async function PatientArticlePage({ params }: { params: Promise<P
 
       <script
         type="application/ld+json"
-        // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
       />
       <script
         type="application/ld+json"
-        // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
     </>

@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans, Bebas_Neue } from "next/font/google";
+import { Analytics } from "@/components/Analytics";
 import { siteConfig } from "@/lib/site";
 import "@/styles/globals.css";
 
@@ -127,14 +128,13 @@ export default function RootLayout({
         {children}
         <script
           type="application/ld+json"
-          // eslint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
         />
         <script
           type="application/ld+json"
-          // eslint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
         />
+        <Analytics />
       </body>
     </html>
   );

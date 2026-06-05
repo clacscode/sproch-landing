@@ -1,13 +1,11 @@
 import type { LucideIcon } from "lucide-react";
 import {
   BookOpenCheck,
-  CalendarHeart,
   GraduationCap,
   Library,
   Medal,
   Network,
   Ticket,
-  Users2,
 } from "lucide-react";
 
 export interface MembershipBenefit {
