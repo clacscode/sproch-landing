@@ -1,13 +1,37 @@
+"use client";
+
 import Script from "next/script";
+import { useEffect, useState } from "react";
+import {
+  CONSENT_CHANGE_EVENT,
+  getStoredConsent,
+  type ConsentValue,
+} from "@/lib/consent";
 
 /**
- * Google Analytics 4. Solo se renderiza si NEXT_PUBLIC_GA_ID está configurado,
- * así el sitio funciona idéntico en local/preview sin medir tráfico.
- * El ID se setea como variable de entorno en el hosting (formato G-XXXXXXXXXX).
+ * Google Analytics 4 con consentimiento previo.
+ *
+ * Solo inyecta los scripts si:
+ *   1) NEXT_PUBLIC_GA_ID está configurado, y
+ *   2) el usuario aceptó las cookies de analítica (ver CookieConsent).
+ *
+ * Mientras no haya consentimiento no se carga gtag ni se setea ninguna cookie.
  */
 export function Analytics() {
   const gaId = process.env.NEXT_PUBLIC_GA_ID;
-  if (!gaId) return null;
+  const [consent, setConsent] = useState<ConsentValue | null>(null);
+
+  useEffect(() => {
+    setConsent(getStoredConsent());
+    const onChange = (event: Event) => {
+      const detail = (event as CustomEvent<ConsentValue>).detail;
+      setConsent(detail ?? getStoredConsent());
+    };
+    window.addEventListener(CONSENT_CHANGE_EVENT, onChange);
+    return () => window.removeEventListener(CONSENT_CHANGE_EVENT, onChange);
+  }, []);
+
+  if (!gaId || consent !== "granted") return null;
 
   return (
     <>

@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans, Bebas_Neue } from "next/font/google";
 import { Analytics } from "@/components/Analytics";
+import { CookieConsent } from "@/components/CookieConsent";
 import { siteConfig } from "@/lib/site";
 import "@/styles/globals.css";
 
@@ -135,6 +136,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
         />
         <Analytics />
+        <CookieConsent />
       </body>
     </html>
   );

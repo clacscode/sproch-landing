@@ -11,6 +11,7 @@ import {
   Phone,
 } from "lucide-react";
 import { siteConfig } from "@/lib/site";
+import { CookieSettingsLink } from "@/components/public/CookieSettingsLink";
 
 const socialLinks = [
   { name: "Instagram", icon: Instagram, href: siteConfig.social.instagram },
@@ -171,6 +172,7 @@ export function Footer() {
                 {siteConfig.developedBy.name}
               </a>
             </span>
+            <CookieSettingsLink className="uppercase tracking-[0.18em] text-ink-400 transition-colors hover:text-white" />
           </p>
         </div>
       </div>
