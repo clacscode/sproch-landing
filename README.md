@@ -39,9 +39,9 @@ src/
 ## Setup local
 
 ```bash
-pnpm install
+npm install
 cp .env.example .env.local   # completar variables disponibles
-pnpm dev
+npm run dev
 ```
 
 App disponible en http://localhost:3000.
@@ -60,17 +60,17 @@ App disponible en http://localhost:3000.
 ## Scripts
 
 ```bash
-pnpm dev          # servidor de desarrollo
-pnpm build        # build de producción
-pnpm start        # servidor de producción
-pnpm lint         # ESLint
-pnpm typecheck    # tsc --noEmit
-pnpm format       # Prettier
+npm run dev          # servidor de desarrollo
+npm run build        # build de producción
+npm run start        # servidor de producción
+npm run lint         # ESLint
+npm run typecheck    # tsc --noEmit
+npm run format       # Prettier
 # F2 (cuando se conecte la DB)
-pnpm db:generate
-pnpm db:migrate
-pnpm db:seed
-pnpm db:studio
+npm run db:generate
+npm run db:migrate
+npm run db:seed
+npm run db:studio
 ```
 
 ## Roadmap
@@ -114,6 +114,6 @@ pnpm db:studio
 
 ## Verificación
 
-- `pnpm dev` y revisar manualmente cada ruta en móvil/desktop
-- `pnpm typecheck && pnpm lint` verdes
+- `npm run dev` y revisar manualmente cada ruta en móvil/desktop
+- `npm run typecheck && npm run lint` verdes
 - Lighthouse objetivo ≥ 90 en Performance/SEO/Best Practices/Accessibility
