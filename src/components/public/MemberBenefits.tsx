@@ -8,7 +8,7 @@ export function MemberBenefits() {
     <div className="container-page">
       <div className="grid gap-10 md:grid-cols-12 md:items-end">
         <div className="md:col-span-7">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-600">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
             Hazte socio
           </p>
           <h2 className="mt-2 font-display text-4xl uppercase leading-tight md:text-5xl">

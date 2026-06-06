@@ -254,7 +254,7 @@ export default async function EventDetailPage({ params }: { params: Promise<Para
                         <ul className="divide-y divide-ink-100 px-6 md:px-8">
                           {day.items.map((item, i) => (
                             <li key={i} className="flex items-baseline gap-5 py-4 text-sm md:gap-8">
-                              <span className="w-20 shrink-0 font-mono text-xs uppercase tracking-wider text-brand-600 tabular-nums">
+                              <span className="w-20 shrink-0 font-mono text-xs uppercase tracking-wider text-brand-700 tabular-nums">
                                 {item.time}
                               </span>
                               <span className="text-ink-800 md:text-base">{item.title}</span>

@@ -231,7 +231,7 @@ export function HeroCarousel({ featured }: HeroCarouselProps) {
       {/* Indicador de scroll */}
       <a
         href="#main-stats"
-        aria-label="Bajar a las cifras de la sociedad"
+        aria-label="Descubre las cifras de la sociedad"
         className="absolute inset-x-0 bottom-3 z-10 mx-auto flex w-fit flex-col items-center gap-1 text-white/60 transition-colors hover:text-white"
       >
         <span className="text-[10px] font-semibold uppercase tracking-[0.28em]">Descubre</span>
