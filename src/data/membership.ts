@@ -99,6 +99,10 @@ export interface FAQItem {
 
 export const faqs: FAQItem[] = [
   {
+    q: "¿Qué es SPROCh?",
+    a: "SPROCh es la sigla de la Sociedad de Prótesis y Rehabilitación Oral de Chile, una sociedad científica chilena fundada en 1952. Reúne a especialistas, académicos y residentes en prótesis y rehabilitación oral, y organiza cursos, congresos y formación continua para la comunidad odontológica.",
+  },
+  {
     q: "¿Quiénes pueden hacerse socios de SPROCh?",
     a: "Odontólogos titulados, especialistas en rehabilitación oral y disciplinas afines, así como residentes y estudiantes de postgrado de programas reconocidos.",
   },

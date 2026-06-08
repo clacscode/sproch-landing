@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -27,6 +28,12 @@ import { getFeaturedEvent, listEvents } from "@/server/queries/events";
 import { listNews } from "@/server/queries/news";
 
 export const revalidate = 60;
+
+export const metadata: Metadata = {
+  description:
+    "SPROCh es la Sociedad de Prótesis y Rehabilitación Oral de Chile: sociedad científica fundada en 1952. Cursos, congresos, noticias y comunidad profesional en rehabilitación oral.",
+  alternates: { canonical: "/" },
+};
 
 const valueProps = [
   {
@@ -84,9 +91,9 @@ export default async function HomePage() {
             </div>
             <div className="md:col-span-5">
               <p className="text-ink-600 md:text-lg">
-                Acompañamos a la comunidad odontológica chilena e iberoamericana en su desarrollo
-                clínico, académico y profesional. Cuatro razones explican por qué seguimos siendo
-                la referencia.
+                SPROCh es la Sociedad de Prótesis y Rehabilitación Oral de Chile. Acompañamos a la
+                comunidad odontológica chilena e iberoamericana en su desarrollo clínico, académico
+                y profesional. Cuatro razones explican por qué seguimos siendo la referencia.
               </p>
             </div>
           </div>

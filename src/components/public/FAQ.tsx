@@ -1,8 +1,22 @@
 import { faqs } from "@/data/membership";
 
+const faqJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: faqs.map((item) => ({
+    "@type": "Question",
+    name: item.q,
+    acceptedAnswer: { "@type": "Answer", text: item.a },
+  })),
+};
+
 export function FAQ() {
   return (
     <div className="container-page grid gap-12 md:grid-cols-12">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
       <div className="md:col-span-4">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
           Preguntas frecuentes

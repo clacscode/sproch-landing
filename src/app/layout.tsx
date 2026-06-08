@@ -29,10 +29,17 @@ export const metadata: Metadata = {
   applicationName: siteConfig.name,
   keywords: [
     "SPROCh",
+    "Sproch",
+    "Sproch Chile",
+    "Sociedad de Prótesis Chile",
     "Prótesis dental",
     "Rehabilitación oral",
+    "Prostodoncia",
+    "Implantología",
     "Odontología",
     "Congreso odontológico",
+    "Providencia",
+    "Santiago",
     "Chile",
   ],
   authors: [{ name: siteConfig.legalName }],
@@ -70,11 +77,15 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
+// Variantes de grafía de la sigla, para que Google asocie cualquier forma de
+// "sproch" buscada con la entidad y su nombre completo.
+const brandAliases = ["SPROCh", "Sproch", "Sproch Chile", "SPROCH"];
+
 const organizationJsonLd = {
   "@context": "https://schema.org",
   "@type": "Organization",
   name: siteConfig.legalName,
-  alternateName: siteConfig.name,
+  alternateName: brandAliases,
   url: siteConfig.url,
   logo: `${siteConfig.url}/brand/logo.png`,
   email: siteConfig.email,
@@ -107,7 +118,7 @@ const websiteJsonLd = {
   "@context": "https://schema.org",
   "@type": "WebSite",
   name: siteConfig.legalName,
-  alternateName: siteConfig.name,
+  alternateName: brandAliases,
   url: siteConfig.url,
   inLanguage: "es-CL",
   publisher: { "@type": "Organization", name: siteConfig.legalName, url: siteConfig.url },
