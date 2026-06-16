@@ -1,0 +1,152 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { signOut } from "next-auth/react";
+import {
+  CalendarDays,
+  FileText,
+  HeartPulse,
+  Image as ImageIcon,
+  LayoutDashboard,
+  Lock,
+  LogOut,
+  Newspaper,
+  Users,
+} from "lucide-react";
+import { cn } from "@/lib/cn";
+import { siteConfig } from "@/lib/site";
+
+interface NavItem {
+  label: string;
+  href: string;
+  icon: typeof LayoutDashboard;
+  locked?: boolean;
+}
+
+const primary: NavItem[] = [
+  { label: "Panel", href: "/admin", icon: LayoutDashboard },
+  { label: "Noticias", href: "/admin/noticias", icon: Newspaper },
+  { label: "Pacientes", href: "/admin/pacientes", icon: HeartPulse },
+  { label: "Cursos y congresos", href: "/admin/eventos", icon: CalendarDays },
+];
+
+const extras: NavItem[] = [
+  { label: "Directiva", href: "/admin/directiva", icon: Users },
+  { label: "Filiales", href: "/admin/filiales", icon: Users },
+  { label: "Auspiciadores", href: "/admin/auspiciadores", icon: ImageIcon },
+  { label: "Textos del sitio", href: "/admin/contenido", icon: FileText },
+];
+
+function isActive(pathname: string, href: string): boolean {
+  if (href === "/admin") return pathname === "/admin";
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
+function NavLink({ item, pathname }: { item: NavItem; pathname: string }) {
+  const Icon = item.icon;
+  const active = isActive(pathname, item.href);
+  const locked = item.locked;
+  return (
+    <Link
+      href={item.href}
+      aria-disabled={locked}
+      className={cn(
+        "group flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+        active
+          ? "bg-brand-600 text-white"
+          : "text-ink-600 hover:bg-ink-100 hover:text-ink-900",
+        locked && "opacity-60",
+      )}
+    >
+      <Icon size={17} aria-hidden className={cn(!active && "text-ink-400 group-hover:text-ink-600")} />
+      <span className="flex-1">{item.label}</span>
+      {locked && <Lock size={13} aria-hidden className="text-ink-400" />}
+    </Link>
+  );
+}
+
+export function Sidebar({ user }: { user: { name?: string | null; email?: string | null } }) {
+  const pathname = usePathname();
+  const extrasEnabled = siteConfig.features.adminExtras;
+  const extraItems = extras.map((e) => ({ ...e, locked: !extrasEnabled }));
+
+  return (
+    <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-ink-200 bg-white lg:flex">
+      <div className="flex h-16 items-center gap-2 border-b border-ink-200 px-5">
+        <span className="font-display text-xl uppercase tracking-tight text-brand-700">SPROCh</span>
+        <span className="text-xs font-medium uppercase tracking-[0.18em] text-ink-400">Admin</span>
+      </div>
+
+      <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
+        {primary.map((item) => (
+          <NavLink key={item.href} item={item} pathname={pathname} />
+        ))}
+
+        <p className="px-3 pb-1 pt-5 text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-400">
+          Más módulos
+        </p>
+        {extraItems.map((item) => (
+          <NavLink key={item.href} item={item} pathname={pathname} />
+        ))}
+      </nav>
+
+      <div className="border-t border-ink-200 p-3">
+        <div className="px-3 py-2">
+          <p className="truncate text-sm font-medium text-ink-900">{user.name ?? "Administrador"}</p>
+          <p className="truncate text-xs text-ink-500">{user.email}</p>
+        </div>
+        <button
+          type="button"
+          onClick={() => signOut({ callbackUrl: "/admin/login" })}
+          className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-ink-600 transition-colors hover:bg-ink-100 hover:text-ink-900"
+        >
+          <LogOut size={17} aria-hidden className="text-ink-400" />
+          Cerrar sesión
+        </button>
+      </div>
+    </aside>
+  );
+}
+
+/** Barra superior para móvil (el sidebar fijo se oculta bajo lg). */
+export function MobileTopbar() {
+  return (
+    <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-ink-200 bg-white px-4 lg:hidden">
+      <Link href="/admin" className="font-display text-lg uppercase tracking-tight text-brand-700">
+        SPROCh <span className="text-xs text-ink-400">Admin</span>
+      </Link>
+      <button
+        type="button"
+        onClick={() => signOut({ callbackUrl: "/admin/login" })}
+        className="inline-flex items-center gap-1.5 text-sm text-ink-600"
+      >
+        <LogOut size={16} aria-hidden />
+        Salir
+      </button>
+    </header>
+  );
+}
+
+export function MobileNav() {
+  const pathname = usePathname();
+  return (
+    <nav className="sticky top-14 z-10 flex gap-1 overflow-x-auto border-b border-ink-200 bg-white px-3 py-2 lg:hidden">
+      {primary.map((item) => {
+        const active = isActive(pathname, item.href);
+        return (
+          <Link
+            key={item.href}
+            href={item.href}
+            className={cn(
+              "whitespace-nowrap rounded-full px-3 py-1.5 text-sm font-medium",
+              active ? "bg-brand-600 text-white" : "bg-ink-100 text-ink-600",
+            )}
+          >
+            {item.label}
+          </Link>
+        );
+      })}
+    </nav>
+  );
+}

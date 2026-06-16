@@ -1,14 +1,13 @@
 // Schema Prisma para SPROCh
-// Se activa con `pnpm db:generate` una vez que DATABASE_URL apunte a Supabase.
+// Base de datos: MySQL / MariaDB (hosting compartido — hPanel/Hostinger).
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "mysql"
+  url      = env("DATABASE_URL")
 }
 
 enum Role {
@@ -19,6 +18,11 @@ enum Role {
 enum NewsStatus {
   DRAFT
   PUBLISHED
+}
+
+enum ArticleType {
+  NEWS
+  PATIENT
 }
 
 enum EventCategory {
@@ -89,40 +93,56 @@ model VerificationToken {
 }
 
 model News {
-  id          String     @id @default(cuid())
-  slug        String     @unique
-  title       String
-  excerpt     String
+  id          String      @id @default(cuid())
+  type        ArticleType @default(NEWS)
+  slug        String      @unique
+  title       String      @db.VarChar(255)
+  excerpt     String      @db.VarChar(512)
   content     Json
-  coverImage  String?
-  status      NewsStatus @default(DRAFT)
+  coverImage  String?     @db.VarChar(512)
+  status      NewsStatus  @default(DRAFT)
   publishedAt DateTime?
-  tags        String[]
+  // MySQL no soporta arrays escalares: las etiquetas van como array JSON.
+  tags        Json
+  /** Byline mostrado en el sitio (texto libre, ej. "Equipo SPROCh"). */
+  authorName  String?
   authorId    String?
-  author      User?      @relation(fields: [authorId], references: [id], onDelete: SetNull)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  author      User?       @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 
-  @@index([status, publishedAt])
+  @@index([type, status, publishedAt])
 }
 
 model Event {
-  id            String         @id @default(cuid())
-  slug          String         @unique
-  title         String
-  summary       String
-  content       Json
-  startDate     DateTime
-  endDate       DateTime
-  location      String
-  coverImage    String?
-  capacity      Int?
-  priceCLP      Int            @default(0)
-  category      EventCategory
-  status        EventStatus    @default(DRAFT)
-  registrations Registration[]
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  id              String         @id @default(cuid())
+  slug            String         @unique
+  title           String         @db.VarChar(255)
+  summary         String         @db.VarChar(512)
+  content         Json
+  startDate       DateTime
+  endDate         DateTime
+  location        String         @db.VarChar(255)
+  coverImage      String?        @db.VarChar(512)
+  capacity        Int?
+  priceCLP        Int            @default(0)
+  priceFrom       Boolean        @default(false)
+  hidePrice       Boolean        @default(false)
+  registrationUrl String?        @db.VarChar(512)
+  featured        Boolean        @default(false)
+  // Sub-entidades estructuradas (volumen bajo → columnas JSON, editadas con campos repetibles en el admin):
+  // speakers: { name, country?, bio?, avatar? }[]
+  // sponsors: { name, logo?, url?, tier? }[]
+  // program:  { day, items: { time, title }[] }[]
+  // Sin @default (MariaDB no admite default en JSON): la app siempre escribe estos campos.
+  speakers        Json
+  sponsors        Json
+  program         Json
+  category        EventCategory
+  status          EventStatus    @default(DRAFT)
+  registrations   Registration[]
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
 
   @@index([status, startDate])
 }
@@ -149,8 +169,8 @@ model ContactMessage {
   name      String
   email     String
   phone     String?
-  subject   String
-  message   String
+  subject   String   @db.VarChar(255)
+  message   String   @db.Text
   resolved  Boolean  @default(false)
   createdAt DateTime @default(now())
 }

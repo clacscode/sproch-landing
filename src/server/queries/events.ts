@@ -1,33 +1,40 @@
 import "server-only";
-import { eventsMock } from "@/data/events";
+import { prisma } from "@/lib/prisma";
 import type { EventCategory, EventItem } from "@/lib/types";
+import { mapEvent } from "@/server/queries/mappers";
 
-function published(e: EventItem) {
-  return e.status === "PUBLISHED" || e.status === "FINISHED";
-}
+// En el sitio público se consideran "visibles" los eventos publicados y los ya finalizados.
+const VISIBLE_STATUS = ["PUBLISHED", "FINISHED"] as const;
 
 export async function listEvents(opts?: {
   category?: EventCategory;
   limit?: number;
   upcomingOnly?: boolean;
 }): Promise<EventItem[]> {
-  let items = eventsMock
-    .filter(published)
-    .slice()
-    .sort((a, b) => a.startDate.localeCompare(b.startDate));
-  if (opts?.category) items = items.filter((e) => e.category === opts.category);
-  if (opts?.upcomingOnly) {
-    const today = new Date().toISOString().slice(0, 10);
-    items = items.filter((e) => e.endDate >= today);
-  }
-  if (opts?.limit) items = items.slice(0, opts.limit);
-  return items;
+  const today = new Date(new Date().toISOString().slice(0, 10));
+  const rows = await prisma.event.findMany({
+    where: {
+      status: { in: [...VISIBLE_STATUS] },
+      ...(opts?.category ? { category: opts.category } : {}),
+      ...(opts?.upcomingOnly ? { endDate: { gte: today } } : {}),
+    },
+    orderBy: { startDate: "asc" },
+    ...(opts?.limit ? { take: opts.limit } : {}),
+  });
+  return rows.map(mapEvent);
 }
 
 export async function getEventBySlug(slug: string): Promise<EventItem | null> {
-  return eventsMock.find((e) => e.slug === slug && published(e)) ?? null;
+  const row = await prisma.event.findFirst({
+    where: { slug, status: { in: [...VISIBLE_STATUS] } },
+  });
+  return row ? mapEvent(row) : null;
 }
 
 export async function getFeaturedEvent(): Promise<EventItem | null> {
-  return eventsMock.find((e) => e.featured && published(e)) ?? null;
+  const row = await prisma.event.findFirst({
+    where: { featured: true, status: { in: [...VISIBLE_STATUS] } },
+    orderBy: { startDate: "asc" },
+  });
+  return row ? mapEvent(row) : null;
 }

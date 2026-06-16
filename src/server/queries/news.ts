@@ -1,17 +1,20 @@
 import "server-only";
-import { newsMock } from "@/data/news";
+import { prisma } from "@/lib/prisma";
 import type { NewsArticle } from "@/lib/types";
-
-function published(n: NewsArticle) {
-  return n.status === "PUBLISHED";
-}
+import { mapNews } from "@/server/queries/mappers";
 
 export async function listNews(opts?: {
   tag?: string;
   q?: string;
   limit?: number;
 }): Promise<NewsArticle[]> {
-  let items = newsMock.filter(published).slice().sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
+  const rows = await prisma.news.findMany({
+    where: { type: "NEWS", status: "PUBLISHED" },
+    orderBy: { publishedAt: "desc" },
+  });
+  // Las etiquetas son JSON y la búsqueda es case-insensitive: se filtra en memoria
+  // (dataset pequeño) para máxima portabilidad con MySQL/MariaDB.
+  let items = rows.map(mapNews);
   if (opts?.tag) items = items.filter((n) => n.tags.includes(opts.tag!));
   if (opts?.q) {
     const q = opts.q.toLowerCase();
@@ -24,9 +27,18 @@ export async function listNews(opts?: {
 }
 
 export async function getNewsBySlug(slug: string): Promise<NewsArticle | null> {
-  return newsMock.find((n) => n.slug === slug && published(n)) ?? null;
+  const row = await prisma.news.findFirst({
+    where: { slug, type: "NEWS", status: "PUBLISHED" },
+  });
+  return row ? mapNews(row) : null;
 }
 
 export async function listAllTags(): Promise<string[]> {
-  return Array.from(new Set(newsMock.flatMap((n) => n.tags))).sort();
+  const rows = await prisma.news.findMany({
+    where: { type: "NEWS", status: "PUBLISHED" },
+    select: { tags: true },
+  });
+  return Array.from(
+    new Set(rows.flatMap((r) => (r.tags as string[] | null) ?? [])),
+  ).sort();
 }
