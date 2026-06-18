@@ -1,9 +1,12 @@
 "use client";
 
 import * as React from "react";
-import { ImagePlus, Loader2, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ImagePlus, Loader2, UploadCloud, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/cn";
+
+const ACCEPTED = ["image/jpeg", "image/png", "image/webp"];
+const MAX_MB = 6;
 
 export async function uploadImage(file: File): Promise<string> {
   const body = new FormData();
@@ -23,10 +26,19 @@ export function ImageUploadField({ value, onChange }: ImageUploadFieldProps) {
   const inputRef = React.useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+  const [dragging, setDragging] = React.useState(false);
 
   async function handleFile(file: File) {
-    setUploading(true);
     setError(null);
+    if (!ACCEPTED.includes(file.type)) {
+      setError("Formato no permitido. Usa JPG, PNG o WebP.");
+      return;
+    }
+    if (file.size > MAX_MB * 1024 * 1024) {
+      setError(`La imagen supera ${MAX_MB} MB. Comprímela e intenta de nuevo.`);
+      return;
+    }
+    setUploading(true);
     try {
       const url = await uploadImage(file);
       onChange(url);
@@ -35,6 +47,13 @@ export function ImageUploadField({ value, onChange }: ImageUploadFieldProps) {
     } finally {
       setUploading(false);
     }
+  }
+
+  function onDrop(e: React.DragEvent) {
+    e.preventDefault();
+    setDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) void handleFile(file);
   }
 
   return (
@@ -53,7 +72,7 @@ export function ImageUploadField({ value, onChange }: ImageUploadFieldProps) {
             <button
               type="button"
               onClick={() => onChange("")}
-              className="absolute right-1 top-1 rounded-full bg-ink-900/80 p-1 text-white hover:bg-ink-900"
+              className="absolute right-1 top-1 rounded-full bg-ink-900/80 p-1 text-white transition-colors hover:bg-ink-900"
               aria-label="Quitar imagen"
             >
               <X size={12} aria-hidden />
@@ -64,7 +83,7 @@ export function ImageUploadField({ value, onChange }: ImageUploadFieldProps) {
           <input
             ref={inputRef}
             type="file"
-            accept="image/jpeg,image/png,image/webp"
+            accept={ACCEPTED.join(",")}
             className="hidden"
             onChange={(e) => {
               const file = e.target.files?.[0];
@@ -72,20 +91,40 @@ export function ImageUploadField({ value, onChange }: ImageUploadFieldProps) {
               e.target.value = "";
             }}
           />
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            disabled={uploading}
-            onClick={() => inputRef.current?.click()}
+          <div
+            role="button"
+            tabIndex={0}
+            onClick={() => !uploading && inputRef.current?.click()}
+            onKeyDown={(e) => {
+              if ((e.key === "Enter" || e.key === " ") && !uploading) {
+                e.preventDefault();
+                inputRef.current?.click();
+              }
+            }}
+            onDragOver={(e) => {
+              e.preventDefault();
+              setDragging(true);
+            }}
+            onDragLeave={() => setDragging(false)}
+            onDrop={onDrop}
+            className={cn(
+              "flex cursor-pointer flex-col items-center justify-center gap-1 rounded-md border border-dashed px-4 py-4 text-center text-xs transition-colors",
+              dragging
+                ? "border-brand-400 bg-brand-50 text-brand-700"
+                : "border-ink-300 bg-white text-ink-500 hover:border-ink-400 hover:bg-ink-50",
+              uploading && "pointer-events-none opacity-60",
+            )}
           >
             {uploading ? (
-              <Loader2 size={14} className="animate-spin" aria-hidden />
+              <Loader2 size={18} className="animate-spin" aria-hidden />
             ) : (
-              <ImagePlus size={14} aria-hidden />
+              <UploadCloud size={18} aria-hidden />
             )}
-            {uploading ? "Subiendo…" : "Subir imagen"}
-          </Button>
+            <span className="font-medium">
+              {uploading ? "Subiendo…" : "Arrastra una imagen o haz clic"}
+            </span>
+            <span className="text-[11px] text-ink-400">JPG, PNG o WebP · hasta {MAX_MB} MB</span>
+          </div>
           <Input
             value={value}
             onChange={(e) => onChange(e.target.value)}

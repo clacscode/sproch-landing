@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowUpRight, CalendarDays, HeartPulse, Newspaper, Plus } from "lucide-react";
+import { ArrowUpRight, CalendarDays, ExternalLink, HeartPulse, Newspaper, Plus } from "lucide-react";
 import { adminCounts } from "@/server/queries/admin";
 
 export const dynamic = "force-dynamic";
@@ -33,9 +33,20 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="font-display text-3xl uppercase tracking-tight text-ink-900">Panel</h1>
-        <p className="mt-1 text-sm text-ink-500">Gestiona el contenido publicado en el sitio.</p>
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 className="font-display text-3xl uppercase tracking-tight text-ink-900">Panel</h1>
+          <p className="mt-1 text-sm text-ink-500">Gestiona el contenido publicado en el sitio.</p>
+        </div>
+        <a
+          href="/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-ink-600 transition-colors hover:text-ink-900"
+        >
+          <ExternalLink size={15} aria-hidden />
+          Ver sitio
+        </a>
       </div>
 
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -45,7 +56,7 @@ export default async function DashboardPage() {
           return (
             <div
               key={card.key}
-              className="flex flex-col rounded-xl border border-ink-200 bg-white p-6"
+              className="flex flex-col rounded-xl border border-ink-200 bg-white p-6 shadow-card transition-shadow hover:shadow-lift"
             >
               <div className="flex items-center gap-3">
                 <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-brand-50 text-brand-700">

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Pencil, Star, Trash2 } from "lucide-react";
 import { formatDateRange } from "@/lib/format";
+import { useConfirm, useToast } from "@/components/admin/feedback";
 import { deleteEvent, toggleEventPublish } from "@/server/actions/admin/events";
 
 export interface EventRow {
@@ -25,18 +26,37 @@ const STATUS_LABEL: Record<EventRow["status"], { label: string; className: strin
   CANCELLED: { label: "Cancelado", className: "bg-red-50 text-red-700" },
 };
 
+type ActionResult = { ok: true } | { ok: false; error: string };
+
 export function EventTable({ rows }: { rows: EventRow[] }) {
   const router = useRouter();
+  const toast = useToast();
+  const confirm = useConfirm();
   const [pending, startTransition] = React.useTransition();
   const [busyId, setBusyId] = React.useState<string | null>(null);
 
-  function run(id: string, fn: () => Promise<unknown>) {
+  function run(id: string, fn: () => Promise<ActionResult>, successMsg: string) {
     setBusyId(id);
     startTransition(async () => {
-      await fn();
+      const res = await fn();
       setBusyId(null);
-      router.refresh();
+      if (res.ok) {
+        toast.success(successMsg);
+        router.refresh();
+      } else {
+        toast.error(res.error);
+      }
     });
+  }
+
+  async function onDelete(row: EventRow) {
+    const ok = await confirm({
+      title: `¿Eliminar “${row.title}”?`,
+      description: "El evento se quitará del sitio de inmediato. Esta acción no se puede deshacer.",
+      confirmLabel: "Sí, eliminar",
+      danger: true,
+    });
+    if (ok) run(row.id, () => deleteEvent(row.id), "Evento eliminado.");
   }
 
   if (rows.length === 0) {
@@ -101,22 +121,25 @@ export function EventTable({ rows }: { rows: EventRow[] }) {
                     <button
                       type="button"
                       disabled={isBusy}
-                      onClick={() => run(row.id, () => toggleEventPublish(row.id))}
+                      onClick={() =>
+                        run(
+                          row.id,
+                          () => toggleEventPublish(row.id),
+                          isPublished ? "Pasado a borrador." : "Publicado.",
+                        )
+                      }
                       aria-label={isPublished ? "Despublicar" : "Publicar"}
-                      title={isPublished ? "Despublicar" : "Publicar"}
-                      className="rounded p-1.5 text-ink-500 hover:bg-ink-100 hover:text-ink-900"
+                      title={isPublished ? "Pasar a borrador" : "Publicar"}
+                      className="rounded p-1.5 text-ink-500 transition-colors hover:bg-ink-100 hover:text-ink-900"
                     >
                       {isPublished ? <EyeOff size={15} aria-hidden /> : <Eye size={15} aria-hidden />}
                     </button>
                     <button
                       type="button"
                       disabled={isBusy}
-                      onClick={() => {
-                        if (window.confirm(`¿Eliminar “${row.title}”? Esta acción no se puede deshacer.`))
-                          run(row.id, () => deleteEvent(row.id));
-                      }}
+                      onClick={() => onDelete(row)}
                       aria-label="Eliminar"
-                      className="rounded p-1.5 text-ink-500 hover:bg-red-50 hover:text-red-600"
+                      className="rounded p-1.5 text-ink-500 transition-colors hover:bg-red-50 hover:text-red-600"
                     >
                       <Trash2 size={15} aria-hidden />
                     </button>

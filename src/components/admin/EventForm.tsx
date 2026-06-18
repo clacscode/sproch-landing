@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Controller,
   type Control,
+  type FieldErrors,
   type Resolver,
   useFieldArray,
   useForm,
@@ -18,6 +19,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox, Field, Select } from "@/components/admin/form-bits";
 import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import { RichTextEditor } from "@/components/admin/RichTextEditor";
+import { useConfirm, useToast } from "@/components/admin/feedback";
+import { scrollToFirstError } from "@/lib/form-utils";
+import { useUnsavedChanges } from "@/lib/use-unsaved-changes";
 import { EMPTY_DOC } from "@/lib/tiptap";
 import { eventSchema } from "@/lib/validations/event";
 import { createEvent, updateEvent } from "@/server/actions/admin/events";
@@ -144,6 +148,8 @@ function ProgramDayItems({
 
 export function EventForm({ mode, id, initial }: EventFormProps) {
   const router = useRouter();
+  const toast = useToast();
+  const confirm = useConfirm();
   const [serverError, setServerError] = React.useState<string | null>(null);
 
   const {
@@ -151,7 +157,7 @@ export function EventForm({ mode, id, initial }: EventFormProps) {
     handleSubmit,
     control,
     setError,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isDirty },
   } = useForm<EventFormValues>({
     resolver: zodResolver(eventSchema) as unknown as Resolver<EventFormValues>,
     defaultValues:
@@ -183,10 +189,13 @@ export function EventForm({ mode, id, initial }: EventFormProps) {
   const sponsors = useFieldArray({ control, name: "sponsors" });
   const program = useFieldArray({ control, name: "program" });
 
+  useUnsavedChanges(isDirty && !isSubmitting);
+
   async function onSubmit(values: EventFormValues) {
     setServerError(null);
     const res = mode === "edit" && id ? await updateEvent(id, values) : await createEvent(values);
     if (res.ok) {
+      toast.success(mode === "edit" ? "Cambios guardados." : "Evento creado.");
       router.push("/admin/eventos");
       router.refresh();
       return;
@@ -196,11 +205,33 @@ export function EventForm({ mode, id, initial }: EventFormProps) {
       for (const [key, message] of Object.entries(res.fieldErrors)) {
         setError(key as keyof EventFormValues, { message });
       }
+      scrollToFirstError(res.fieldErrors);
+    } else {
+      toast.error(res.error);
     }
   }
 
+  function onInvalid(formErrors: FieldErrors<EventFormValues>) {
+    toast.error("Revisa los campos marcados en rojo.");
+    scrollToFirstError(formErrors);
+  }
+
+  async function onCancel() {
+    if (isDirty) {
+      const ok = await confirm({
+        title: "¿Descartar los cambios?",
+        description: "Tienes cambios sin guardar que se perderán.",
+        confirmLabel: "Descartar",
+        cancelLabel: "Seguir editando",
+        danger: true,
+      });
+      if (!ok) return;
+    }
+    router.push("/admin/eventos");
+  }
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-6">
       {serverError && (
         <div className="flex items-center gap-2 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           <AlertCircle size={16} aria-hidden />
@@ -438,14 +469,21 @@ export function EventForm({ mode, id, initial }: EventFormProps) {
         </div>
       </SectionCard>
 
-      <div className="flex items-center gap-3 border-t border-ink-200 pt-6">
+      <div className="sticky bottom-0 -mx-5 flex items-center gap-3 border-t border-ink-200 bg-ink-50/90 px-5 py-4 backdrop-blur md:-mx-8 md:px-8">
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting && <Loader2 size={16} className="animate-spin" aria-hidden />}
-          {mode === "edit" ? "Guardar cambios" : "Crear evento"}
+          {isSubmitting
+            ? "Guardando…"
+            : mode === "edit"
+              ? "Guardar cambios"
+              : "Crear evento"}
         </Button>
-        <Button type="button" variant="ghost" onClick={() => router.push("/admin/eventos")}>
+        <Button type="button" variant="ghost" onClick={onCancel} disabled={isSubmitting}>
           Cancelar
         </Button>
+        {isDirty && !isSubmitting && (
+          <span className="ml-auto text-xs text-ink-400">Cambios sin guardar</span>
+        )}
       </div>
     </form>
   );

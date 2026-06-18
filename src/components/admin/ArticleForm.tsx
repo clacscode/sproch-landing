@@ -4,7 +4,12 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import type { JSONContent } from "@tiptap/core";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, type Resolver, useForm } from "react-hook-form";
+import {
+  Controller,
+  type FieldErrors,
+  type Resolver,
+  useForm,
+} from "react-hook-form";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +17,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Field, Select, TagsInput } from "@/components/admin/form-bits";
 import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import { RichTextEditor } from "@/components/admin/RichTextEditor";
+import { useConfirm, useToast } from "@/components/admin/feedback";
+import { scrollToFirstError } from "@/lib/form-utils";
+import { useUnsavedChanges } from "@/lib/use-unsaved-changes";
 import { EMPTY_DOC } from "@/lib/tiptap";
 import { articleSchema } from "@/lib/validations/news";
 import { createArticle, updateArticle } from "@/server/actions/admin/news";
@@ -40,6 +48,8 @@ const NOUN = { NEWS: "noticia", PATIENT: "artículo" } as const;
 
 export function ArticleForm({ type, mode, id, initial }: ArticleFormProps) {
   const router = useRouter();
+  const toast = useToast();
+  const confirm = useConfirm();
   const [serverError, setServerError] = React.useState<string | null>(null);
 
   const listPath = type === "PATIENT" ? "/admin/pacientes" : "/admin/noticias";
@@ -49,7 +59,7 @@ export function ArticleForm({ type, mode, id, initial }: ArticleFormProps) {
     handleSubmit,
     control,
     setError,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isDirty },
   } = useForm<ArticleFormValues>({
     resolver: zodResolver(articleSchema) as unknown as Resolver<ArticleFormValues>,
     defaultValues:
@@ -68,11 +78,14 @@ export function ArticleForm({ type, mode, id, initial }: ArticleFormProps) {
       } satisfies ArticleFormValues),
   });
 
+  useUnsavedChanges(isDirty && !isSubmitting);
+
   async function onSubmit(values: ArticleFormValues) {
     setServerError(null);
     const res =
       mode === "edit" && id ? await updateArticle(id, values) : await createArticle(values);
     if (res.ok) {
+      toast.success(mode === "edit" ? "Cambios guardados." : "Creado correctamente.");
       router.push(listPath);
       router.refresh();
       return;
@@ -82,11 +95,33 @@ export function ArticleForm({ type, mode, id, initial }: ArticleFormProps) {
       for (const [key, message] of Object.entries(res.fieldErrors)) {
         setError(key as keyof ArticleFormValues, { message });
       }
+      scrollToFirstError(res.fieldErrors);
+    } else {
+      toast.error(res.error);
     }
   }
 
+  function onInvalid(formErrors: FieldErrors<ArticleFormValues>) {
+    toast.error("Revisa los campos marcados en rojo.");
+    scrollToFirstError(formErrors);
+  }
+
+  async function onCancel() {
+    if (isDirty) {
+      const ok = await confirm({
+        title: "¿Descartar los cambios?",
+        description: "Tienes cambios sin guardar que se perderán.",
+        confirmLabel: "Descartar",
+        cancelLabel: "Seguir editando",
+        danger: true,
+      });
+      if (!ok) return;
+    }
+    router.push(listPath);
+  }
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+    <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-8">
       <input type="hidden" {...register("type")} />
 
       {serverError && (
@@ -184,9 +219,13 @@ export function ArticleForm({ type, mode, id, initial }: ArticleFormProps) {
       <div className="flex items-center gap-3 border-t border-ink-200 pt-6">
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting && <Loader2 size={16} className="animate-spin" aria-hidden />}
-          {mode === "edit" ? "Guardar cambios" : "Crear"}
+          {isSubmitting
+            ? "Guardando…"
+            : mode === "edit"
+              ? "Guardar cambios"
+              : "Crear"}
         </Button>
-        <Button type="button" variant="ghost" onClick={() => router.push(listPath)}>
+        <Button type="button" variant="ghost" onClick={onCancel} disabled={isSubmitting}>
           Cancelar
         </Button>
       </div>

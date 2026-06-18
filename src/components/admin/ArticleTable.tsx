@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Pencil, Trash2 } from "lucide-react";
 import { formatDate } from "@/lib/format";
+import { useConfirm, useToast } from "@/components/admin/feedback";
 import { deleteArticle, toggleArticlePublish } from "@/server/actions/admin/news";
 
 export interface ArticleRow {
@@ -15,18 +16,37 @@ export interface ArticleRow {
   publishedAt: string;
 }
 
+type ActionResult = { ok: true } | { ok: false; error: string };
+
 export function ArticleTable({ basePath, rows }: { basePath: string; rows: ArticleRow[] }) {
   const router = useRouter();
+  const toast = useToast();
+  const confirm = useConfirm();
   const [pending, startTransition] = React.useTransition();
   const [busyId, setBusyId] = React.useState<string | null>(null);
 
-  function run(id: string, fn: () => Promise<unknown>) {
+  function run(id: string, fn: () => Promise<ActionResult>, successMsg: string) {
     setBusyId(id);
     startTransition(async () => {
-      await fn();
+      const res = await fn();
       setBusyId(null);
-      router.refresh();
+      if (res.ok) {
+        toast.success(successMsg);
+        router.refresh();
+      } else {
+        toast.error(res.error);
+      }
     });
+  }
+
+  async function onDelete(row: ArticleRow) {
+    const ok = await confirm({
+      title: `¿Eliminar “${row.title}”?`,
+      description: "El contenido se quitará del sitio de inmediato. Esta acción no se puede deshacer.",
+      confirmLabel: "Sí, eliminar",
+      danger: true,
+    });
+    if (ok) run(row.id, () => deleteArticle(row.id), "Eliminado correctamente.");
   }
 
   if (rows.length === 0) {
@@ -85,10 +105,16 @@ export function ArticleTable({ basePath, rows }: { basePath: string; rows: Artic
                     <button
                       type="button"
                       disabled={isBusy}
-                      onClick={() => run(row.id, () => toggleArticlePublish(row.id))}
+                      onClick={() =>
+                        run(
+                          row.id,
+                          () => toggleArticlePublish(row.id),
+                          row.status === "PUBLISHED" ? "Pasado a borrador." : "Publicado.",
+                        )
+                      }
                       aria-label={row.status === "PUBLISHED" ? "Despublicar" : "Publicar"}
-                      title={row.status === "PUBLISHED" ? "Despublicar" : "Publicar"}
-                      className="rounded p-1.5 text-ink-500 hover:bg-ink-100 hover:text-ink-900"
+                      title={row.status === "PUBLISHED" ? "Pasar a borrador" : "Publicar"}
+                      className="rounded p-1.5 text-ink-500 transition-colors hover:bg-ink-100 hover:text-ink-900"
                     >
                       {row.status === "PUBLISHED" ? (
                         <EyeOff size={15} aria-hidden />
@@ -99,12 +125,9 @@ export function ArticleTable({ basePath, rows }: { basePath: string; rows: Artic
                     <button
                       type="button"
                       disabled={isBusy}
-                      onClick={() => {
-                        if (window.confirm(`¿Eliminar “${row.title}”? Esta acción no se puede deshacer.`))
-                          run(row.id, () => deleteArticle(row.id));
-                      }}
+                      onClick={() => onDelete(row)}
                       aria-label="Eliminar"
-                      className="rounded p-1.5 text-ink-500 hover:bg-red-50 hover:text-red-600"
+                      className="rounded p-1.5 text-ink-500 transition-colors hover:bg-red-50 hover:text-red-600"
                     >
                       <Trash2 size={15} aria-hidden />
                     </button>

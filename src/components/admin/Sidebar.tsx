@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import {
   CalendarDays,
+  ExternalLink,
   FileText,
   HeartPulse,
   Image as ImageIcon,
@@ -16,6 +17,14 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { siteConfig } from "@/lib/site";
+
+function initials(name?: string | null, email?: string | null): string {
+  const source = name?.trim() || email?.split("@")[0] || "A";
+  const parts = source.split(/[\s.]+/).filter(Boolean);
+  const letters =
+    parts.length >= 2 ? `${parts[0]?.[0] ?? ""}${parts[1]?.[0] ?? ""}` : source.slice(0, 2);
+  return letters.toUpperCase();
+}
 
 interface NavItem {
   label: string;
@@ -54,7 +63,7 @@ function NavLink({ item, pathname }: { item: NavItem; pathname: string }) {
       className={cn(
         "group flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
         active
-          ? "bg-brand-600 text-white"
+          ? "bg-brand-600 text-white shadow-sm"
           : "text-ink-600 hover:bg-ink-100 hover:text-ink-900",
         locked && "opacity-60",
       )}
@@ -91,10 +100,26 @@ export function Sidebar({ user }: { user: { name?: string | null; email?: string
         ))}
       </nav>
 
-      <div className="border-t border-ink-200 p-3">
-        <div className="px-3 py-2">
-          <p className="truncate text-sm font-medium text-ink-900">{user.name ?? "Administrador"}</p>
-          <p className="truncate text-xs text-ink-500">{user.email}</p>
+      <div className="space-y-1 border-t border-ink-200 p-3">
+        <a
+          href="/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-ink-600 transition-colors hover:bg-ink-100 hover:text-ink-900"
+        >
+          <ExternalLink size={17} aria-hidden className="text-ink-400" />
+          Ver sitio
+        </a>
+        <div className="flex items-center gap-3 px-3 py-2">
+          <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-50 text-xs font-semibold text-brand-700">
+            {initials(user.name, user.email)}
+          </span>
+          <div className="min-w-0">
+            <p className="truncate text-sm font-medium text-ink-900">
+              {user.name ?? "Administrador"}
+            </p>
+            <p className="truncate text-xs text-ink-500">{user.email}</p>
+          </div>
         </div>
         <button
           type="button"
