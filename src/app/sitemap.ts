@@ -4,6 +4,9 @@ import { listNews } from "@/server/queries/news";
 import { listPatients } from "@/server/queries/patients";
 import { siteConfig } from "@/lib/site";
 
+// Generado por request: el CI compila sin DB; el sitemap se arma en runtime.
+export const dynamic = "force-dynamic";
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = siteConfig.url;
   const staticRoutes: MetadataRoute.Sitemap = [

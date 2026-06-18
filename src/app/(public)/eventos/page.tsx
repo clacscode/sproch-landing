@@ -9,7 +9,8 @@ import { formatDateRange, formatEventPrice } from "@/lib/format";
 import { siteConfig } from "@/lib/site";
 import { listEvents } from "@/server/queries/events";
 
-export const revalidate = 60;
+// Render por request: la DB vive en el server, no en el CI que compila.
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Cursos y Congresos",

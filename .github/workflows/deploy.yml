@@ -1,0 +1,120 @@
+name: Deploy a producción (Hostinger)
+
+# Compila en CI (contenedor AlmaLinux 9, igual que el server) y despliega el
+# resultado ya construido. El servidor NO recompila: solo recibe el artefacto,
+# migra y reinicia Passenger → downtime de segundos en vez de minutos.
+#
+# Requisitos (Settings → Secrets and variables → Actions → Secrets):
+#   SSH_PRIVATE_KEY      contenido de ~/.ssh/sproch_deploy (clave privada)
+#   DATABASE_URL         cadena MySQL de producción
+#   NEXT_PUBLIC_SITE_URL https://rehabilitacionoral.cl
+#   NEXT_PUBLIC_GA_ID    (opcional) G-XXXXXXXXXX
+#
+# El auto-deploy de GitHub en hPanel debe quedar DESACTIVADO (este workflow
+# reemplaza ese mecanismo).
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-prod
+  cancel-in-progress: false
+
+env:
+  SSH_HOST: "46.202.197.70"
+  SSH_PORT: "65002"
+  SSH_USER: "u273127787"
+  REMOTE_DOMAIN: "domains/rehabilitacionoral.cl"
+  SITE_URL: "https://rehabilitacionoral.cl"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    # Los secrets viven en el environment "Production" (Settings → Environments).
+    environment: Production
+    container:
+      image: almalinux:9
+    steps:
+      - name: Instalar herramientas (node 20, git, rsync, ssh)
+        run: |
+          dnf -y install git rsync openssh-clients tar findutils which >/dev/null
+          dnf -y module reset nodejs >/dev/null 2>&1 || true
+          dnf -y module enable nodejs:20 >/dev/null 2>&1 || true
+          dnf -y install nodejs >/dev/null
+          node -v && npm -v
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Build (standalone)
+        env:
+          # Dummy: Prisma se construye al importar y exige formato válido, pero
+          # el build NO consulta la DB (páginas públicas = force-dynamic). Nunca
+          # conecta. La DB real solo se usa en el paso de migración (por SSH).
+          DATABASE_URL: "mysql://build:build@127.0.0.1:3306/build"
+          NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
+          NEXT_PUBLIC_GA_ID: ${{ secrets.NEXT_PUBLIC_GA_ID }}
+          # Debe coincidir con el valor en runtime (hPanel) para que los IDs de
+          # Server Actions sean estables y no salga "Failed to find Server Action".
+          NEXT_SERVER_ACTIONS_ENCRYPTION_KEY: ${{ secrets.NEXT_SERVER_ACTIONS_ENCRYPTION_KEY }}
+        run: |
+          npx prisma generate
+          npx next build
+
+      - name: Ensamblar artefacto standalone
+        run: |
+          set -e
+          # Estáticos y públicos no van en el standalone por defecto.
+          cp -r .next/static .next/standalone/.next/static
+          cp -r public .next/standalone/public
+          # Asegurar el engine de Prisma dentro del standalone (a veces el
+          # tracing de Next no incluye el binario .node).
+          mkdir -p .next/standalone/node_modules/.prisma .next/standalone/node_modules/@prisma
+          cp -r node_modules/.prisma/client .next/standalone/node_modules/.prisma/ 2>/dev/null || true
+          cp -r node_modules/@prisma/client .next/standalone/node_modules/@prisma/ 2>/dev/null || true
+          # Schema + migraciones para `prisma migrate deploy` en el server.
+          mkdir -p .next/standalone/prisma
+          cp prisma/schema.prisma .next/standalone/prisma/
+          cp -r prisma/migrations .next/standalone/prisma/ 2>/dev/null || true
+          echo "— engine de Prisma incluido:"
+          ls .next/standalone/node_modules/.prisma/client/ | grep -i query_engine \
+            || { echo "ERROR: no se encontró el query engine en el standalone"; exit 1; }
+
+      - name: Configurar SSH
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_deploy
+          chmod 600 ~/.ssh/id_deploy
+          ssh-keyscan -p "$SSH_PORT" "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Subir artefacto a staging
+        run: |
+          rsync -az --delete \
+            -e "ssh -i ~/.ssh/id_deploy -p $SSH_PORT" \
+            .next/standalone/ \
+            "$SSH_USER@$SSH_HOST:$REMOTE_DOMAIN/deploy-staging/"
+
+      - name: Migrar + swap + restart
+        run: |
+          ssh -i ~/.ssh/id_deploy -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" \
+            "DATABASE_URL='${{ secrets.DATABASE_URL }}' bash -s" < scripts/remote-deploy.sh
+
+      - name: Smoke test (HTTP 200)
+        run: |
+          ok=0
+          for i in 1 2 3 4 5 6; do
+            sleep 5
+            code=$(curl -s -o /dev/null -w "%{http_code}" -m 15 "$SITE_URL" || echo 000)
+            echo "intento $i → HTTP $code"
+            if [ "$code" = "200" ]; then ok=1; break; fi
+          done
+          if [ "$ok" != "1" ]; then
+            echo "::error::El sitio no respondió 200 tras el deploy. Revisa logs / considera rollback (scripts/remote-rollback.sh)."
+            exit 1
+          fi
+          echo "Deploy verificado ✅"

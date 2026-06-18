@@ -2,7 +2,11 @@
 // Base de datos: MySQL / MariaDB (hosting compartido — hPanel/Hostinger).
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  // "native" para dev (macOS) y "rhel-openssl-3.0.x" para el runtime de
+  // producción (Hostinger = AlmaLinux 9 / OpenSSL 3.x). El build de CI corre en
+  // un contenedor AlmaLinux 9, así que el engine correcto queda incluido.
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {

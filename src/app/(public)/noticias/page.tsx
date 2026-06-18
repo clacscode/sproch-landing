@@ -34,7 +34,8 @@ function FilterPill({
   );
 }
 
-export const revalidate = 60;
+// Render por request: la DB vive en el server, no en el CI que compila.
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Noticias",

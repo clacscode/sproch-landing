@@ -1,67 +1,77 @@
 # Despliegue
 
-La app corre en **Hostinger** (hosting con Node.js, deploy automático desde GitHub) y la
-**base de datos MySQL** vive también en Hostinger. Todo en el mismo proveedor.
+La app corre en **Hostinger** (Node.js + Passenger) y la **base de datos MySQL**
+vive en el mismo servidor (`localhost`).
 
-El deploy es **autosuficiente**: al arrancar, la app aplica las migraciones
-(`prisma migrate deploy` en el `start`) y crea el usuario admin si no existe
-(`src/instrumentation.ts` → `ensureAdmin`). No requiere shell ni seed manual.
+El deploy se hace por **GitHub Actions** (`.github/workflows/deploy.yml`):
+**compila en CI** (contenedor AlmaLinux 9, igual que el servidor) y sube el
+resultado ya construido. El servidor **no recompila** — solo recibe el artefacto,
+migra y reinicia Passenger. Así el downtime baja de minutos (build en un server
+saturado) a **segundos** (restart graceful), con rollback inmediato.
+
+> ⚠️ El **auto-deploy de GitHub en hPanel debe estar DESACTIVADO**. Este workflow
+> lo reemplaza; si ambos están activos, pelean por la carpeta de la app.
 
 ---
 
-## 1. Base de datos (Hostinger)
+## Cómo funciona
 
-En el panel del sitio → **Bases de datos** → crea/conecta una MySQL. Anota host,
-nombre de DB, usuario y contraseña. Si la app y la DB están en el mismo Hostinger,
-el host suele ser interno (no necesitas "MySQL remoto").
+1. Push a `main` (o `workflow_dispatch`) dispara el workflow.
+2. CI instala Node 20, `npm ci`, `prisma generate` (engine `rhel-openssl-3.0.x`)
+   y `next build` con `output: standalone`. **El build no toca la DB**: las
+   páginas públicas son `force-dynamic` y los `[slug]` se generan on-demand.
+3. CI ensambla el standalone (+ `static`, `public`, engine de Prisma, `prisma/`).
+4. `rsync` del artefacto a `~/domains/rehabilitacionoral.cl/deploy-staging/`.
+5. Por SSH se ejecuta `scripts/remote-deploy.sh`:
+   - `prisma migrate deploy` (idempotente),
+   - swap atómico de `.next` y `node_modules` (rename; el proceso vivo conserva
+     los inodos abiertos, así que no se cae durante el swap),
+   - preserva `public/uploads`,
+   - `touch tmp/restart.txt` → Passenger reinicia graceful.
+6. Smoke test HTTP 200 contra el sitio.
 
-## 2. Variables de entorno
+**Rollback:** `ssh … 'bash -s' < scripts/remote-rollback.sh` (restaura el build
+anterior, que queda en `.next.prev` / `node_modules.prev`).
 
-En el panel del sitio → **Variables de entorno**, define:
+---
+
+## Configuración (una sola vez)
+
+### 1. Llave SSH de deploy
+Ya existe el par `~/.ssh/sproch_deploy(.pub)` y la pública está autorizada en el
+servidor. Si hay que regenerarla: `ssh-keygen -t ed25519` + `ssh-copy-id`.
+
+### 2. Secrets en GitHub
+**Settings → Secrets and variables → Actions → New repository secret:**
+
+| Secret | Valor |
+|---|---|
+| `SSH_PRIVATE_KEY` | contenido de `~/.ssh/sproch_deploy` (privada completa) |
+| `DATABASE_URL` | `mysql://USER:PASS@localhost:3306/sproch` (real, para migraciones) |
+| `NEXT_PUBLIC_SITE_URL` | `https://rehabilitacionoral.cl` |
+| `NEXT_PUBLIC_GA_ID` | (opcional) `G-XXXXXXXXXX` |
+| `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY` | misma clave que en runtime (hPanel) |
+
+> Host/puerto/usuario SSH están en el `env` del workflow (no son secretos).
+
+### 3. Variables de entorno en hPanel (runtime)
+La app en producción las lee vía Passenger:
 
 | Variable | Valor |
 |---|---|
-| `DATABASE_URL` | `mysql://USUARIO:CLAVE@HOST:3306/NOMBRE_DB` |
-| `AUTH_SECRET` | genera con `openssl rand -base64 32` |
+| `DATABASE_URL` | `mysql://USER:PASS@localhost:3306/sproch` |
+| `AUTH_SECRET` | `openssl rand -base64 32` |
 | `AUTH_URL` | `https://rehabilitacionoral.cl` |
-| `NEXT_PUBLIC_SITE_URL` | `https://rehabilitacionoral.cl` |
-| `ADMIN_EMAIL` | correo del admin (ej. `admin@sproch.cl`) |
-| `ADMIN_PASSWORD` | contraseña del admin |
-| `ADMIN_NAME` | nombre a mostrar |
+| `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY` | **mismo valor que en el secret de CI** |
+| `ADMIN_EMAIL` / `ADMIN_PASSWORD` / `ADMIN_NAME` | credenciales del admin |
 
-> `NEXT_PUBLIC_SITE_URL` se compila en el bundle: defínela **antes** del build.
-
-## 3. Deploy
-
-Mergea a `main`. Hostinger reconstruye (build automático) y al iniciar:
-1. `prisma migrate deploy` crea/actualiza las tablas.
-2. El hook de arranque crea el admin desde `ADMIN_*` (si no existe).
-
-Luego entra a `https://rehabilitacionoral.cl/admin` con `ADMIN_EMAIL`/`ADMIN_PASSWORD`.
-
-> **Contenido inicial (opcional):** el deploy NO carga las noticias/evento de ejemplo;
-> el admin las crea desde el panel. Si quieres precargarlas y la DB acepta conexión
-> externa, corre una vez desde tu máquina:
-> `DATABASE_URL="mysql://…" npm run db:seed`
-
-### Si las migraciones no se aplican solas
-
-Significa que Hostinger no ejecuta `npm run start` (sino `next start` directo). Opciones:
-- En **Ajustes** del sitio, fija el comando de inicio a `npm run start`, **o**
-- Corre una vez desde tu máquina (si la DB acepta conexión externa):
-  `DATABASE_URL="mysql://…" npx prisma migrate deploy`
-
-### Imágenes subidas
-
-Se guardan en `public/uploads` (disco). Si Hostinger hace builds limpios y borra ese
-directorio en cada deploy, las imágenes subidas se perderían. Verifica tras un redeploy;
-si no persisten, lo movemos a un directorio persistente servido por una ruta, o a
-almacenamiento de objetos.
+### 4. Desactivar el auto-deploy de Hostinger
+hPanel → (sección Git / despliegue del sitio) → desactivar el deploy automático
+desde GitHub.
 
 ---
 
-## Alternativa: Render / Railway
+## Imágenes subidas
 
-Si algún día se mueve fuera de Hostinger, el repo incluye `render.yaml` (Blueprint de
-Render con disco persistente). En Railway: deploy desde GitHub, mismas variables, y un
-volumen montado en `/app/public/uploads`.
+Viven en `nodejs/public/uploads`. El deploy las **preserva** (el swap excluye
+`uploads/`). No se pierden entre despliegues.

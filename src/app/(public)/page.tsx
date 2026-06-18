@@ -27,7 +27,8 @@ import { Testimonials } from "@/components/public/Testimonials";
 import { getFeaturedEvent, listEvents } from "@/server/queries/events";
 import { listNews } from "@/server/queries/news";
 
-export const revalidate = 60;
+// Render por request: la DB vive en el server, no en el CI que compila.
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   description:

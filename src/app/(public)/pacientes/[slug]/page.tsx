@@ -16,9 +16,10 @@ interface Params {
   slug: string;
 }
 
+// Sin prerender en build: el CI compila sin DB. Las páginas se generan
+// on-demand (ISR) en el primer request, donde la DB sí está disponible.
 export async function generateStaticParams() {
-  const items = await listPatients();
-  return items.map((p) => ({ slug: p.slug }));
+  return [];
 }
 
 export async function generateMetadata({

@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { SponsorsStrip } from "@/components/public/SponsorsStrip";
 import { formatDateRange, formatEventPrice } from "@/lib/format";
 import { siteConfig } from "@/lib/site";
-import { getEventBySlug, listEvents } from "@/server/queries/events";
+import { getEventBySlug } from "@/server/queries/events";
 
 export const revalidate = 60;
 
@@ -16,9 +16,10 @@ interface Params {
   slug: string;
 }
 
+// Sin prerender en build: el CI compila sin DB. Las páginas se generan
+// on-demand (ISR) en el primer request, donde la DB sí está disponible.
 export async function generateStaticParams() {
-  const items = await listEvents();
-  return items.map((e) => ({ slug: e.slug }));
+  return [];
 }
 
 export async function generateMetadata({
