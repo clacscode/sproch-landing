@@ -44,6 +44,10 @@ next-env.d.ts
 # prisma
 /prisma/migrations/**/migration.sql.bak
 
+# uploads del panel (se generan en runtime; no versionar el contenido)
+/public/uploads/*
+!/public/uploads/.gitkeep
+
 # editor
 .idea
 .vscode

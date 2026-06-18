@@ -1,20 +1,18 @@
 import "server-only";
-import { patientsMock } from "@/data/patients";
+import { prisma } from "@/lib/prisma";
 import type { NewsArticle } from "@/lib/types";
-
-function published(p: NewsArticle) {
-  return p.status === "PUBLISHED";
-}
+import { mapNews } from "@/server/queries/mappers";
 
 export async function listPatients(opts?: {
   tag?: string;
   q?: string;
   limit?: number;
 }): Promise<NewsArticle[]> {
-  let items = patientsMock
-    .filter(published)
-    .slice()
-    .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
+  const rows = await prisma.news.findMany({
+    where: { type: "PATIENT", status: "PUBLISHED" },
+    orderBy: { publishedAt: "desc" },
+  });
+  let items = rows.map(mapNews);
   if (opts?.tag) items = items.filter((p) => p.tags.includes(opts.tag!));
   if (opts?.q) {
     const q = opts.q.toLowerCase();
@@ -27,9 +25,18 @@ export async function listPatients(opts?: {
 }
 
 export async function getPatientBySlug(slug: string): Promise<NewsArticle | null> {
-  return patientsMock.find((p) => p.slug === slug && published(p)) ?? null;
+  const row = await prisma.news.findFirst({
+    where: { slug, type: "PATIENT", status: "PUBLISHED" },
+  });
+  return row ? mapNews(row) : null;
 }
 
 export async function listAllPatientTags(): Promise<string[]> {
-  return Array.from(new Set(patientsMock.flatMap((p) => p.tags))).sort();
+  const rows = await prisma.news.findMany({
+    where: { type: "PATIENT", status: "PUBLISHED" },
+    select: { tags: true },
+  });
+  return Array.from(
+    new Set(rows.flatMap((r) => (r.tags as string[] | null) ?? [])),
+  ).sort();
 }

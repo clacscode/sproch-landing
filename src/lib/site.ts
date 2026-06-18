@@ -25,6 +25,13 @@ export const siteConfig = {
      * Cambiar a `false` cuando se carguen los cursos y congresos definitivos.
      */
     eventsComingSoon: true,
+    /**
+     * Módulos "extra" del panel de administración (directiva, filiales,
+     * sponsors, textos institucionales). Quedan scaffoldeados pero
+     * deshabilitados: el sidebar los muestra como "no habilitado" y sus
+     * rutas renderizan un aviso. Cambiar a `true` para activar esa fase.
+     */
+    adminExtras: false,
   },
   navigation: [
     { label: "Inicio", href: "/" },
