@@ -5,7 +5,7 @@
   "description": "Sitio corporativo de la Sociedad de Prótesis y Rehabilitación Oral de Chile (SPROCh)",
   "scripts": {
     "dev": "next dev",
-    "build": "prisma migrate deploy && npm run db:seed && next build",
+    "build": "prisma migrate deploy && next build",
     "start": "prisma migrate deploy && next start",
     "postinstall": "prisma generate",
     "lint": "next lint",
