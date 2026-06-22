@@ -23,13 +23,22 @@ log() { echo "[remote-deploy] $*"; }
 [ -d "$STAGE/.next" ] || { echo "ERROR: no hay build en $STAGE"; exit 1; }
 [ -f "$STAGE/server.js" ] || { echo "ERROR: falta server.js en el staging"; exit 1; }
 
-# 1) Migraciones (idempotente; no hace nada si no hay pendientes).
-#    Usa el CLI empacado en el artefacto (sin descargar nada por red).
-if [ -n "${DATABASE_URL:-}" ] && [ -f "$STAGE/prisma/schema.prisma" ] && [ -f "$STAGE/node_modules/prisma/build/index.js" ]; then
-  log "Aplicando migraciones…"
-  ( cd "$STAGE" && DATABASE_URL="$DATABASE_URL" node node_modules/prisma/build/index.js migrate deploy )
+# 1) Migraciones — SOLO a demanda (RUN_MIGRATIONS=true).
+#    El host comparte memoria y mata el proceso (OOM, exit 137) en cada deploy;
+#    como el esquema casi nunca cambia, se corre aparte cuando hace falta:
+#    Actions → "Run workflow" → marca "run_migrations".
+#    Usa el CLI empacado en el artefacto (sin descargar nada por red) y limita
+#    la memoria de Node para no chocar con el límite de la cuenta.
+if [ "${RUN_MIGRATIONS:-}" = "true" ]; then
+  if [ -n "${DATABASE_URL:-}" ] && [ -f "$STAGE/node_modules/prisma/build/index.js" ]; then
+    log "Aplicando migraciones…"
+    ( cd "$STAGE" && NODE_OPTIONS="--max-old-space-size=256" DATABASE_URL="$DATABASE_URL" \
+        node node_modules/prisma/build/index.js migrate deploy )
+  else
+    echo "ERROR: RUN_MIGRATIONS=true pero falta DATABASE_URL o el CLI"; exit 1
+  fi
 else
-  log "Sin DATABASE_URL, schema o CLI → omito migraciones."
+  log "Migraciones omitidas (RUN_MIGRATIONS != true). Esquema sin cambios."
 fi
 
 # 2) Swap atómico de los directorios pesados (rename en el mismo filesystem).

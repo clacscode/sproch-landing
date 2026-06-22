@@ -17,6 +17,11 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      run_migrations:
+        description: "Aplicar 'prisma migrate deploy' en el server (solo si cambió el esquema)"
+        type: boolean
+        default: false
 
 concurrency:
   group: deploy-prod
@@ -114,7 +119,7 @@ jobs:
             -o UserKnownHostsFile="$HOME/.ssh/known_hosts" -o StrictHostKeyChecking=accept-new \
             -o ServerAliveInterval=20 -o ServerAliveCountMax=10 \
             "$SSH_USER@$SSH_HOST" \
-            "DATABASE_URL='${{ secrets.DATABASE_URL }}' bash -s" < scripts/remote-deploy.sh
+            "DATABASE_URL='${{ secrets.DATABASE_URL }}' RUN_MIGRATIONS='${{ github.event.inputs.run_migrations }}' bash -s" < scripts/remote-deploy.sh
 
       - name: Smoke test (HTTP 200)
         run: |
