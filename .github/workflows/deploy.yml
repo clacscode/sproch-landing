@@ -114,6 +114,7 @@ jobs:
             "$SSH_USER@$SSH_HOST:$REMOTE_DOMAIN/deploy-staging/"
 
       - name: Migrar + swap + restart
+        id: swap
         run: |
           ssh -i "$HOME/.ssh/id_deploy" -p "$SSH_PORT" \
             -o UserKnownHostsFile="$HOME/.ssh/known_hosts" -o StrictHostKeyChecking=accept-new \
@@ -131,7 +132,20 @@ jobs:
             if [ "$code" = "200" ]; then ok=1; break; fi
           done
           if [ "$ok" != "1" ]; then
-            echo "::error::El sitio no respondió 200 tras el deploy. Revisa logs / considera rollback (scripts/remote-rollback.sh)."
+            echo "::error::El sitio no respondió 200 tras el deploy."
             exit 1
           fi
           echo "Deploy verificado ✅"
+
+      # Red de seguridad: si el swap se aplicó pero el sitio quedó roto, revierte
+      # automáticamente al build anterior. Solo corre si el swap fue exitoso (no
+      # si falló antes, donde el build en vivo sigue intacto).
+      - name: Rollback automático si el deploy quedó roto
+        if: ${{ failure() && steps.swap.outcome == 'success' }}
+        run: |
+          echo "::warning::Smoke test falló tras el swap → revirtiendo al build anterior"
+          ssh -i "$HOME/.ssh/id_deploy" -p "$SSH_PORT" \
+            -o UserKnownHostsFile="$HOME/.ssh/known_hosts" -o StrictHostKeyChecking=accept-new \
+            -o ServerAliveInterval=20 -o ServerAliveCountMax=10 \
+            "$SSH_USER@$SSH_HOST" 'bash -s' < scripts/remote-rollback.sh
+          echo "::error::Deploy revertido automáticamente. El build vivo es el anterior (sano)."
