@@ -3,10 +3,10 @@
 
 generator client {
   provider      = "prisma-client-js"
-  // "native" para dev (macOS) y "rhel-openssl-3.0.x" para el runtime de
-  // producción (Hostinger = AlmaLinux 9 / OpenSSL 3.x). El build de CI corre en
-  // un contenedor AlmaLinux 9, así que el engine correcto queda incluido.
-  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+  // "native" para dev (macOS). En el runtime de Hostinger (alt-nodejs/Passenger)
+  // Prisma detecta "debian-openssl-1.1.x" aunque el SO sea AlmaLinux 9 — es lo
+  // que pide el engine en producción. Se incluye rhel-openssl-3.0.x por si acaso.
+  binaryTargets = ["native", "debian-openssl-1.1.x", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
