@@ -72,18 +72,24 @@ jobs:
           # Estáticos y públicos no van en el standalone por defecto.
           cp -r .next/static .next/standalone/.next/static
           cp -r public .next/standalone/public
-          # Asegurar el engine de Prisma dentro del standalone (a veces el
-          # tracing de Next no incluye el binario .node).
-          mkdir -p .next/standalone/node_modules/.prisma .next/standalone/node_modules/@prisma
-          cp -r node_modules/.prisma/client .next/standalone/node_modules/.prisma/ 2>/dev/null || true
-          cp -r node_modules/@prisma/client .next/standalone/node_modules/@prisma/ 2>/dev/null || true
+          # Prisma completo dentro del standalone: engine de runtime (.prisma +
+          # @prisma/client), engine de migración (@prisma/engines) y el CLI
+          # (prisma). Así el server corre `migrate deploy` SIN descargar nada
+          # (la descarga por npx tumbaba la conexión SSH en el host saturado).
+          SA=.next/standalone/node_modules
+          rm -rf "$SA/.prisma" "$SA/@prisma" "$SA/prisma"
+          cp -r node_modules/.prisma "$SA/.prisma"
+          cp -r node_modules/@prisma "$SA/@prisma"
+          cp -r node_modules/prisma "$SA/prisma"
           # Schema + migraciones para `prisma migrate deploy` en el server.
           mkdir -p .next/standalone/prisma
           cp prisma/schema.prisma .next/standalone/prisma/
           cp -r prisma/migrations .next/standalone/prisma/ 2>/dev/null || true
           echo "— engine de Prisma incluido:"
-          ls .next/standalone/node_modules/.prisma/client/ | grep -i query_engine \
+          ls "$SA/.prisma/client" | grep -i query_engine \
             || { echo "ERROR: no se encontró el query engine en el standalone"; exit 1; }
+          test -f "$SA/prisma/build/index.js" \
+            || { echo "ERROR: falta el CLI de Prisma en el standalone"; exit 1; }
 
       - name: Configurar SSH
         run: |
@@ -106,6 +112,7 @@ jobs:
         run: |
           ssh -i "$HOME/.ssh/id_deploy" -p "$SSH_PORT" \
             -o UserKnownHostsFile="$HOME/.ssh/known_hosts" -o StrictHostKeyChecking=accept-new \
+            -o ServerAliveInterval=20 -o ServerAliveCountMax=10 \
             "$SSH_USER@$SSH_HOST" \
             "DATABASE_URL='${{ secrets.DATABASE_URL }}' bash -s" < scripts/remote-deploy.sh
 

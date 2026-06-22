@@ -24,11 +24,12 @@ log() { echo "[remote-deploy] $*"; }
 [ -f "$STAGE/server.js" ] || { echo "ERROR: falta server.js en el staging"; exit 1; }
 
 # 1) Migraciones (idempotente; no hace nada si no hay pendientes).
-if [ -n "${DATABASE_URL:-}" ] && [ -f "$STAGE/prisma/schema.prisma" ]; then
+#    Usa el CLI empacado en el artefacto (sin descargar nada por red).
+if [ -n "${DATABASE_URL:-}" ] && [ -f "$STAGE/prisma/schema.prisma" ] && [ -f "$STAGE/node_modules/prisma/build/index.js" ]; then
   log "Aplicando migraciones…"
-  ( cd "$STAGE" && DATABASE_URL="$DATABASE_URL" npx --yes prisma@6.19.3 migrate deploy )
+  ( cd "$STAGE" && DATABASE_URL="$DATABASE_URL" node node_modules/prisma/build/index.js migrate deploy )
 else
-  log "Sin DATABASE_URL o sin schema → omito migraciones."
+  log "Sin DATABASE_URL, schema o CLI → omito migraciones."
 fi
 
 # 2) Swap atómico de los directorios pesados (rename en el mismo filesystem).
