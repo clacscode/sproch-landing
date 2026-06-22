@@ -87,21 +87,26 @@ jobs:
 
       - name: Configurar SSH
         run: |
-          mkdir -p ~/.ssh
-          printf '%s\n' "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_deploy
-          chmod 600 ~/.ssh/id_deploy
-          ssh-keyscan -p "$SSH_PORT" "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+          # Rutas absolutas: en contenedores el $HOME del shell (/github/home)
+          # no coincide con el ~ que expande ssh (/root). Usar $HOME explícito.
+          mkdir -p "$HOME/.ssh"
+          printf '%s\n' "${{ secrets.SSH_PRIVATE_KEY }}" > "$HOME/.ssh/id_deploy"
+          chmod 600 "$HOME/.ssh/id_deploy"
+          ssh-keyscan -p "$SSH_PORT" "$SSH_HOST" >> "$HOME/.ssh/known_hosts" 2>/dev/null
+          chmod 600 "$HOME/.ssh/known_hosts"
 
       - name: Subir artefacto a staging
         run: |
           rsync -az --delete \
-            -e "ssh -i ~/.ssh/id_deploy -p $SSH_PORT" \
+            -e "ssh -i $HOME/.ssh/id_deploy -p $SSH_PORT -o UserKnownHostsFile=$HOME/.ssh/known_hosts -o StrictHostKeyChecking=accept-new" \
             .next/standalone/ \
             "$SSH_USER@$SSH_HOST:$REMOTE_DOMAIN/deploy-staging/"
 
       - name: Migrar + swap + restart
         run: |
-          ssh -i ~/.ssh/id_deploy -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" \
+          ssh -i "$HOME/.ssh/id_deploy" -p "$SSH_PORT" \
+            -o UserKnownHostsFile="$HOME/.ssh/known_hosts" -o StrictHostKeyChecking=accept-new \
+            "$SSH_USER@$SSH_HOST" \
             "DATABASE_URL='${{ secrets.DATABASE_URL }}' bash -s" < scripts/remote-deploy.sh
 
       - name: Smoke test (HTTP 200)
