@@ -74,9 +74,13 @@ jobs:
       - name: Ensamblar artefacto standalone
         run: |
           set -e
-          # Estáticos y públicos no van en el standalone por defecto.
-          cp -r .next/static .next/standalone/.next/static
-          cp -r public .next/standalone/public
+          # Estáticos y públicos no van completos en el standalone. OJO: el
+          # standalone YA crea un public/ (iconos/metadata), así que hay que
+          # copiar el CONTENIDO de public (public/.) y no la carpeta dentro,
+          # o quedaría public/public/ y los assets darían 404.
+          mkdir -p .next/standalone/.next/static .next/standalone/public
+          cp -a .next/static/. .next/standalone/.next/static/
+          cp -a public/. .next/standalone/public/
           # Prisma completo dentro del standalone: engine de runtime (.prisma +
           # @prisma/client), engine de migración (@prisma/engines) y el CLI
           # (prisma). Así el server corre `migrate deploy` SIN descargar nada
