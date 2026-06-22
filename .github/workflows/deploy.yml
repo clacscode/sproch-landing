@@ -107,7 +107,10 @@ jobs:
           mkdir -p "$HOME/.ssh"
           printf '%s\n' "${{ secrets.SSH_PRIVATE_KEY }}" > "$HOME/.ssh/id_deploy"
           chmod 600 "$HOME/.ssh/id_deploy"
-          ssh-keyscan -p "$SSH_PORT" "$SSH_HOST" >> "$HOME/.ssh/known_hosts" 2>/dev/null
+          # ssh-keyscan depende de red; no debe abortar el paso (sh -e). El
+          # known_hosts se completa igual por StrictHostKeyChecking=accept-new.
+          ssh-keyscan -p "$SSH_PORT" "$SSH_HOST" >> "$HOME/.ssh/known_hosts" 2>/dev/null || true
+          touch "$HOME/.ssh/known_hosts"
           chmod 600 "$HOME/.ssh/known_hosts"
 
       - name: Subir artefacto a staging
