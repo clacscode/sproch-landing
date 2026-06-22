@@ -78,7 +78,6 @@ function NavLink({ item, pathname }: { item: NavItem; pathname: string }) {
 export function Sidebar({ user }: { user: { name?: string | null; email?: string | null } }) {
   const pathname = usePathname();
   const extrasEnabled = siteConfig.features.adminExtras;
-  const extraItems = extras.map((e) => ({ ...e, locked: !extrasEnabled }));
 
   return (
     <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-ink-200 bg-white lg:flex">
@@ -92,12 +91,16 @@ export function Sidebar({ user }: { user: { name?: string | null; email?: string
           <NavLink key={item.href} item={item} pathname={pathname} />
         ))}
 
-        <p className="px-3 pb-1 pt-5 text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-400">
-          Más módulos
-        </p>
-        {extraItems.map((item) => (
-          <NavLink key={item.href} item={item} pathname={pathname} />
-        ))}
+        {extrasEnabled && (
+          <>
+            <p className="px-3 pb-1 pt-5 text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-400">
+              Más módulos
+            </p>
+            {extras.map((item) => (
+              <NavLink key={item.href} item={item} pathname={pathname} />
+            ))}
+          </>
+        )}
       </nav>
 
       <div className="space-y-1 border-t border-ink-200 p-3">
