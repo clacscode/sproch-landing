@@ -115,10 +115,23 @@ jobs:
 
       - name: Subir artefacto a staging
         run: |
-          rsync -az --delete \
-            -e "ssh -i $HOME/.ssh/id_deploy -p $SSH_PORT -o UserKnownHostsFile=$HOME/.ssh/known_hosts -o StrictHostKeyChecking=accept-new" \
-            .next/standalone/ \
-            "$SSH_USER@$SSH_HOST:$REMOTE_DOMAIN/deploy-staging/"
+          # El host es flaky bajo carga y a veces resetea la conexión. Reintentos
+          # con backoff + keepalive + --partial (reanuda lo ya subido).
+          RSH="ssh -i $HOME/.ssh/id_deploy -p $SSH_PORT -o UserKnownHostsFile=$HOME/.ssh/known_hosts -o StrictHostKeyChecking=accept-new -o ServerAliveInterval=15 -o ServerAliveCountMax=4 -o ConnectTimeout=20"
+          n=0
+          until [ "$n" -ge 4 ]; do
+            if rsync -az --delete --partial --timeout=90 -e "$RSH" \
+                 .next/standalone/ \
+                 "$SSH_USER@$SSH_HOST:$REMOTE_DOMAIN/deploy-staging/"; then
+              echo "rsync OK (intento $((n + 1)))"
+              exit 0
+            fi
+            n=$((n + 1))
+            echo "::warning::rsync falló (intento $n/4) — reintento en $((n * 10))s…"
+            sleep $((n * 10))
+          done
+          echo "::error::rsync falló tras 4 intentos (host saturado)."
+          exit 1
 
       - name: Migrar + swap + restart
         id: swap
