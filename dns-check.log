@@ -1,0 +1,30 @@
+
+================================================================================
+DNS CHECK — 2026-07-09
+================================================================================
+Aún sin propagar
+
+--- Resultados de las consultas DNS ---
+
+dig @8.8.8.8 +short NS sproch.cl
+[vacío / SERVFAIL — RCODE=2, ANCOUNT=0]
+
+dig @8.8.8.8 +short A sproch.cl
+[vacío / SERVFAIL — RCODE=2, ANCOUNT=0]
+
+dig @1.1.1.1 +short NS sproch.cl
+[vacío / SERVFAIL — RCODE=2, ANCOUNT=0]
+
+--- Notas de diagnóstico ---
+• rehabilitacionoral.cl resuelve correctamente (RCODE=0, 2 registros A) — la
+  conectividad DNS desde este entorno funciona con normalidad.
+• sproch.cl retorna SERVFAIL (RCODE=2) en todos los resolvers probados
+  (8.8.8.8 y 1.1.1.1) tanto para A como para NS.
+• Los servidores TLD de .cl (a.nic.cl, b.nic.cl, c.nic.cl) también retornan
+  SERVFAIL para sproch.cl, lo que indica que la delegación NS en el registro
+  .cl todavía no apunta a nameservers de Hostinger (dns-parking.com).
+• Ningún registro NS contiene 'dns-parking.com' y ningún registro A fue
+  retornado — criterios de propagación NO cumplidos.
+• Conclusión: el DNS de sproch.cl aún NO ha propagado. Sin acción de email.
+================================================================================
+
