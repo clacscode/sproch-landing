@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { Check, Trash2, Undo2 } from "lucide-react";
+import { Check, Search, SlidersHorizontal, Trash2, Undo2 } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { useConfirm, useToast } from "@/components/admin/feedback";
 import {
@@ -126,8 +126,126 @@ function EmptyState({ children }: { children: React.ReactNode }) {
   );
 }
 
+/** Búsqueda insensible a mayúsculas y tildes. */
+function norm(s: string): string {
+  return s
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
+
+interface SelectFilter {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  options: { value: string; label: string }[];
+}
+
+const ESTADO_OPTIONS = [
+  { value: "todos", label: "Todos" },
+  { value: "pendiente", label: "Pendiente" },
+  { value: "atendido", label: "Atendido" },
+];
+
+function matchesEstado(resolved: boolean, estado: string): boolean {
+  return estado === "todos" || resolved === (estado === "atendido");
+}
+
+function FilterBar({
+  query,
+  onQueryChange,
+  selects,
+  shown,
+  total,
+}: {
+  query: string;
+  onQueryChange: (v: string) => void;
+  selects?: SelectFilter[];
+  shown: number;
+  total: number;
+}) {
+  const hasActiveSelect = selects?.some((s) => s.value !== "todos") ?? false;
+  const [open, setOpen] = React.useState(false);
+  const showPanel = open || hasActiveSelect;
+
+  return (
+    <div className="rounded-lg border border-ink-200 bg-white p-3">
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="relative min-w-56 flex-1">
+          <Search
+            size={15}
+            aria-hidden
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-400"
+          />
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => onQueryChange(e.target.value)}
+            placeholder="Buscar..."
+            className="w-full rounded-md border border-ink-200 py-2 pl-9 pr-3 text-sm text-ink-900 outline-none transition-colors placeholder:text-ink-400 focus:border-brand-600"
+          />
+        </div>
+        {selects && selects.length > 0 && (
+          <button
+            type="button"
+            onClick={() => setOpen((v) => !v)}
+            className={cn(
+              "inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+              showPanel
+                ? "bg-brand-600 text-white"
+                : "border border-ink-200 text-ink-600 hover:bg-ink-100 hover:text-ink-900",
+            )}
+          >
+            <SlidersHorizontal size={15} aria-hidden />
+            Filtros
+          </button>
+        )}
+        <span className="ml-auto text-xs text-ink-400">
+          {shown === total ? `${total} en total` : `${shown} de ${total}`}
+        </span>
+      </div>
+      {selects && showPanel && (
+        <div className="mt-3 grid gap-3 border-t border-ink-100 pt-3 sm:grid-cols-2 lg:grid-cols-4">
+          {selects.map((s) => (
+            <label key={s.label} className="block">
+              <span className="text-[11px] font-semibold uppercase tracking-wide text-ink-400">
+                {s.label}
+              </span>
+              <select
+                value={s.value}
+                onChange={(e) => s.onChange(e.target.value)}
+                className="mt-1 w-full rounded-md border border-ink-200 bg-white px-3 py-2 text-sm text-ink-900 outline-none transition-colors focus:border-brand-600"
+              >
+                {s.options.map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function ContactMessagesList({ rows }: { rows: ContactRow[] }) {
   const { run, confirm, isBusy } = useRowActions();
+  const [query, setQuery] = React.useState("");
+  const [estado, setEstado] = React.useState("todos");
+  const [tipo, setTipo] = React.useState("todos");
+
+  const tipos = Array.from(new Set(rows.map((r) => r.inquiryLabel))).sort();
+  const visible = rows.filter(
+    (row) =>
+      matchesEstado(row.resolved, estado) &&
+      (tipo === "todos" || row.inquiryLabel === tipo) &&
+      (!query.trim() ||
+        norm([row.name, row.email, row.phone ?? "", row.subject, row.message].join(" ")).includes(
+          norm(query.trim()),
+        )),
+  );
 
   async function onDelete(row: ContactRow) {
     const ok = await confirm({
@@ -145,7 +263,28 @@ export function ContactMessagesList({ rows }: { rows: ContactRow[] }) {
 
   return (
     <div className="space-y-4">
-      {rows.map((row) => (
+      <FilterBar
+        query={query}
+        onQueryChange={setQuery}
+        shown={visible.length}
+        total={rows.length}
+        selects={[
+          { label: "Estado", value: estado, onChange: setEstado, options: ESTADO_OPTIONS },
+          {
+            label: "Tipo de consulta",
+            value: tipo,
+            onChange: setTipo,
+            options: [
+              { value: "todos", label: "Todos" },
+              ...tipos.map((t) => ({ value: t, label: t })),
+            ],
+          },
+        ]}
+      />
+      {visible.length === 0 && (
+        <EmptyState>Ningún mensaje coincide con la búsqueda o los filtros.</EmptyState>
+      )}
+      {visible.map((row) => (
         <article
           key={row.id}
           className={cn(
@@ -193,6 +332,19 @@ export function ContactMessagesList({ rows }: { rows: ContactRow[] }) {
 
 export function MembershipApplicationsList({ rows }: { rows: MembershipRow[] }) {
   const { run, confirm, isBusy } = useRowActions();
+  const [query, setQuery] = React.useState("");
+  const [estado, setEstado] = React.useState("todos");
+
+  const visible = rows.filter(
+    (row) =>
+      matchesEstado(row.resolved, estado) &&
+      (!query.trim() ||
+        norm(
+          [row.fullName, row.rut, row.email, row.phone, ...row.fields.map((f) => f.value)].join(
+            " ",
+          ),
+        ).includes(norm(query.trim()))),
+  );
 
   async function onDelete(row: MembershipRow) {
     const ok = await confirm({
@@ -210,7 +362,17 @@ export function MembershipApplicationsList({ rows }: { rows: MembershipRow[] }) 
 
   return (
     <div className="space-y-4">
-      {rows.map((row) => (
+      <FilterBar
+        query={query}
+        onQueryChange={setQuery}
+        shown={visible.length}
+        total={rows.length}
+        selects={[{ label: "Estado", value: estado, onChange: setEstado, options: ESTADO_OPTIONS }]}
+      />
+      {visible.length === 0 && (
+        <EmptyState>Ninguna solicitud coincide con la búsqueda o los filtros.</EmptyState>
+      )}
+      {visible.map((row) => (
         <article
           key={row.id}
           className={cn(
@@ -269,6 +431,11 @@ export function MembershipApplicationsList({ rows }: { rows: MembershipRow[] }) 
 
 export function SubscribersTable({ rows }: { rows: SubscriberRow[] }) {
   const { run, confirm, isBusy } = useRowActions();
+  const [query, setQuery] = React.useState("");
+
+  const visible = rows.filter(
+    (row) => !query.trim() || norm(row.email).includes(norm(query.trim())),
+  );
 
   async function onDelete(row: SubscriberRow) {
     const ok = await confirm({
@@ -285,41 +452,56 @@ export function SubscribersTable({ rows }: { rows: SubscriberRow[] }) {
   }
 
   return (
-    <div className="overflow-hidden rounded-lg border border-ink-200 bg-white">
-      <table className="w-full text-sm">
-        <thead className="border-b border-ink-200 bg-ink-50 text-left text-xs uppercase tracking-wide text-ink-500">
-          <tr>
-            <th className="px-4 py-3 font-medium">E-mail</th>
-            <th className="px-4 py-3 font-medium">Suscrito el</th>
-            <th className="px-4 py-3 text-right font-medium">Acciones</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-ink-100">
-          {rows.map((row) => (
-            <tr key={row.id} className={isBusy(row.id) ? "opacity-50" : undefined}>
-              <td className="px-4 py-3">
-                <a href={`mailto:${row.email}`} className="font-medium text-ink-900 hover:text-brand-700">
-                  {row.email}
-                </a>
-              </td>
-              <td className="px-4 py-3 text-ink-500">{row.createdAt}</td>
-              <td className="px-4 py-3">
-                <div className="flex items-center justify-end">
-                  <button
-                    type="button"
-                    disabled={isBusy(row.id)}
-                    onClick={() => onDelete(row)}
-                    aria-label="Eliminar"
-                    className="rounded p-1.5 text-ink-500 transition-colors hover:bg-red-50 hover:text-red-600"
-                  >
-                    <Trash2 size={15} aria-hidden />
-                  </button>
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className="space-y-4">
+      <FilterBar
+        query={query}
+        onQueryChange={setQuery}
+        shown={visible.length}
+        total={rows.length}
+      />
+      {visible.length === 0 ? (
+        <EmptyState>Ningún suscriptor coincide con la búsqueda.</EmptyState>
+      ) : (
+        <div className="overflow-hidden rounded-lg border border-ink-200 bg-white">
+          <table className="w-full text-sm">
+            <thead className="border-b border-ink-200 bg-ink-50 text-left text-xs uppercase tracking-wide text-ink-500">
+              <tr>
+                <th className="px-4 py-3 font-medium">E-mail</th>
+                <th className="px-4 py-3 font-medium">Suscrito el</th>
+                <th className="px-4 py-3 text-right font-medium">Acciones</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-ink-100">
+              {visible.map((row) => (
+                <tr key={row.id} className={isBusy(row.id) ? "opacity-50" : undefined}>
+                  <td className="px-4 py-3">
+                    <a
+                      href={`mailto:${row.email}`}
+                      className="font-medium text-ink-900 hover:text-brand-700"
+                    >
+                      {row.email}
+                    </a>
+                  </td>
+                  <td className="px-4 py-3 text-ink-500">{row.createdAt}</td>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center justify-end">
+                      <button
+                        type="button"
+                        disabled={isBusy(row.id)}
+                        onClick={() => onDelete(row)}
+                        aria-label="Eliminar"
+                        className="rounded p-1.5 text-ink-500 transition-colors hover:bg-red-50 hover:text-red-600"
+                      >
+                        <Trash2 size={15} aria-hidden />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }

@@ -6,6 +6,10 @@ import { Button } from "@/components/ui/button";
 import { directorioSantiago, milestones } from "@/data/board";
 import { filiales } from "@/data/filiales";
 
+// Sin esto la página es 100% estática y Next emite s-maxage=1 año: el CDN de
+// Hostinger (hcdn) la congela y los deploys no se ven. 5 min acota ese caché.
+export const revalidate = 300;
+
 export const metadata: Metadata = {
   title: "Nosotros",
   description:
