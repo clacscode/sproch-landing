@@ -90,6 +90,17 @@ jobs:
           cp -r node_modules/.prisma "$SA/.prisma"
           cp -r node_modules/@prisma "$SA/@prisma"
           cp -r node_modules/prisma "$SA/prisma"
+          # El CLI de Prisma (@prisma/config desde 6.x) importa dependencias
+          # externas en runtime (effect, c12, …). Sin ellas, `migrate deploy`
+          # muere en el server con MODULE_NOT_FOUND. Lista verificada cargando
+          # el CLI con solo estos paquetes presentes.
+          for p in @standard-schema c12 chokidar citty confbox consola \
+                   deepmerge-ts defu destr dotenv effect empathic exsolve \
+                   fast-check giget jiti node-fetch-native nypm ohash pathe \
+                   perfect-debounce pkg-types pure-rand rc9 readdirp; do
+            rm -rf "$SA/$p"
+            cp -r "node_modules/$p" "$SA/$p"
+          done
           # Schema + migraciones para `prisma migrate deploy` en el server.
           mkdir -p .next/standalone/prisma
           cp prisma/schema.prisma .next/standalone/prisma/
@@ -97,8 +108,9 @@ jobs:
           echo "— engine de Prisma incluido:"
           ls "$SA/.prisma/client" | grep -i query_engine \
             || { echo "ERROR: no se encontró el query engine en el standalone"; exit 1; }
-          test -f "$SA/prisma/build/index.js" \
-            || { echo "ERROR: falta el CLI de Prisma en el standalone"; exit 1; }
+          # Smoke test: si falta un módulo del CLI, que reviente aquí y no en el server.
+          ( cd .next/standalone && node node_modules/prisma/build/index.js --version >/dev/null ) \
+            || { echo "ERROR: el CLI de Prisma no carga dentro del standalone"; exit 1; }
 
       - name: Configurar SSH
         run: |
