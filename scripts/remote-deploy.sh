@@ -35,7 +35,12 @@ if [ "${RUN_MIGRATIONS:-}" = "true" ]; then
       # timeout: un ALTER en estas tablas toma segundos; si excede 10 min es un
       # cuelgue (metadata lock de MariaDB retenido por conexiones de la app, o
       # engine muerto por OOM) y hay que abortar, no esperar 1 h al corte SSH.
+      # Sin advisory lock: en MariaDB GET_LOCK es global al servidor y este
+      # hosting es compartido — el lock de Prisma de OTRO cliente puede dejarnos
+      # esperando para siempre. Acá solo migra el CI (concurrency deploy-prod),
+      # así que no hay riesgo de migraciones concurrentes propias.
       ( cd "$STAGE" && NODE_OPTIONS="--max-old-space-size=256" DATABASE_URL="$DATABASE_URL" \
+          PRISMA_SCHEMA_DISABLE_ADVISORY_LOCK=1 \
           timeout 600 node node_modules/prisma/build/index.js migrate deploy )
     }
     log "Aplicando migraciones…"
