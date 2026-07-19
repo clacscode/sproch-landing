@@ -31,7 +31,9 @@ export function MembershipForm() {
     startTransition(async () => {
       const res = await submitMembershipAction(state, fd);
       setState(res);
-      if (res.ok) e.currentTarget.reset();
+      // No usar e.currentTarget acá: tras el await ya es null (React lo limpia
+      // al terminar el dispatch del evento) y revienta la página.
+      if (res.ok) formRef.current?.reset();
     });
   };
 
