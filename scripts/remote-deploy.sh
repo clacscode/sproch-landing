@@ -31,9 +31,22 @@ log() { echo "[remote-deploy] $*"; }
 #    la memoria de Node para no chocar con el límite de la cuenta.
 if [ "${RUN_MIGRATIONS:-}" = "true" ]; then
   if [ -n "${DATABASE_URL:-}" ] && [ -f "$STAGE/node_modules/prisma/build/index.js" ]; then
+    run_migrate() {
+      # timeout: un ALTER en estas tablas toma segundos; si excede 10 min es un
+      # cuelgue (metadata lock de MariaDB retenido por conexiones de la app, o
+      # engine muerto por OOM) y hay que abortar, no esperar 1 h al corte SSH.
+      ( cd "$STAGE" && NODE_OPTIONS="--max-old-space-size=256" DATABASE_URL="$DATABASE_URL" \
+          timeout 600 node node_modules/prisma/build/index.js migrate deploy )
+    }
     log "Aplicando migraciones…"
-    ( cd "$STAGE" && NODE_OPTIONS="--max-old-space-size=256" DATABASE_URL="$DATABASE_URL" \
-        node node_modules/prisma/build/index.js migrate deploy )
+    if ! run_migrate; then
+      # Reintento único: el restart graceful recicla el proceso de la app y
+      # suelta sus conexiones a la DB (y cualquier metadata lock pendiente).
+      log "migrate deploy falló/expiró. Reciclando la app y reintentando…"
+      mkdir -p "$APP/tmp" && touch "$APP/tmp/restart.txt"
+      sleep 20
+      run_migrate || { echo "ERROR: migrate deploy volvió a fallar. Sin swap."; exit 1; }
+    fi
   else
     echo "ERROR: RUN_MIGRATIONS=true pero falta DATABASE_URL o el CLI"; exit 1
   fi
