@@ -1,0 +1,71 @@
+name: Diagnóstico DB (procesos y migraciones)
+
+# Diagnóstico puntual vía SSH + cliente mysql del server. No toca el código
+# desplegado. Uso: Actions → "Run workflow". Opcionalmente mata un thread
+# de MariaDB colgado (kill_thread_id) antes de reintentar una migración.
+
+on:
+  workflow_dispatch:
+    inputs:
+      kill_thread_id:
+        description: "ID de thread de MariaDB a matar (KILL <id>) — vacío = solo diagnosticar"
+        required: false
+        default: ""
+
+concurrency:
+  group: deploy-prod
+  cancel-in-progress: false
+
+env:
+  SSH_HOST: "46.202.197.70"
+  SSH_PORT: "65002"
+  SSH_USER: "u273127787"
+
+jobs:
+  diag:
+    runs-on: ubuntu-latest
+    environment: Production
+    steps:
+      - name: Configurar SSH
+        run: |
+          mkdir -p "$HOME/.ssh"
+          printf '%s\n' "${{ secrets.SSH_PRIVATE_KEY }}" > "$HOME/.ssh/id_deploy"
+          chmod 600 "$HOME/.ssh/id_deploy"
+          ssh-keyscan -p "$SSH_PORT" "$SSH_HOST" >> "$HOME/.ssh/known_hosts" 2>/dev/null || true
+          chmod 600 "$HOME/.ssh/known_hosts"
+
+      - name: Diagnóstico
+        run: |
+          ssh -i "$HOME/.ssh/id_deploy" -p "$SSH_PORT" \
+            -o UserKnownHostsFile="$HOME/.ssh/known_hosts" -o StrictHostKeyChecking=accept-new \
+            -o ServerAliveInterval=15 -o ServerAliveCountMax=6 -o ConnectTimeout=20 \
+            "$SSH_USER@$SSH_HOST" \
+            "DATABASE_URL='${{ secrets.DATABASE_URL }}' KILL_ID='${{ github.event.inputs.kill_thread_id }}' bash -s" <<'REMOTE'
+          set -euo pipefail
+          # mysql://user:pass@host:port/db → componentes (sin imprimir la clave)
+          u="${DATABASE_URL#mysql://}"
+          userpass="${u%%@*}"; hostportdb="${u#*@}"
+          DB_USER="${userpass%%:*}"; export MYSQL_PWD="${userpass#*:}"
+          hostport="${hostportdb%%/*}"
+          DB_NAME="${hostportdb#*/}"; DB_NAME="${DB_NAME%%\?*}"
+          DB_HOST="${hostport%%:*}"; DB_PORT="${hostport#*:}"
+          M() { timeout 30 mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USER" "$DB_NAME" -t -e "$1" 2>&1 || true; }
+
+          if [ -n "${KILL_ID:-}" ]; then
+            echo "== KILL $KILL_ID"
+            M "KILL $KILL_ID;"
+          fi
+
+          echo "== PROCESSLIST (nuestro usuario)"
+          M "SHOW FULL PROCESSLIST;"
+          echo "== Transacciones InnoDB activas"
+          M "SELECT trx_id, trx_state, trx_started, trx_mysql_thread_id, LEFT(trx_query,120) AS q FROM information_schema.INNODB_TRX;"
+          echo "== Metadata locks (si el plugin está activo)"
+          M "SELECT * FROM information_schema.METADATA_LOCK_INFO;"
+          echo "== Migraciones registradas"
+          M "SELECT migration_name, started_at, finished_at, applied_steps_count FROM _prisma_migrations ORDER BY started_at;"
+          echo "== Columnas about% en Event"
+          M "SHOW COLUMNS FROM Event LIKE 'about%';"
+          echo "== GET_LOCK de prueba (1s timeout)"
+          M "SELECT IS_FREE_LOCK('prisma_migrate') AS libre, IS_USED_LOCK('prisma_migrate') AS thread_que_lo_tiene;"
+          REMOTE
