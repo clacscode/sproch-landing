@@ -11,6 +11,10 @@ on:
         description: "ID de thread de MariaDB a matar (KILL <id>) — vacío = solo diagnosticar"
         required: false
         default: ""
+      apply_about_fix:
+        description: "Aplica a mano la migración 20260718000000_event_about_section (ALTER + registro)"
+        type: boolean
+        default: false
 
 concurrency:
   group: deploy-prod
@@ -40,7 +44,7 @@ jobs:
             -o UserKnownHostsFile="$HOME/.ssh/known_hosts" -o StrictHostKeyChecking=accept-new \
             -o ServerAliveInterval=15 -o ServerAliveCountMax=6 -o ConnectTimeout=20 \
             "$SSH_USER@$SSH_HOST" \
-            "DATABASE_URL='${{ secrets.DATABASE_URL }}' KILL_ID='${{ github.event.inputs.kill_thread_id }}' bash -s" <<'REMOTE'
+            "DATABASE_URL='${{ secrets.DATABASE_URL }}' KILL_ID='${{ github.event.inputs.kill_thread_id }}' APPLY_ABOUT_FIX='${{ github.event.inputs.apply_about_fix }}' bash -s" <<'REMOTE'
           set -euo pipefail
           # mysql://user:pass@host:port/db → componentes (sin imprimir la clave)
           u="${DATABASE_URL#mysql://}"
@@ -54,6 +58,24 @@ jobs:
           if [ -n "${KILL_ID:-}" ]; then
             echo "== KILL $KILL_ID"
             M "KILL $KILL_ID;"
+          fi
+
+          if [ "${APPLY_ABOUT_FIX:-}" = "true" ]; then
+            # Aplica a mano lo que migrate deploy dejó a medias (el intento
+            # colgado insertó el registro en _prisma_migrations pero el ALTER
+            # nunca corrió). lock_wait_timeout corto: si el metadata lock está
+            # tomado por la app, falla limpio en 30 s en vez de colgarse.
+            echo "== FIX: aplicando 20260718000000_event_about_section"
+            timeout 60 mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USER" "$DB_NAME" -t -e "
+              SET SESSION lock_wait_timeout=30;
+              ALTER TABLE \`Event\`
+                ADD COLUMN \`aboutEyebrow\` VARCHAR(120) NULL,
+                ADD COLUMN \`aboutTitle\` VARCHAR(160) NULL;
+              UPDATE _prisma_migrations
+                SET finished_at = NOW(3), applied_steps_count = 1, logs = NULL
+                WHERE migration_name = '20260718000000_event_about_section';
+            "
+            echo "== FIX aplicado"
           fi
 
           echo "== PROCESSLIST (nuestro usuario)"
