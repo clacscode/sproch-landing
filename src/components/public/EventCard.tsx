@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, CalendarDays, MapPin, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -26,6 +27,9 @@ function parseLocalDate(iso: string): Date {
 
 export function EventCard({ event, variant = "default" }: EventCardProps) {
   const isFeatured = variant === "featured";
+  // El mapper rellena coverImage con /brand/logo.png cuando no hay afiche;
+  // ese fallback no debe usarse como fondo de la tarjeta.
+  const hasAfiche = Boolean(event.coverImage) && !event.coverImage.startsWith("/brand/");
   const startDate = parseLocalDate(event.startDate);
   const day = String(startDate.getDate()).padStart(2, "0");
   const month = MONTHS[startDate.getMonth()];
@@ -42,18 +46,35 @@ export function EventCard({ event, variant = "default" }: EventCardProps) {
         className="relative block aspect-[16/10] w-full overflow-hidden bg-ink-950"
         aria-label={event.title}
       >
-        {/* Base background — distinto para featured vs default */}
-        <div
-          aria-hidden
-          className={`absolute inset-0 transition-transform duration-700 group-hover:scale-110 ${
-            isFeatured
-              ? "bg-brand-mesh"
-              : "bg-[radial-gradient(ellipse_at_top_right,_var(--color-brand-700)_0%,_transparent_60%),linear-gradient(140deg,#0c0c10_0%,#16161c_70%)]"
-          }`}
-        />
+        {/* Base background — afiche si existe; si no, composición de marca */}
+        {hasAfiche ? (
+          <>
+            <Image
+              src={event.coverImage}
+              alt=""
+              fill
+              sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+              className="object-cover transition-transform duration-700 group-hover:scale-110"
+            />
+            {/* Oscurece el afiche para que fecha y badges sigan legibles */}
+            <div
+              aria-hidden
+              className="absolute inset-0 bg-gradient-to-t from-ink-950/90 via-ink-950/40 to-ink-950/25"
+            />
+          </>
+        ) : (
+          <div
+            aria-hidden
+            className={`absolute inset-0 transition-transform duration-700 group-hover:scale-110 ${
+              isFeatured
+                ? "bg-brand-mesh"
+                : "bg-[radial-gradient(ellipse_at_top_right,_var(--color-brand-700)_0%,_transparent_60%),linear-gradient(140deg,#0c0c10_0%,#16161c_70%)]"
+            }`}
+          />
+        )}
 
-        {/* Brand bars sólo en featured (acento de identidad) */}
-        {isFeatured && (
+        {/* Brand bars sólo en featured sin afiche (acento de identidad) */}
+        {isFeatured && !hasAfiche && (
           <>
             <div aria-hidden className="brand-bars" />
             <div aria-hidden className="hero-rays opacity-60" />
@@ -66,17 +87,21 @@ export function EventCard({ event, variant = "default" }: EventCardProps) {
           className="absolute -left-2 inset-y-0 w-3 bg-brand-600 [clip-path:polygon(0_0,100%_0,60%_100%,0_100%)]"
         />
 
-        {/* Patrón de puntos */}
-        <div
-          aria-hidden
-          className="absolute inset-0 opacity-[0.08] [background-image:radial-gradient(circle_at_2px_2px,white_1px,transparent_0)] [background-size:32px_32px]"
-        />
+        {!hasAfiche && (
+          <>
+            {/* Patrón de puntos */}
+            <div
+              aria-hidden
+              className="absolute inset-0 opacity-[0.08] [background-image:radial-gradient(circle_at_2px_2px,white_1px,transparent_0)] [background-size:32px_32px]"
+            />
 
-        {/* Glow inferior izquierdo para resaltar la fecha */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -bottom-20 -left-20 h-56 w-56 rounded-full bg-[radial-gradient(circle,_color-mix(in_oklab,_var(--color-brand-700)_55%,_transparent)_0%,_transparent_70%)] opacity-80"
-        />
+            {/* Glow inferior izquierdo para resaltar la fecha */}
+            <div
+              aria-hidden
+              className="pointer-events-none absolute -bottom-20 -left-20 h-56 w-56 rounded-full bg-[radial-gradient(circle,_color-mix(in_oklab,_var(--color-brand-700)_55%,_transparent)_0%,_transparent_70%)] opacity-80"
+            />
+          </>
+        )}
 
         <div className="absolute inset-0 flex flex-col justify-between p-5">
           {/* Top row: badges + categoría */}
