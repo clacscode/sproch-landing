@@ -6,6 +6,7 @@ import {
   type ContactInput,
   type InquiryType,
 } from "@/lib/validations/contact";
+import { prisma } from "@/lib/prisma";
 import { emailLayout, fieldsTable, sendEmail } from "@/server/email";
 
 export type ContactResult =
@@ -33,6 +34,24 @@ export async function submitContactAction(input: ContactInput): Promise<ContactR
     ? (INQUIRY_LABELS[data.inquiryType as InquiryType] ?? data.inquiryType)
     : "Consulta general";
 
+  // Fuente de verdad: la DB. El email es solo una notificación best-effort.
+  let saved = false;
+  try {
+    await prisma.contactMessage.create({
+      data: {
+        name: data.name,
+        email: data.email,
+        phone: data.phone || null,
+        inquiryType: data.inquiryType || null,
+        subject: data.subject,
+        message: data.message,
+      },
+    });
+    saved = true;
+  } catch (err) {
+    console.error("[contact] no se pudo guardar el mensaje en la DB:", err);
+  }
+
   const sent = await sendEmail({
     subject: `Contacto: ${data.subject}`,
     replyTo: data.email,
@@ -49,15 +68,19 @@ export async function submitContactAction(input: ContactInput): Promise<ContactR
     }),
   });
 
-  // Red de seguridad: si no se pudo enviar, dejamos el mensaje en los logs.
-  if (!sent) {
-    console.error("[contact] mensaje NO enviado por email — payload de respaldo:", {
+  // Red de seguridad: si tampoco se guardó en la DB, dejamos el mensaje en los logs.
+  if (!saved && !sent) {
+    console.error("[contact] mensaje NO guardado ni enviado — payload de respaldo:", {
       name: data.name,
       email: data.email,
       inquiryType: data.inquiryType ?? "general",
       subject: data.subject,
       message: data.message,
     });
+    return {
+      ok: false,
+      error: "No pudimos registrar tu mensaje. Intenta nuevamente en unos minutos.",
+    };
   }
 
   return { ok: true };

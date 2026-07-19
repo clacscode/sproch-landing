@@ -1,6 +1,14 @@
 import Link from "next/link";
-import { ArrowUpRight, CalendarDays, ExternalLink, HeartPulse, Newspaper, Plus } from "lucide-react";
-import { adminCounts } from "@/server/queries/admin";
+import {
+  ArrowUpRight,
+  CalendarDays,
+  ExternalLink,
+  HeartPulse,
+  Inbox,
+  Newspaper,
+  Plus,
+} from "lucide-react";
+import { adminCounts, adminMessageCounts } from "@/server/queries/admin";
 
 export const dynamic = "force-dynamic";
 
@@ -29,7 +37,8 @@ const cards = [
 ];
 
 export default async function DashboardPage() {
-  const counts = await adminCounts();
+  const [counts, messages] = await Promise.all([adminCounts(), adminMessageCounts()]);
+  const messagesPending = messages.contact.pending + messages.membership.pending;
 
   return (
     <div className="space-y-8">
@@ -87,6 +96,30 @@ export default async function DashboardPage() {
             </div>
           );
         })}
+
+        <div className="flex flex-col rounded-xl border border-ink-200 bg-white p-6 shadow-card transition-shadow hover:shadow-lift">
+          <div className="flex items-center gap-3">
+            <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-brand-50 text-brand-700">
+              <Inbox size={20} aria-hidden />
+            </span>
+            <h2 className="font-medium text-ink-900">Mensajes</h2>
+          </div>
+          <div className="mt-5 flex items-baseline gap-2">
+            <span className="font-display text-4xl text-ink-900">{messagesPending}</span>
+            <span className="text-sm text-ink-500">
+              por atender · {messages.subscribers} suscriptores
+            </span>
+          </div>
+          <div className="mt-6 flex items-center gap-3 border-t border-ink-100 pt-4">
+            <Link
+              href="/admin/mensajes"
+              className="inline-flex items-center gap-1 text-sm font-semibold text-brand-700 hover:text-brand-800"
+            >
+              Gestionar
+              <ArrowUpRight size={14} aria-hidden />
+            </Link>
+          </div>
+        </div>
       </div>
     </div>
   );

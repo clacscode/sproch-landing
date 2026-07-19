@@ -1,6 +1,7 @@
 "use server";
 
 import { membershipSchema, type MembershipInput } from "@/lib/validations/membership";
+import { prisma } from "@/lib/prisma";
 import { emailLayout, fieldsTable, sendEmail } from "@/server/email";
 
 export type MembershipResult =
@@ -72,6 +73,39 @@ export async function submitMembershipAction(
   if (parsed.data.hp) return { ok: true };
 
   const data = parsed.data;
+  const opt = (v: string | undefined) => (v && v.trim() ? v : null);
+
+  // Fuente de verdad: la DB. El email es solo una notificación best-effort.
+  let saved = false;
+  try {
+    await prisma.membershipApplication.create({
+      data: {
+        fullName: data.fullName,
+        rut: data.rut,
+        birthDate: opt(data.birthDate),
+        email: data.email,
+        phone: data.phone,
+        addressPersonal: opt(data.addressPersonal),
+        degreeDate: opt(data.degreeDate),
+        addressProfessional: opt(data.addressProfessional),
+        phoneProfessional: opt(data.phoneProfessional),
+        universityStudies: opt(data.universityStudies),
+        postgrad: opt(data.postgrad),
+        scholarships: opt(data.scholarships),
+        teaching: opt(data.teaching),
+        societies: opt(data.societies),
+        professionalRoles: opt(data.professionalRoles),
+        guildRoles: opt(data.guildRoles),
+        scientificWork: opt(data.scientificWork),
+        languages: opt(data.languages),
+        sponsor: opt(data.sponsor),
+      },
+    });
+    saved = true;
+  } catch (err) {
+    console.error("[membership] no se pudo guardar la solicitud en la DB:", err);
+  }
+
   const sent = await sendEmail({
     subject: `Nueva solicitud de incorporación — ${data.fullName}`,
     replyTo: data.email,
@@ -83,10 +117,14 @@ export async function submitMembershipAction(
     }),
   });
 
-  // Red de seguridad: si no se pudo enviar (sin RESEND_API_KEY o fallo),
-  // dejamos la solicitud completa en los logs del servidor para no perderla.
-  if (!sent) {
-    console.error("[membership] solicitud NO enviada por email — payload de respaldo:", parsed.data);
+  // Red de seguridad: si tampoco se guardó en la DB, dejamos la solicitud
+  // completa en los logs del servidor para no perderla.
+  if (!saved && !sent) {
+    console.error("[membership] solicitud NO guardada ni enviada — payload de respaldo:", parsed.data);
+    return {
+      ok: false,
+      error: "No pudimos registrar tu solicitud. Intenta nuevamente en unos minutos.",
+    };
   }
 
   return { ok: true };

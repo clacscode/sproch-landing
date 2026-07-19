@@ -9,6 +9,7 @@ import {
   FileText,
   HeartPulse,
   Image as ImageIcon,
+  Inbox,
   LayoutDashboard,
   Lock,
   LogOut,
@@ -38,6 +39,7 @@ const primary: NavItem[] = [
   { label: "Noticias", href: "/admin/noticias", icon: Newspaper },
   { label: "Pacientes", href: "/admin/pacientes", icon: HeartPulse },
   { label: "Cursos y congresos", href: "/admin/eventos", icon: CalendarDays },
+  { label: "Mensajes", href: "/admin/mensajes", icon: Inbox },
 ];
 
 const extras: NavItem[] = [

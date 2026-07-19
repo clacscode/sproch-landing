@@ -173,12 +173,46 @@ model Registration {
 }
 
 model ContactMessage {
+  id          String   @id @default(cuid())
+  name        String
+  email       String
+  phone       String?
+  // Valor de INQUIRY_TYPES (src/lib/validations/contact.ts); null → consulta general.
+  inquiryType String?  @db.VarChar(40)
+  subject     String   @db.VarChar(255)
+  message     String   @db.Text
+  resolved    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+}
+
+/// Solicitud de Incorporación como Socio de Número (formulario público de /socios).
+model MembershipApplication {
+  id                  String   @id @default(cuid())
+  fullName            String   @db.VarChar(160)
+  rut                 String   @db.VarChar(20)
+  birthDate           String?  @db.VarChar(20)
+  email               String   @db.VarChar(160)
+  phone               String   @db.VarChar(40)
+  addressPersonal     String?  @db.VarChar(200)
+  degreeDate          String?  @db.VarChar(20)
+  addressProfessional String?  @db.VarChar(200)
+  phoneProfessional   String?  @db.VarChar(40)
+  universityStudies   String?  @db.Text
+  postgrad            String?  @db.Text
+  scholarships        String?  @db.Text
+  teaching            String?  @db.Text
+  societies           String?  @db.Text
+  professionalRoles   String?  @db.Text
+  guildRoles          String?  @db.Text
+  scientificWork      String?  @db.Text
+  languages           String?  @db.VarChar(300)
+  sponsor             String?  @db.VarChar(160)
+  resolved            Boolean  @default(false)
+  createdAt           DateTime @default(now())
+}
+
+model NewsletterSubscriber {
   id        String   @id @default(cuid())
-  name      String
-  email     String
-  phone     String?
-  subject   String   @db.VarChar(255)
-  message   String   @db.Text
-  resolved  Boolean  @default(false)
+  email     String   @unique @db.VarChar(160)
   createdAt DateTime @default(now())
 }
