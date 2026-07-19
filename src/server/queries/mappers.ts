@@ -44,6 +44,8 @@ export function mapEvent(row: PrismaEvent): EventItem {
     priceFrom: row.priceFrom,
     hidePrice: row.hidePrice,
     registrationUrl: row.registrationUrl ?? undefined,
+    aboutEyebrow: row.aboutEyebrow ?? undefined,
+    aboutTitle: row.aboutTitle ?? undefined,
     category: row.category,
     status: row.status,
     featured: row.featured,

@@ -65,6 +65,8 @@ function toEventData(data: EventInput) {
     hidePrice: data.hidePrice,
     registrationUrl: data.registrationUrl || null,
     featured: data.featured,
+    aboutEyebrow: data.aboutEyebrow?.trim() || null,
+    aboutTitle: data.aboutTitle?.trim() || null,
     speakers: data.speakers as unknown as Prisma.InputJsonValue,
     sponsors: data.sponsors as unknown as Prisma.InputJsonValue,
     program: data.program as unknown as Prisma.InputJsonValue,

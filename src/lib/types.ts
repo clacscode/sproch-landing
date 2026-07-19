@@ -48,6 +48,10 @@ export interface EventItem {
   hidePrice?: boolean;
   /** URL de inscripción externa (ej. Welcu). Si está presente, el CTA la usa en vez del flujo interno. */
   registrationUrl?: string;
+  /** Antetítulo de la sección de descripción (fallback: "Acerca del evento"). */
+  aboutEyebrow?: string;
+  /** Título de la sección de descripción (fallback: "Programa académico"). */
+  aboutTitle?: string;
   category: EventCategory;
   status: EventStatus;
   featured?: boolean;

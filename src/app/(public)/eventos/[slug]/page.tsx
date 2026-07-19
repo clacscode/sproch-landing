@@ -54,6 +54,9 @@ export default async function EventDetailPage({ params }: { params: Promise<Para
   const enrollDisabled = !isExternal && (!isWebpayConfigured() || event.priceCLP === 0);
   const priceLabel = formatEventPrice(event.priceCLP, { from: event.priceFrom });
 
+  const aboutEyebrow = event.aboutEyebrow || "Acerca del evento";
+  const [aboutTitleFirst, ...aboutTitleRest] = (event.aboutTitle || "Programa académico").split(" ");
+
   const eventJsonLd = {
     "@context": "https://schema.org",
     "@type": "Event",
@@ -217,12 +220,16 @@ export default async function EventDetailPage({ params }: { params: Promise<Para
             {/* Article */}
             <article className="md:col-span-8">
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-brand-700">
-                Acerca del evento
+                {aboutEyebrow}
               </p>
               <h2 className="mt-4 font-display text-4xl uppercase leading-[0.92] tracking-tight text-ink-900 md:text-5xl">
-                Programa
-                <br />
-                <span className="text-ink-500">académico</span>
+                {aboutTitleFirst}
+                {aboutTitleRest.length > 0 && (
+                  <>
+                    <br />
+                    <span className="text-ink-500">{aboutTitleRest.join(" ")}</span>
+                  </>
+                )}
               </h2>
 
               <div

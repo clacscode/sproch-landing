@@ -70,6 +70,8 @@ export const eventSchema = z
       .optional()
       .or(z.literal("")),
     featured: z.boolean().default(false),
+    aboutEyebrow: optionalString(120),
+    aboutTitle: optionalString(160),
     category: z.enum(EVENT_CATEGORIES),
     status: z.enum(EVENT_STATUSES),
     speakers: z.array(speakerSchema).max(100).default([]),

@@ -47,6 +47,8 @@ export function eventToFormValues(row: PrismaEvent): EventFormValues {
     hidePrice: row.hidePrice,
     registrationUrl: row.registrationUrl ?? "",
     featured: row.featured,
+    aboutEyebrow: row.aboutEyebrow ?? "",
+    aboutTitle: row.aboutTitle ?? "",
     category: row.category,
     status: row.status,
     speakers: speakers.map((s) => ({

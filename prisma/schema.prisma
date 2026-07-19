@@ -134,6 +134,10 @@ model Event {
   hidePrice       Boolean        @default(false)
   registrationUrl String?        @db.VarChar(512)
   featured        Boolean        @default(false)
+  // Encabezado de la sección de descripción en la página pública del evento.
+  // Null → fallback: "Acerca del evento" / "Programa académico".
+  aboutEyebrow    String?        @db.VarChar(120)
+  aboutTitle      String?        @db.VarChar(160)
   // Sub-entidades estructuradas (volumen bajo → columnas JSON, editadas con campos repetibles en el admin):
   // speakers: { name, country?, bio?, avatar? }[]
   // sponsors: { name, logo?, url?, tier? }[]

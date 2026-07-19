@@ -43,6 +43,8 @@ export interface EventFormValues {
   hidePrice: boolean;
   registrationUrl: string;
   featured: boolean;
+  aboutEyebrow: string;
+  aboutTitle: string;
   category: "CURSO" | "CONGRESO";
   status: "DRAFT" | "PUBLISHED" | "CANCELLED" | "FINISHED";
   speakers: { name: string; country: string; bio: string; avatar: string }[];
@@ -177,6 +179,8 @@ export function EventForm({ mode, id, initial }: EventFormProps) {
         hidePrice: false,
         registrationUrl: "",
         featured: false,
+        aboutEyebrow: "",
+        aboutTitle: "",
         category: "CURSO",
         status: "DRAFT",
         speakers: [],
@@ -307,6 +311,24 @@ export function EventForm({ mode, id, initial }: EventFormProps) {
 
       {/* Descripción */}
       <SectionCard title="Descripción" description="Cuerpo del evento (programa académico, detalles).">
+        <div className="grid gap-5 sm:grid-cols-2">
+          <Field
+            label="Antetítulo de la sección"
+            htmlFor="aboutEyebrow"
+            error={errors.aboutEyebrow?.message}
+            hint='Vacío = "Acerca del evento".'
+          >
+            <Input id="aboutEyebrow" {...register("aboutEyebrow")} placeholder="Acerca del evento" />
+          </Field>
+          <Field
+            label="Título de la sección"
+            htmlFor="aboutTitle"
+            error={errors.aboutTitle?.message}
+            hint='Vacío = "Programa académico".'
+          >
+            <Input id="aboutTitle" {...register("aboutTitle")} placeholder="Programa académico" />
+          </Field>
+        </div>
         <Field label="Contenido" required error={errors.content?.message as string | undefined}>
           <Controller
             control={control}
