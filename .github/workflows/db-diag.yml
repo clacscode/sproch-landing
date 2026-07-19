@@ -15,6 +15,10 @@ on:
         description: "Aplica a mano la migración 20260718000000_event_about_section (ALTER + registro)"
         type: boolean
         default: false
+      apply_forms_fix:
+        description: "Aplica a mano la migración 20260719000000_form_submissions (tablas de formularios + registro)"
+        type: boolean
+        default: false
 
 concurrency:
   group: deploy-prod
@@ -44,7 +48,7 @@ jobs:
             -o UserKnownHostsFile="$HOME/.ssh/known_hosts" -o StrictHostKeyChecking=accept-new \
             -o ServerAliveInterval=15 -o ServerAliveCountMax=6 -o ConnectTimeout=20 \
             "$SSH_USER@$SSH_HOST" \
-            "DATABASE_URL='${{ secrets.DATABASE_URL }}' KILL_ID='${{ github.event.inputs.kill_thread_id }}' APPLY_ABOUT_FIX='${{ github.event.inputs.apply_about_fix }}' bash -s" <<'REMOTE'
+            "DATABASE_URL='${{ secrets.DATABASE_URL }}' KILL_ID='${{ github.event.inputs.kill_thread_id }}' APPLY_ABOUT_FIX='${{ github.event.inputs.apply_about_fix }}' APPLY_FORMS_FIX='${{ github.event.inputs.apply_forms_fix }}' bash -s" <<'REMOTE'
           set -euo pipefail
           # mysql://user:pass@host:port/db → componentes (sin imprimir la clave)
           u="${DATABASE_URL#mysql://}"
@@ -78,6 +82,56 @@ jobs:
             echo "== FIX aplicado"
           fi
 
+          if [ "${APPLY_FORMS_FIX:-}" = "true" ]; then
+            # Aplica a mano 20260719000000_form_submissions: migrate deploy se
+            # colgó dos veces (timeout 10 min) sin siquiera insertar el registro
+            # en _prisma_migrations. Idempotente (IF NOT EXISTS) y con
+            # lock_wait_timeout corto para fallar limpio si hay metadata lock.
+            # El checksum es el sha256 de migration.sql — debe calzar con el
+            # archivo del repo para que futuros migrate deploy no reclamen.
+            echo "== FIX: aplicando 20260719000000_form_submissions"
+            timeout 120 mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USER" "$DB_NAME" -t -e "
+              SET SESSION lock_wait_timeout=30;
+              ALTER TABLE \`ContactMessage\` ADD COLUMN IF NOT EXISTS \`inquiryType\` VARCHAR(40) NULL;
+              CREATE TABLE IF NOT EXISTS \`MembershipApplication\` (
+                  \`id\` VARCHAR(191) NOT NULL,
+                  \`fullName\` VARCHAR(160) NOT NULL,
+                  \`rut\` VARCHAR(20) NOT NULL,
+                  \`birthDate\` VARCHAR(20) NULL,
+                  \`email\` VARCHAR(160) NOT NULL,
+                  \`phone\` VARCHAR(40) NOT NULL,
+                  \`addressPersonal\` VARCHAR(200) NULL,
+                  \`degreeDate\` VARCHAR(20) NULL,
+                  \`addressProfessional\` VARCHAR(200) NULL,
+                  \`phoneProfessional\` VARCHAR(40) NULL,
+                  \`universityStudies\` TEXT NULL,
+                  \`postgrad\` TEXT NULL,
+                  \`scholarships\` TEXT NULL,
+                  \`teaching\` TEXT NULL,
+                  \`societies\` TEXT NULL,
+                  \`professionalRoles\` TEXT NULL,
+                  \`guildRoles\` TEXT NULL,
+                  \`scientificWork\` TEXT NULL,
+                  \`languages\` VARCHAR(300) NULL,
+                  \`sponsor\` VARCHAR(160) NULL,
+                  \`resolved\` BOOLEAN NOT NULL DEFAULT false,
+                  \`createdAt\` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+                  PRIMARY KEY (\`id\`)
+              ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+              CREATE TABLE IF NOT EXISTS \`NewsletterSubscriber\` (
+                  \`id\` VARCHAR(191) NOT NULL,
+                  \`email\` VARCHAR(160) NOT NULL,
+                  \`createdAt\` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+                  UNIQUE INDEX \`NewsletterSubscriber_email_key\`(\`email\`),
+                  PRIMARY KEY (\`id\`)
+              ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+              INSERT INTO _prisma_migrations (id, checksum, finished_at, migration_name, logs, rolled_back_at, started_at, applied_steps_count)
+                SELECT UUID(), 'f1444ec5c94ad286a96e4a89c3d87f7860f43d867478ed302654a75227d8919e', NOW(3), '20260719000000_form_submissions', NULL, NULL, NOW(3), 1
+                WHERE NOT EXISTS (SELECT 1 FROM _prisma_migrations WHERE migration_name = '20260719000000_form_submissions');
+            "
+            echo "== FIX aplicado"
+          fi
+
           echo "== PROCESSLIST (nuestro usuario)"
           M "SHOW FULL PROCESSLIST;"
           echo "== Transacciones InnoDB activas"
@@ -88,6 +142,8 @@ jobs:
           M "SELECT migration_name, started_at, finished_at, applied_steps_count FROM _prisma_migrations ORDER BY started_at;"
           echo "== Columnas about% en Event"
           M "SHOW COLUMNS FROM Event LIKE 'about%';"
+          echo "== Tablas de formularios"
+          M "SHOW TABLES LIKE '%Membership%'; SHOW TABLES LIKE '%Newsletter%'; SHOW COLUMNS FROM ContactMessage LIKE 'inquiryType';"
           echo "== GET_LOCK de prueba (1s timeout)"
           M "SELECT IS_FREE_LOCK('prisma_migrate') AS libre, IS_USED_LOCK('prisma_migrate') AS thread_que_lo_tiene;"
           REMOTE
