@@ -94,6 +94,12 @@ mv node_modules node_modules.prev
 mv "$STAGE/.next" .next
 mv "$STAGE/node_modules" node_modules
 
+# 2b) Conserva los chunks/CSS del build anterior (nombres con hash, no chocan):
+#     el HTML de la página puede vivir cacheado en navegadores/proxies un rato
+#     más y referenciar assets viejos; sin esto responden 404 y la página
+#     queda sin estilos o con "Application error" al hidratar.
+cp -an .next.prev/static/. .next/static/ 2>/dev/null || true
+
 # 3) Entrypoint y manifiestos.
 cp -f "$STAGE/server.js" server.js
 cp -f "$STAGE/package.json" package.json
@@ -111,4 +117,12 @@ rm -rf prisma.prev
 # 6) Restart graceful de Passenger.
 mkdir -p tmp
 touch tmp/restart.txt
-log "OK — restart.txt tocado. Build anterior queda en .next.prev / node_modules.prev (rollback)."
+
+# 7) Mata los next-server previos: Passenger/LiteSpeed no siempre los recicla
+#    con restart.txt y quedan sirviendo el build ANTERIOR desde sus inodos
+#    abiertos (a veces por horas), alternándose con el nuevo → visitantes con
+#    HTML viejo, assets 404 y "Application error". El siguiente request
+#    levanta un proceso fresco con el build nuevo.
+sleep 2
+pkill -f "next-server" 2>/dev/null || true
+log "OK — restart.txt tocado y next-server previos reciclados. Build anterior en .next.prev / node_modules.prev (rollback)."
