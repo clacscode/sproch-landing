@@ -54,7 +54,31 @@ function isActive(pathname: string, href: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-function NavLink({ item, pathname }: { item: NavItem; pathname: string }) {
+/** Contador de pendientes (badge rojo). Cap visual en 99+. */
+function CountBadge({ count, active }: { count: number; active?: boolean }) {
+  if (count <= 0) return null;
+  return (
+    <span
+      aria-label={`${count} pendientes`}
+      className={cn(
+        "inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[11px] font-bold tabular-nums",
+        active ? "bg-white text-brand-700" : "bg-brand-600 text-white",
+      )}
+    >
+      {count > 99 ? "99+" : count}
+    </span>
+  );
+}
+
+function NavLink({
+  item,
+  pathname,
+  badge = 0,
+}: {
+  item: NavItem;
+  pathname: string;
+  badge?: number;
+}) {
   const Icon = item.icon;
   const active = isActive(pathname, item.href);
   const locked = item.locked;
@@ -72,12 +96,19 @@ function NavLink({ item, pathname }: { item: NavItem; pathname: string }) {
     >
       <Icon size={17} aria-hidden className={cn(!active && "text-ink-400 group-hover:text-ink-600")} />
       <span className="flex-1">{item.label}</span>
+      <CountBadge count={badge} active={active} />
       {locked && <Lock size={13} aria-hidden className="text-ink-400" />}
     </Link>
   );
 }
 
-export function Sidebar({ user }: { user: { name?: string | null; email?: string | null } }) {
+export function Sidebar({
+  user,
+  pendingMessages = 0,
+}: {
+  user: { name?: string | null; email?: string | null };
+  pendingMessages?: number;
+}) {
   const pathname = usePathname();
   const extrasEnabled = siteConfig.features.adminExtras;
 
@@ -90,7 +121,12 @@ export function Sidebar({ user }: { user: { name?: string | null; email?: string
 
       <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
         {primary.map((item) => (
-          <NavLink key={item.href} item={item} pathname={pathname} />
+          <NavLink
+            key={item.href}
+            item={item}
+            pathname={pathname}
+            badge={item.href === "/admin/mensajes" ? pendingMessages : 0}
+          />
         ))}
 
         {extrasEnabled && (
@@ -158,22 +194,24 @@ export function MobileTopbar() {
   );
 }
 
-export function MobileNav() {
+export function MobileNav({ pendingMessages = 0 }: { pendingMessages?: number }) {
   const pathname = usePathname();
   return (
     <nav className="sticky top-14 z-10 flex gap-1 overflow-x-auto border-b border-ink-200 bg-white px-3 py-2 lg:hidden">
       {primary.map((item) => {
         const active = isActive(pathname, item.href);
+        const badge = item.href === "/admin/mensajes" ? pendingMessages : 0;
         return (
           <Link
             key={item.href}
             href={item.href}
             className={cn(
-              "whitespace-nowrap rounded-full px-3 py-1.5 text-sm font-medium",
+              "inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1.5 text-sm font-medium",
               active ? "bg-brand-600 text-white" : "bg-ink-100 text-ink-600",
             )}
           >
             {item.label}
+            <CountBadge count={badge} active={active} />
           </Link>
         );
       })}

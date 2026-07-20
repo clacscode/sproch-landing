@@ -1,6 +1,8 @@
 import Link from "next/link";
 import {
+  ArrowRight,
   ArrowUpRight,
+  BellRing,
   CalendarDays,
   ExternalLink,
   HeartPulse,
@@ -57,6 +59,43 @@ export default async function DashboardPage() {
           Ver sitio
         </a>
       </div>
+
+      {messagesPending > 0 && (
+        <div
+          role="status"
+          className="flex flex-wrap items-center gap-4 rounded-xl border border-brand-200 bg-brand-50 px-5 py-4"
+        >
+          <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-600 text-white">
+            <BellRing size={18} aria-hidden />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="font-semibold text-ink-900">
+              Tienes {messagesPending} {messagesPending === 1 ? "mensaje" : "mensajes"} por atender
+            </p>
+            <p className="text-sm text-ink-600">
+              {[
+                messages.contact.pending > 0 &&
+                  `${messages.contact.pending} de contacto`,
+                messages.membership.pending > 0 &&
+                  `${messages.membership.pending} ${
+                    messages.membership.pending === 1
+                      ? "solicitud de socio"
+                      : "solicitudes de socio"
+                  }`,
+              ]
+                .filter(Boolean)
+                .join(" · ")}
+            </p>
+          </div>
+          <Link
+            href="/admin/mensajes"
+            className="inline-flex items-center gap-1.5 rounded-md bg-brand-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-700"
+          >
+            Ver mensajes
+            <ArrowRight size={14} aria-hidden />
+          </Link>
+        </div>
+      )}
 
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {cards.map((card) => {
