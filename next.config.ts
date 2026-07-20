@@ -12,6 +12,12 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ["@prisma/client", "prisma", ".prisma/client"],
   reactStrictMode: true,
   poweredByHeader: false,
+  // Ventana máxima de stale-while-revalidate en el Cache-Control de páginas
+  // ISR. El default es 1 AÑO, y la CDN de Hostinger (hCDN) lo respeta: tras
+  // un deploy siguió sirviendo HTML viejo que referenciaba chunks ya borrados
+  // (páginas sin CSS / "Application error"). Con 10 min, cualquier copia CDN
+  // caduca rápido.
+  expireTime: 600,
   images: {
     formats: ["image/avif", "image/webp"],
     remotePatterns: [
