@@ -23,7 +23,10 @@ saturado) a **segundos** (restart graceful), con rollback inmediato.
 3. CI ensambla el standalone (+ `static`, `public`, engine de Prisma, `prisma/`).
 4. `rsync` del artefacto a `~/domains/rehabilitacionoral.cl/deploy-staging/`.
 5. Por SSH se ejecuta `scripts/remote-deploy.sh`:
-   - `prisma migrate deploy` (idempotente),
+   - migraciones **solo si** el run se lanzó con `run_migrations=true`: aplica
+     los `migration.sql` pendientes con el cliente `mysql` del server y los
+     registra en `_prisma_migrations` (checksum sha256, formato Prisma). No se
+     usa el CLI de Prisma — se colgaba en este host (timeouts de 10 min),
    - swap atómico de `.next` y `node_modules` (rename; el proceso vivo conserva
      los inodos abiertos, así que no se cae durante el swap),
    - preserva `public/uploads`,

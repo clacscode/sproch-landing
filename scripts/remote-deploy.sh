@@ -24,37 +24,63 @@ log() { echo "[remote-deploy] $*"; }
 [ -f "$STAGE/server.js" ] || { echo "ERROR: falta server.js en el staging"; exit 1; }
 
 # 1) Migraciones — SOLO a demanda (RUN_MIGRATIONS=true).
-#    El host comparte memoria y mata el proceso (OOM, exit 137) en cada deploy;
-#    como el esquema casi nunca cambia, se corre aparte cuando hace falta:
-#    Actions → "Run workflow" → marca "run_migrations".
-#    Usa el CLI empacado en el artefacto (sin descargar nada por red) y limita
-#    la memoria de Node para no chocar con el límite de la cuenta.
+#    SIN el CLI de Prisma: en este host el CLI se cuelga al conectar (el engine
+#    muere por el límite de memoria/procesos de la cuenta; 2026-07-19 colgó
+#    2× 10 min con la DB completamente libre, y el mismo SQL vía mysql tomó
+#    30 ms). Se aplican los migration.sql pendientes con el cliente mysql y se
+#    registran en _prisma_migrations con el formato de Prisma (sha256 del
+#    archivo), así `prisma migrate` en dev sigue entendiendo el estado.
 if [ "${RUN_MIGRATIONS:-}" = "true" ]; then
-  if [ -n "${DATABASE_URL:-}" ] && [ -f "$STAGE/node_modules/prisma/build/index.js" ]; then
-    run_migrate() {
-      # timeout: un ALTER en estas tablas toma segundos; si excede 10 min es un
-      # cuelgue (metadata lock de MariaDB retenido por conexiones de la app, o
-      # engine muerto por OOM) y hay que abortar, no esperar 1 h al corte SSH.
-      # Sin advisory lock: en MariaDB GET_LOCK es global al servidor y este
-      # hosting es compartido — el lock de Prisma de OTRO cliente puede dejarnos
-      # esperando para siempre. Acá solo migra el CI (concurrency deploy-prod),
-      # así que no hay riesgo de migraciones concurrentes propias.
-      ( cd "$STAGE" && NODE_OPTIONS="--max-old-space-size=256" DATABASE_URL="$DATABASE_URL" \
-          PRISMA_SCHEMA_DISABLE_ADVISORY_LOCK=1 \
-          timeout 600 node node_modules/prisma/build/index.js migrate deploy )
-    }
-    log "Aplicando migraciones…"
-    if ! run_migrate; then
-      # Reintento único: el restart graceful recicla el proceso de la app y
-      # suelta sus conexiones a la DB (y cualquier metadata lock pendiente).
-      log "migrate deploy falló/expiró. Reciclando la app y reintentando…"
-      mkdir -p "$APP/tmp" && touch "$APP/tmp/restart.txt"
-      sleep 20
-      run_migrate || { echo "ERROR: migrate deploy volvió a fallar. Sin swap."; exit 1; }
+  [ -n "${DATABASE_URL:-}" ] || { echo "ERROR: RUN_MIGRATIONS=true pero falta DATABASE_URL"; exit 1; }
+  [ -d "$STAGE/prisma/migrations" ] || { echo "ERROR: faltan prisma/migrations en el staging"; exit 1; }
+
+  # mysql://user:pass@host:port/db → componentes (la clave va por MYSQL_PWD,
+  # nunca en la línea de comandos). Se corta en el ÚLTIMO @ por si la clave
+  # contiene @ sin percent-encoding.
+  u="${DATABASE_URL#mysql://}"
+  userpass="${u%@*}"; hostportdb="${u##*@}"
+  DB_USER="${userpass%%:*}"; export MYSQL_PWD="${userpass#*:}"
+  hostport="${hostportdb%%/*}"
+  DB_NAME="${hostportdb#*/}"; DB_NAME="${DB_NAME%%\?*}"
+  DB_HOST="${hostport%%:*}"; DB_PORT="${hostport#*:}"
+  M() { timeout 30 mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USER" "$DB_NAME" "$@"; }
+
+  # Idéntica a la tabla que crea Prisma, por si la DB estuviera vacía.
+  M -e "CREATE TABLE IF NOT EXISTS _prisma_migrations (
+    id VARCHAR(36) NOT NULL,
+    checksum VARCHAR(64) NOT NULL,
+    finished_at DATETIME(3) NULL,
+    migration_name VARCHAR(255) NOT NULL,
+    logs TEXT NULL,
+    rolled_back_at DATETIME(3) NULL,
+    started_at DATETIME(3) NOT NULL DEFAULT NOW(3),
+    applied_steps_count INT UNSIGNED NOT NULL DEFAULT 0,
+    PRIMARY KEY (id)
+  ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+
+  applied=$(M -N -B -e "SELECT migration_name FROM _prisma_migrations WHERE finished_at IS NOT NULL AND rolled_back_at IS NULL;")
+  count=0
+  for dir in "$STAGE"/prisma/migrations/*/; do
+    name=$(basename "$dir")
+    [ -f "$dir/migration.sql" ] || continue
+    if printf '%s\n' "$applied" | grep -qx "$name"; then continue; fi
+    checksum=$(sha256sum "$dir/migration.sql" | cut -d' ' -f1)
+    log "Aplicando migración ${name}…"
+    # lock_wait_timeout corto: si un metadata lock la retiene (conexiones vivas
+    # de la app), falla limpio en 30 s en vez de colgarse. timeout duro por si
+    # el propio cliente quedara pegado.
+    if ! { echo "SET SESSION lock_wait_timeout=30;"; cat "$dir/migration.sql"; } \
+        | timeout 120 mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USER" "$DB_NAME"; then
+      echo "ERROR: la migración $name falló. Sin swap — revisar con el workflow db-diag."; exit 1
     fi
-  else
-    echo "ERROR: RUN_MIGRATIONS=true pero falta DATABASE_URL o el CLI"; exit 1
-  fi
+    # El DELETE limpia un posible registro a medias de un intento colgado del
+    # CLI viejo antes de registrar el resultado real.
+    M -e "DELETE FROM _prisma_migrations WHERE migration_name='$name';
+          INSERT INTO _prisma_migrations (id, checksum, finished_at, migration_name, started_at, applied_steps_count)
+          VALUES (UUID(), '$checksum', NOW(3), '$name', NOW(3), 1);"
+    count=$((count+1))
+  done
+  log "Migraciones aplicadas: $count."
 else
   log "Migraciones omitidas (RUN_MIGRATIONS != true). Esquema sin cambios."
 fi
