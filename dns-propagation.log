@@ -1,0 +1,20 @@
+
+=== Verificación DNS sproch.cl — 2026-07-31T14:11:52Z ===
+
+Resultado: Aún sin propagar
+
+--- dig @8.8.8.8 +short NS sproch.cl (equivalente vía UDP raw) ---
+(sin respuesta) RCODE=2 SERVFAIL, ANCOUNT=0, NSCOUNT=0
+
+--- dig @8.8.8.8 +short A sproch.cl (equivalente vía UDP raw) ---
+(sin respuesta) RCODE=2 SERVFAIL, ANCOUNT=0
+
+--- dig @1.1.1.1 +short NS sproch.cl (equivalente vía UDP raw) ---
+(sin respuesta) RCODE=2 SERVFAIL, ANCOUNT=0, NSCOUNT=0
+
+Nota: 'dig' y 'nslookup' no están disponibles en este entorno; se usaron
+consultas DNS UDP raw (Python socket) directas a 8.8.8.8:53 y 1.1.1.1:53.
+Respuesta cruda confirmada legítima (ID=1234, QR=1, RA=1, RCODE=2, ANCOUNT=0).
+SERVFAIL sin registros = nameservers no configurados / delegación no propagada aún.
+
+Acción: ninguna. Se verificará en la próxima ejecución programada.
