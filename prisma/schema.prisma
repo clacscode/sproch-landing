@@ -63,19 +63,19 @@ model User {
 }
 
 model Account {
-  id                String   @id @default(cuid())
+  id                String  @id @default(cuid())
   userId            String
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String?  @db.Text
-  access_token      String?  @db.Text
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String?  @db.Text
+  id_token          String? @db.Text
   session_state     String?
-  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -106,9 +106,13 @@ model News {
   coverImage  String?     @db.VarChar(512)
   status      NewsStatus  @default(DRAFT)
   publishedAt DateTime?
+  /// Soft delete: fecha de archivado. null = activo. Nunca borramos filas.
+  archivedAt  DateTime?
   // MySQL no soporta arrays escalares: las etiquetas van como array JSON.
   tags        Json
-  /** Byline mostrado en el sitio (texto libre, ej. "Equipo SPROCh"). */
+  /**
+   * Byline mostrado en el sitio (texto libre, ej. "Equipo SPROCh").
+   */
   authorName  String?
   authorId    String?
   author      User?       @relation(fields: [authorId], references: [id], onDelete: SetNull)
@@ -148,6 +152,8 @@ model Event {
   program         Json
   category        EventCategory
   status          EventStatus    @default(DRAFT)
+  /// Soft delete: fecha de archivado. null = activo. Nunca borramos filas.
+  archivedAt      DateTime?
   registrations   Registration[]
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
@@ -156,63 +162,69 @@ model Event {
 }
 
 model Registration {
-  id                  String             @id @default(cuid())
-  eventId             String
-  userId              String
-  status              RegistrationStatus @default(PENDING)
-  amountCLP           Int
-  transbankToken      String?            @unique
-  transbankBuyOrder   String?            @unique
-  paidAt              DateTime?
-  event               Event              @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  user                User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt           DateTime           @default(now())
-  updatedAt           DateTime           @updatedAt
+  id                String             @id @default(cuid())
+  eventId           String
+  userId            String
+  status            RegistrationStatus @default(PENDING)
+  amountCLP         Int
+  transbankToken    String?            @unique
+  transbankBuyOrder String?            @unique
+  paidAt            DateTime?
+  event             Event              @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
 
   @@unique([eventId, userId])
 }
 
 model ContactMessage {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   name        String
   email       String
   phone       String?
   // Valor de INQUIRY_TYPES (src/lib/validations/contact.ts); null → consulta general.
-  inquiryType String?  @db.VarChar(40)
-  subject     String   @db.VarChar(255)
-  message     String   @db.Text
-  resolved    Boolean  @default(false)
-  createdAt   DateTime @default(now())
+  inquiryType String?   @db.VarChar(40)
+  subject     String    @db.VarChar(255)
+  message     String    @db.Text
+  resolved    Boolean   @default(false)
+  /// Soft delete: fecha de archivado. null = activo. Nunca borramos filas.
+  archivedAt  DateTime?
+  createdAt   DateTime  @default(now())
 }
 
 /// Solicitud de Incorporación como Socio de Número (formulario público de /socios).
 model MembershipApplication {
-  id                  String   @id @default(cuid())
-  fullName            String   @db.VarChar(160)
-  rut                 String   @db.VarChar(20)
-  birthDate           String?  @db.VarChar(20)
-  email               String   @db.VarChar(160)
-  phone               String   @db.VarChar(40)
-  addressPersonal     String?  @db.VarChar(200)
-  degreeDate          String?  @db.VarChar(20)
-  addressProfessional String?  @db.VarChar(200)
-  phoneProfessional   String?  @db.VarChar(40)
-  universityStudies   String?  @db.Text
-  postgrad            String?  @db.Text
-  scholarships        String?  @db.Text
-  teaching            String?  @db.Text
-  societies           String?  @db.Text
-  professionalRoles   String?  @db.Text
-  guildRoles          String?  @db.Text
-  scientificWork      String?  @db.Text
-  languages           String?  @db.VarChar(300)
-  sponsor             String?  @db.VarChar(160)
-  resolved            Boolean  @default(false)
-  createdAt           DateTime @default(now())
+  id                  String    @id @default(cuid())
+  fullName            String    @db.VarChar(160)
+  rut                 String    @db.VarChar(20)
+  birthDate           String?   @db.VarChar(20)
+  email               String    @db.VarChar(160)
+  phone               String    @db.VarChar(40)
+  addressPersonal     String?   @db.VarChar(200)
+  degreeDate          String?   @db.VarChar(20)
+  addressProfessional String?   @db.VarChar(200)
+  phoneProfessional   String?   @db.VarChar(40)
+  universityStudies   String?   @db.Text
+  postgrad            String?   @db.Text
+  scholarships        String?   @db.Text
+  teaching            String?   @db.Text
+  societies           String?   @db.Text
+  professionalRoles   String?   @db.Text
+  guildRoles          String?   @db.Text
+  scientificWork      String?   @db.Text
+  languages           String?   @db.VarChar(300)
+  sponsor             String?   @db.VarChar(160)
+  resolved            Boolean   @default(false)
+  /// Soft delete: fecha de archivado. null = activo. Nunca borramos filas.
+  archivedAt          DateTime?
+  createdAt           DateTime  @default(now())
 }
 
 model NewsletterSubscriber {
-  id        String   @id @default(cuid())
-  email     String   @unique @db.VarChar(160)
-  createdAt DateTime @default(now())
+  id         String    @id @default(cuid())
+  email      String    @unique @db.VarChar(160)
+  /// Soft delete: fecha de archivado. null = activo. Nunca borramos filas.
+  archivedAt DateTime?
+  createdAt  DateTime  @default(now())
 }

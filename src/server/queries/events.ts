@@ -15,6 +15,7 @@ export async function listEvents(opts?: {
   const rows = await prisma.event.findMany({
     where: {
       status: { in: [...VISIBLE_STATUS] },
+      archivedAt: null,
       ...(opts?.category ? { category: opts.category } : {}),
       ...(opts?.upcomingOnly ? { endDate: { gte: today } } : {}),
     },
@@ -26,14 +27,14 @@ export async function listEvents(opts?: {
 
 export async function getEventBySlug(slug: string): Promise<EventItem | null> {
   const row = await prisma.event.findFirst({
-    where: { slug, status: { in: [...VISIBLE_STATUS] } },
+    where: { slug, status: { in: [...VISIBLE_STATUS] }, archivedAt: null },
   });
   return row ? mapEvent(row) : null;
 }
 
 export async function getFeaturedEvent(): Promise<EventItem | null> {
   const row = await prisma.event.findFirst({
-    where: { featured: true, status: { in: [...VISIBLE_STATUS] } },
+    where: { featured: true, status: { in: [...VISIBLE_STATUS] }, archivedAt: null },
     orderBy: { startDate: "asc" },
   });
   return row ? mapEvent(row) : null;

@@ -117,14 +117,36 @@ export async function updateArticle(
   }
 }
 
-export async function deleteArticle(id: string): Promise<ActionResult> {
+/**
+ * Archiva el artículo: sale del sitio público y del listado activo del panel,
+ * pero la fila se conserva en la base de datos y se puede restaurar.
+ * En este proyecto el contenido autogestionado nunca se borra.
+ */
+export async function archiveArticle(id: string): Promise<ActionResult> {
   try {
     await requireAdmin();
-    const deleted = await prisma.news.delete({
+    const archived = await prisma.news.update({
       where: { id },
+      data: { archivedAt: new Date() },
       select: { slug: true, type: true },
     });
-    revalidateArticle(deleted.type === "PATIENT" ? "PATIENT" : "NEWS", deleted.slug);
+    revalidateArticle(archived.type === "PATIENT" ? "PATIENT" : "NEWS", archived.slug);
+    return { ok: true };
+  } catch (err) {
+    return handleError(err);
+  }
+}
+
+/** Devuelve un artículo archivado al listado activo (conserva su estado de publicación). */
+export async function restoreArticle(id: string): Promise<ActionResult> {
+  try {
+    await requireAdmin();
+    const restored = await prisma.news.update({
+      where: { id },
+      data: { archivedAt: null },
+      select: { slug: true, type: true },
+    });
+    revalidateArticle(restored.type === "PATIENT" ? "PATIENT" : "NEWS", restored.slug);
     return { ok: true };
   } catch (err) {
     return handleError(err);

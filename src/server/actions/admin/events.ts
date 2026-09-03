@@ -118,11 +118,35 @@ export async function updateEvent(
   }
 }
 
-export async function deleteEvent(id: string): Promise<ActionResult> {
+/**
+ * Archiva el evento: sale del sitio público y del listado activo del panel,
+ * pero la fila (y sus inscripciones) se conserva en la base de datos.
+ */
+export async function archiveEvent(id: string): Promise<ActionResult> {
   try {
     await requireAdmin();
-    const deleted = await prisma.event.delete({ where: { id }, select: { slug: true } });
-    revalidateEvent(deleted.slug);
+    const archived = await prisma.event.update({
+      where: { id },
+      data: { archivedAt: new Date() },
+      select: { slug: true },
+    });
+    revalidateEvent(archived.slug);
+    return { ok: true };
+  } catch (err) {
+    return handleError(err);
+  }
+}
+
+/** Devuelve un evento archivado al listado activo (conserva su estado). */
+export async function restoreEvent(id: string): Promise<ActionResult> {
+  try {
+    await requireAdmin();
+    const restored = await prisma.event.update({
+      where: { id },
+      data: { archivedAt: null },
+      select: { slug: true },
+    });
+    revalidateEvent(restored.slug);
     return { ok: true };
   } catch (err) {
     return handleError(err);

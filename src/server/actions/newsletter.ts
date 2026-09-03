@@ -5,9 +5,7 @@ import { newsletterSchema } from "@/lib/validations/newsletter";
 import { prisma } from "@/lib/prisma";
 import { emailLayout, fieldsTable, sendEmail } from "@/server/email";
 
-export type NewsletterResult =
-  | { ok: true }
-  | { ok: false; error: string };
+export type NewsletterResult = { ok: true } | { ok: false; error: string };
 
 export async function subscribeNewsletterAction(
   _: NewsletterResult | null,
@@ -27,11 +25,25 @@ export async function subscribeNewsletterAction(
 
   const email = parsed.data.email.toLowerCase();
 
-  // Fuente de verdad: la lista de suscriptores en la DB.
+  // Fuente de verdad: la lista de suscriptores en la DB. Las bajas se archivan
+  // (nunca se borra la fila), así que una re-suscripción sólo la reactiva.
   try {
-    await prisma.newsletterSubscriber.create({ data: { email } });
+    const existing = await prisma.newsletterSubscriber.findUnique({
+      where: { email },
+      select: { id: true, archivedAt: true },
+    });
+    if (existing) {
+      // Ya estaba suscrito y activo → éxito, sin notificar de nuevo.
+      if (!existing.archivedAt) return { ok: true };
+      await prisma.newsletterSubscriber.update({
+        where: { id: existing.id },
+        data: { archivedAt: null },
+      });
+    } else {
+      await prisma.newsletterSubscriber.create({ data: { email } });
+    }
   } catch (err) {
-    // Ya estaba suscrito → lo tratamos como éxito, sin notificar de nuevo.
+    // Carrera con otra suscripción simultánea → también es éxito.
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
       return { ok: true };
     }

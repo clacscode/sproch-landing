@@ -36,10 +36,25 @@ export async function toggleContactResolved(id: string): Promise<ActionResult> {
   }
 }
 
-export async function deleteContactMessage(id: string): Promise<ActionResult> {
+/**
+ * Archiva el mensaje: desaparece de la bandeja activa pero la fila se conserva.
+ * En este proyecto nada de lo que llega por los formularios se borra.
+ */
+export async function archiveContactMessage(id: string): Promise<ActionResult> {
   try {
     await requireAdmin();
-    await prisma.contactMessage.delete({ where: { id } });
+    await prisma.contactMessage.update({ where: { id }, data: { archivedAt: new Date() } });
+    refresh();
+    return { ok: true };
+  } catch (err) {
+    return handleError(err);
+  }
+}
+
+export async function restoreContactMessage(id: string): Promise<ActionResult> {
+  try {
+    await requireAdmin();
+    await prisma.contactMessage.update({ where: { id }, data: { archivedAt: null } });
     refresh();
     return { ok: true };
   } catch (err) {
@@ -63,10 +78,11 @@ export async function toggleMembershipResolved(id: string): Promise<ActionResult
   }
 }
 
-export async function deleteMembershipApplication(id: string): Promise<ActionResult> {
+/** Archiva la solicitud conservando todos los antecedentes en la base de datos. */
+export async function archiveMembershipApplication(id: string): Promise<ActionResult> {
   try {
     await requireAdmin();
-    await prisma.membershipApplication.delete({ where: { id } });
+    await prisma.membershipApplication.update({ where: { id }, data: { archivedAt: new Date() } });
     refresh();
     return { ok: true };
   } catch (err) {
@@ -74,10 +90,36 @@ export async function deleteMembershipApplication(id: string): Promise<ActionRes
   }
 }
 
-export async function deleteNewsletterSubscriber(id: string): Promise<ActionResult> {
+export async function restoreMembershipApplication(id: string): Promise<ActionResult> {
   try {
     await requireAdmin();
-    await prisma.newsletterSubscriber.delete({ where: { id } });
+    await prisma.membershipApplication.update({ where: { id }, data: { archivedAt: null } });
+    refresh();
+    return { ok: true };
+  } catch (err) {
+    return handleError(err);
+  }
+}
+
+/**
+ * Da de baja al suscriptor sin borrar la fila (queda el registro de que estuvo
+ * suscrito y de cuándo se dio de baja). Si vuelve a suscribirse, se reactiva.
+ */
+export async function archiveNewsletterSubscriber(id: string): Promise<ActionResult> {
+  try {
+    await requireAdmin();
+    await prisma.newsletterSubscriber.update({ where: { id }, data: { archivedAt: new Date() } });
+    refresh();
+    return { ok: true };
+  } catch (err) {
+    return handleError(err);
+  }
+}
+
+export async function restoreNewsletterSubscriber(id: string): Promise<ActionResult> {
+  try {
+    await requireAdmin();
+    await prisma.newsletterSubscriber.update({ where: { id }, data: { archivedAt: null } });
     refresh();
     return { ok: true };
   } catch (err) {

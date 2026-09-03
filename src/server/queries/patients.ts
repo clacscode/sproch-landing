@@ -9,7 +9,7 @@ export async function listPatients(opts?: {
   limit?: number;
 }): Promise<NewsArticle[]> {
   const rows = await prisma.news.findMany({
-    where: { type: "PATIENT", status: "PUBLISHED" },
+    where: { type: "PATIENT", status: "PUBLISHED", archivedAt: null },
     orderBy: { publishedAt: "desc" },
   });
   let items = rows.map(mapNews);
@@ -26,17 +26,15 @@ export async function listPatients(opts?: {
 
 export async function getPatientBySlug(slug: string): Promise<NewsArticle | null> {
   const row = await prisma.news.findFirst({
-    where: { slug, type: "PATIENT", status: "PUBLISHED" },
+    where: { slug, type: "PATIENT", status: "PUBLISHED", archivedAt: null },
   });
   return row ? mapNews(row) : null;
 }
 
 export async function listAllPatientTags(): Promise<string[]> {
   const rows = await prisma.news.findMany({
-    where: { type: "PATIENT", status: "PUBLISHED" },
+    where: { type: "PATIENT", status: "PUBLISHED", archivedAt: null },
     select: { tags: true },
   });
-  return Array.from(
-    new Set(rows.flatMap((r) => (r.tags as string[] | null) ?? [])),
-  ).sort();
+  return Array.from(new Set(rows.flatMap((r) => (r.tags as string[] | null) ?? []))).sort();
 }

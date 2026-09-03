@@ -53,6 +53,7 @@ Schemas Zod en `src/lib/validations/` compartidos cliente (React Hook Form) y se
 
 ## Convenciones específicas de este repo
 
+- **El contenido autogestionado nunca se borra: se archiva.** `News`, `Event`, `ContactMessage`, `MembershipApplication` y `NewsletterSubscriber` tienen `archivedAt DateTime?` (null = activo). Las acciones del admin son `archive*` / `restore*` — **nada de `prisma.*.delete()`** en esas entidades. Toda lectura pública filtra `archivedAt: null`; los listados del panel muestran lo activo y ofrecen la pestaña "Archivados" (`adminList*({ archived: true })`). Al re-suscribirse un email dado de baja se reactiva la fila existente en vez de crear otra (`email` es único).
 - **MySQL/MariaDB, no Postgres.** Sin arrays escalares ni `@default` en JSON: `tags`, `speakers`, `sponsors`, `program` son columnas `Json` que la app **siempre** escribe explícitamente. Tenerlo presente al crear filas.
 - **`next/image` siempre**, formatos AVIF/WebP (hay `.jpg` + `.webp` en `public/brand`).
 - Tokens de marca como CSS variables en `src/styles/globals.css` vía `@theme` (Tailwind 4, sin `tailwind.config`). Rojo corporativo `#E30613` = `--color-brand-600`. Fuentes Inter + Bebas Neue vía `next/font`.

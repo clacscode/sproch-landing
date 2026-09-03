@@ -2,13 +2,17 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { Check, Search, SlidersHorizontal, Trash2, Undo2 } from "lucide-react";
+import { Archive, ArchiveRestore, Check, Search, SlidersHorizontal, Undo2 } from "lucide-react";
 import { cn } from "@/lib/cn";
+import { ArchiveTabs, type ArchiveView } from "@/components/admin/ArchiveTabs";
 import { useConfirm, useToast } from "@/components/admin/feedback";
 import {
-  deleteContactMessage,
-  deleteMembershipApplication,
-  deleteNewsletterSubscriber,
+  archiveContactMessage,
+  archiveMembershipApplication,
+  archiveNewsletterSubscriber,
+  restoreContactMessage,
+  restoreMembershipApplication,
+  restoreNewsletterSubscriber,
   toggleContactResolved,
   toggleMembershipResolved,
 } from "@/server/actions/admin/messages";
@@ -82,17 +86,43 @@ function StatusBadge({ resolved }: { resolved: boolean }) {
   );
 }
 
+function RestoreButton({ busy, onRestore }: { busy: boolean; onRestore: () => void }) {
+  return (
+    <button
+      type="button"
+      disabled={busy}
+      onClick={onRestore}
+      aria-label="Restaurar"
+      title="Restaurar"
+      className="text-ink-500 rounded p-1.5 transition-colors hover:bg-green-50 hover:text-green-700"
+    >
+      <ArchiveRestore size={15} aria-hidden />
+    </button>
+  );
+}
+
 function RowButtons({
   resolved,
   busy,
+  archived,
   onToggle,
-  onDelete,
+  onArchive,
+  onRestore,
 }: {
   resolved: boolean;
   busy: boolean;
+  archived: boolean;
   onToggle: () => void;
-  onDelete: () => void;
+  onArchive: () => void;
+  onRestore: () => void;
 }) {
+  if (archived) {
+    return (
+      <div className="flex items-center gap-1">
+        <RestoreButton busy={busy} onRestore={onRestore} />
+      </div>
+    );
+  }
   return (
     <div className="flex items-center gap-1">
       <button
@@ -101,18 +131,19 @@ function RowButtons({
         onClick={onToggle}
         aria-label={resolved ? "Marcar como pendiente" : "Marcar como atendido"}
         title={resolved ? "Marcar como pendiente" : "Marcar como atendido"}
-        className="rounded p-1.5 text-ink-500 transition-colors hover:bg-ink-100 hover:text-ink-900"
+        className="text-ink-500 hover:bg-ink-100 hover:text-ink-900 rounded p-1.5 transition-colors"
       >
         {resolved ? <Undo2 size={15} aria-hidden /> : <Check size={15} aria-hidden />}
       </button>
       <button
         type="button"
         disabled={busy}
-        onClick={onDelete}
-        aria-label="Eliminar"
-        className="rounded p-1.5 text-ink-500 transition-colors hover:bg-red-50 hover:text-red-600"
+        onClick={onArchive}
+        aria-label="Archivar"
+        title="Archivar"
+        className="text-ink-500 rounded p-1.5 transition-colors hover:bg-red-50 hover:text-red-600"
       >
-        <Trash2 size={15} aria-hidden />
+        <Archive size={15} aria-hidden />
       </button>
     </div>
   );
@@ -120,7 +151,7 @@ function RowButtons({
 
 function EmptyState({ children }: { children: React.ReactNode }) {
   return (
-    <div className="rounded-lg border border-dashed border-ink-300 bg-white p-12 text-center text-sm text-ink-500">
+    <div className="border-ink-300 text-ink-500 rounded-lg border border-dashed bg-white p-12 text-center text-sm">
       {children}
     </div>
   );
@@ -169,20 +200,20 @@ function FilterBar({
   const showPanel = open || hasActiveSelect;
 
   return (
-    <div className="rounded-lg border border-ink-200 bg-white p-3">
+    <div className="border-ink-200 rounded-lg border bg-white p-3">
       <div className="flex flex-wrap items-center gap-2">
         <div className="relative min-w-56 flex-1">
           <Search
             size={15}
             aria-hidden
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-400"
+            className="text-ink-400 absolute top-1/2 left-3 -translate-y-1/2"
           />
           <input
             type="search"
             value={query}
             onChange={(e) => onQueryChange(e.target.value)}
             placeholder="Buscar..."
-            className="w-full rounded-md border border-ink-200 py-2 pl-9 pr-3 text-sm text-ink-900 outline-none transition-colors placeholder:text-ink-400 focus:border-brand-600"
+            className="border-ink-200 text-ink-900 placeholder:text-ink-400 focus:border-brand-600 w-full rounded-md border py-2 pr-3 pl-9 text-sm transition-colors outline-none"
           />
         </div>
         {selects && selects.length > 0 && (
@@ -193,28 +224,28 @@ function FilterBar({
               "inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors",
               showPanel
                 ? "bg-brand-600 text-white"
-                : "border border-ink-200 text-ink-600 hover:bg-ink-100 hover:text-ink-900",
+                : "border-ink-200 text-ink-600 hover:bg-ink-100 hover:text-ink-900 border",
             )}
           >
             <SlidersHorizontal size={15} aria-hidden />
             Filtros
           </button>
         )}
-        <span className="ml-auto text-xs text-ink-400">
+        <span className="text-ink-400 ml-auto text-xs">
           {shown === total ? `${total} en total` : `${shown} de ${total}`}
         </span>
       </div>
       {selects && showPanel && (
-        <div className="mt-3 grid gap-3 border-t border-ink-100 pt-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="border-ink-100 mt-3 grid gap-3 border-t pt-3 sm:grid-cols-2 lg:grid-cols-4">
           {selects.map((s) => (
             <label key={s.label} className="block">
-              <span className="text-[11px] font-semibold uppercase tracking-wide text-ink-400">
+              <span className="text-ink-400 text-[11px] font-semibold tracking-wide uppercase">
                 {s.label}
               </span>
               <select
                 value={s.value}
                 onChange={(e) => s.onChange(e.target.value)}
-                className="mt-1 w-full rounded-md border border-ink-200 bg-white px-3 py-2 text-sm text-ink-900 outline-none transition-colors focus:border-brand-600"
+                className="border-ink-200 text-ink-900 focus:border-brand-600 mt-1 w-full rounded-md border bg-white px-3 py-2 text-sm transition-colors outline-none"
               >
                 {s.options.map((o) => (
                   <option key={o.value} value={o.value}>
@@ -230,14 +261,23 @@ function FilterBar({
   );
 }
 
-export function ContactMessagesList({ rows }: { rows: ContactRow[] }) {
+export function ContactMessagesList({
+  rows,
+  archivedRows = [],
+}: {
+  rows: ContactRow[];
+  archivedRows?: ContactRow[];
+}) {
   const { run, confirm, isBusy } = useRowActions();
   const [query, setQuery] = React.useState("");
   const [estado, setEstado] = React.useState("todos");
   const [tipo, setTipo] = React.useState("todos");
+  const [view, setView] = React.useState<ArchiveView>("activos");
 
-  const tipos = Array.from(new Set(rows.map((r) => r.inquiryLabel))).sort();
-  const visible = rows.filter(
+  const isArchived = view === "archivados";
+  const source = isArchived ? archivedRows : rows;
+  const tipos = Array.from(new Set(source.map((r) => r.inquiryLabel))).sort();
+  const visible = source.filter(
     (row) =>
       matchesEstado(row.resolved, estado) &&
       (tipo === "todos" || row.inquiryLabel === tipo) &&
@@ -247,27 +287,47 @@ export function ContactMessagesList({ rows }: { rows: ContactRow[] }) {
         )),
   );
 
-  async function onDelete(row: ContactRow) {
+  async function onArchive(row: ContactRow) {
     const ok = await confirm({
-      title: `¿Eliminar el mensaje de ${row.name}?`,
-      description: "Esta acción no se puede deshacer.",
-      confirmLabel: "Sí, eliminar",
+      title: `¿Archivar el mensaje de ${row.name}?`,
+      description:
+        "Sale de la bandeja activa, pero no se borra: queda guardado en “Archivados” y puedes restaurarlo.",
+      confirmLabel: "Sí, archivar",
       danger: true,
     });
-    if (ok) run(row.id, () => deleteContactMessage(row.id), "Mensaje eliminado.");
+    if (ok) run(row.id, () => archiveContactMessage(row.id), "Mensaje archivado.");
   }
 
-  if (rows.length === 0) {
-    return <EmptyState>Aún no llegan mensajes desde el formulario de contacto.</EmptyState>;
+  const tabs = (
+    <ArchiveTabs
+      view={view}
+      onChange={setView}
+      activeCount={rows.length}
+      archivedCount={archivedRows.length}
+    />
+  );
+
+  if (source.length === 0) {
+    return (
+      <div className="space-y-4">
+        {tabs}
+        <EmptyState>
+          {isArchived
+            ? "No hay mensajes archivados."
+            : "Aún no llegan mensajes desde el formulario de contacto."}
+        </EmptyState>
+      </div>
+    );
   }
 
   return (
     <div className="space-y-4">
+      {tabs}
       <FilterBar
         query={query}
         onQueryChange={setQuery}
         shown={visible.length}
-        total={rows.length}
+        total={source.length}
         selects={[
           { label: "Estado", value: estado, onChange: setEstado, options: ESTADO_OPTIONS },
           {
@@ -288,21 +348,21 @@ export function ContactMessagesList({ rows }: { rows: ContactRow[] }) {
         <article
           key={row.id}
           className={cn(
-            "rounded-lg border border-ink-200 bg-white p-5",
+            "border-ink-200 rounded-lg border bg-white p-5",
             isBusy(row.id) && "opacity-50",
             row.resolved && "opacity-75",
           )}
         >
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div className="min-w-0">
-              <p className="flex flex-wrap items-center gap-2 font-medium text-ink-900">
+              <p className="text-ink-900 flex flex-wrap items-center gap-2 font-medium">
                 {row.name}
                 <StatusBadge resolved={row.resolved} />
-                <span className="inline-flex rounded-full bg-ink-100 px-2.5 py-0.5 text-xs font-medium text-ink-600">
+                <span className="bg-ink-100 text-ink-600 inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium">
                   {row.inquiryLabel}
                 </span>
               </p>
-              <p className="mt-0.5 text-xs text-ink-500">
+              <p className="text-ink-500 mt-0.5 text-xs">
                 <a href={`mailto:${row.email}`} className="hover:text-brand-700">
                   {row.email}
                 </a>
@@ -312,6 +372,7 @@ export function ContactMessagesList({ rows }: { rows: ContactRow[] }) {
             <RowButtons
               resolved={row.resolved}
               busy={isBusy(row.id)}
+              archived={isArchived}
               onToggle={() =>
                 run(
                   row.id,
@@ -319,23 +380,35 @@ export function ContactMessagesList({ rows }: { rows: ContactRow[] }) {
                   row.resolved ? "Marcado como pendiente." : "Marcado como atendido.",
                 )
               }
-              onDelete={() => onDelete(row)}
+              onArchive={() => onArchive(row)}
+              onRestore={() =>
+                run(row.id, () => restoreContactMessage(row.id), "Mensaje restaurado.")
+              }
             />
           </div>
-          <p className="mt-3 text-sm font-medium text-ink-900">{row.subject}</p>
-          <p className="mt-1 whitespace-pre-wrap text-sm text-ink-600">{row.message}</p>
+          <p className="text-ink-900 mt-3 text-sm font-medium">{row.subject}</p>
+          <p className="text-ink-600 mt-1 text-sm whitespace-pre-wrap">{row.message}</p>
         </article>
       ))}
     </div>
   );
 }
 
-export function MembershipApplicationsList({ rows }: { rows: MembershipRow[] }) {
+export function MembershipApplicationsList({
+  rows,
+  archivedRows = [],
+}: {
+  rows: MembershipRow[];
+  archivedRows?: MembershipRow[];
+}) {
   const { run, confirm, isBusy } = useRowActions();
   const [query, setQuery] = React.useState("");
   const [estado, setEstado] = React.useState("todos");
+  const [view, setView] = React.useState<ArchiveView>("activos");
 
-  const visible = rows.filter(
+  const isArchived = view === "archivados";
+  const source = isArchived ? archivedRows : rows;
+  const visible = source.filter(
     (row) =>
       matchesEstado(row.resolved, estado) &&
       (!query.trim() ||
@@ -346,27 +419,47 @@ export function MembershipApplicationsList({ rows }: { rows: MembershipRow[] }) 
         ).includes(norm(query.trim()))),
   );
 
-  async function onDelete(row: MembershipRow) {
+  async function onArchive(row: MembershipRow) {
     const ok = await confirm({
-      title: `¿Eliminar la solicitud de ${row.fullName}?`,
-      description: "Se perderán todos los antecedentes. Esta acción no se puede deshacer.",
-      confirmLabel: "Sí, eliminar",
+      title: `¿Archivar la solicitud de ${row.fullName}?`,
+      description:
+        "Sale del listado activo, pero los antecedentes se conservan: queda en “Archivados” y puedes restaurarla.",
+      confirmLabel: "Sí, archivar",
       danger: true,
     });
-    if (ok) run(row.id, () => deleteMembershipApplication(row.id), "Solicitud eliminada.");
+    if (ok) run(row.id, () => archiveMembershipApplication(row.id), "Solicitud archivada.");
   }
 
-  if (rows.length === 0) {
-    return <EmptyState>Aún no llegan solicitudes de incorporación como socio.</EmptyState>;
+  const tabs = (
+    <ArchiveTabs
+      view={view}
+      onChange={setView}
+      activeCount={rows.length}
+      archivedCount={archivedRows.length}
+    />
+  );
+
+  if (source.length === 0) {
+    return (
+      <div className="space-y-4">
+        {tabs}
+        <EmptyState>
+          {isArchived
+            ? "No hay solicitudes archivadas."
+            : "Aún no llegan solicitudes de incorporación como socio."}
+        </EmptyState>
+      </div>
+    );
   }
 
   return (
     <div className="space-y-4">
+      {tabs}
       <FilterBar
         query={query}
         onQueryChange={setQuery}
         shown={visible.length}
-        total={rows.length}
+        total={source.length}
         selects={[{ label: "Estado", value: estado, onChange: setEstado, options: ESTADO_OPTIONS }]}
       />
       {visible.length === 0 && (
@@ -376,18 +469,18 @@ export function MembershipApplicationsList({ rows }: { rows: MembershipRow[] }) 
         <article
           key={row.id}
           className={cn(
-            "rounded-lg border border-ink-200 bg-white p-5",
+            "border-ink-200 rounded-lg border bg-white p-5",
             isBusy(row.id) && "opacity-50",
             row.resolved && "opacity-75",
           )}
         >
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div className="min-w-0">
-              <p className="flex flex-wrap items-center gap-2 font-medium text-ink-900">
+              <p className="text-ink-900 flex flex-wrap items-center gap-2 font-medium">
                 {row.fullName}
                 <StatusBadge resolved={row.resolved} />
               </p>
-              <p className="mt-0.5 text-xs text-ink-500">
+              <p className="text-ink-500 mt-0.5 text-xs">
                 {row.rut} ·{" "}
                 <a href={`mailto:${row.email}`} className="hover:text-brand-700">
                   {row.email}
@@ -398,6 +491,7 @@ export function MembershipApplicationsList({ rows }: { rows: MembershipRow[] }) 
             <RowButtons
               resolved={row.resolved}
               busy={isBusy(row.id)}
+              archived={isArchived}
               onToggle={() =>
                 run(
                   row.id,
@@ -405,20 +499,23 @@ export function MembershipApplicationsList({ rows }: { rows: MembershipRow[] }) 
                   row.resolved ? "Marcada como pendiente." : "Marcada como atendida.",
                 )
               }
-              onDelete={() => onDelete(row)}
+              onArchive={() => onArchive(row)}
+              onRestore={() =>
+                run(row.id, () => restoreMembershipApplication(row.id), "Solicitud restaurada.")
+              }
             />
           </div>
           <details className="mt-3">
-            <summary className="cursor-pointer text-sm font-semibold text-brand-700 hover:text-brand-800">
+            <summary className="text-brand-700 hover:text-brand-800 cursor-pointer text-sm font-semibold">
               Ver antecedentes completos
             </summary>
             <dl className="mt-3 grid gap-x-6 gap-y-3 sm:grid-cols-2">
               {row.fields.map((f) => (
                 <div key={f.label}>
-                  <dt className="text-[11px] font-semibold uppercase tracking-wide text-ink-400">
+                  <dt className="text-ink-400 text-[11px] font-semibold tracking-wide uppercase">
                     {f.label}
                   </dt>
-                  <dd className="mt-0.5 whitespace-pre-wrap text-sm text-ink-700">{f.value}</dd>
+                  <dd className="text-ink-700 mt-0.5 text-sm whitespace-pre-wrap">{f.value}</dd>
                 </div>
               ))}
             </dl>
@@ -429,71 +526,116 @@ export function MembershipApplicationsList({ rows }: { rows: MembershipRow[] }) 
   );
 }
 
-export function SubscribersTable({ rows }: { rows: SubscriberRow[] }) {
+export function SubscribersTable({
+  rows,
+  archivedRows = [],
+}: {
+  rows: SubscriberRow[];
+  archivedRows?: SubscriberRow[];
+}) {
   const { run, confirm, isBusy } = useRowActions();
   const [query, setQuery] = React.useState("");
+  const [view, setView] = React.useState<ArchiveView>("activos");
 
-  const visible = rows.filter(
+  const isArchived = view === "archivados";
+  const source = isArchived ? archivedRows : rows;
+  const visible = source.filter(
     (row) => !query.trim() || norm(row.email).includes(norm(query.trim())),
   );
 
-  async function onDelete(row: SubscriberRow) {
+  async function onArchive(row: SubscriberRow) {
     const ok = await confirm({
-      title: `¿Eliminar a ${row.email} de la lista?`,
-      description: "Dejará de figurar entre los suscriptores del newsletter.",
-      confirmLabel: "Sí, eliminar",
+      title: `¿Dar de baja a ${row.email}?`,
+      description:
+        "Dejará de figurar entre los suscriptores activos. El registro se conserva y puedes reactivarlo.",
+      confirmLabel: "Sí, dar de baja",
       danger: true,
     });
-    if (ok) run(row.id, () => deleteNewsletterSubscriber(row.id), "Suscriptor eliminado.");
+    if (ok) run(row.id, () => archiveNewsletterSubscriber(row.id), "Suscriptor dado de baja.");
   }
 
-  if (rows.length === 0) {
-    return <EmptyState>Aún no hay suscriptores al newsletter.</EmptyState>;
+  const tabs = (
+    <ArchiveTabs
+      view={view}
+      onChange={setView}
+      activeCount={rows.length}
+      archivedCount={archivedRows.length}
+      activeLabel="Suscritos"
+      archivedLabel="Dados de baja"
+    />
+  );
+
+  if (source.length === 0) {
+    return (
+      <div className="space-y-4">
+        {tabs}
+        <EmptyState>
+          {isArchived
+            ? "No hay suscriptores dados de baja."
+            : "Aún no hay suscriptores al newsletter."}
+        </EmptyState>
+      </div>
+    );
   }
 
   return (
     <div className="space-y-4">
+      {tabs}
       <FilterBar
         query={query}
         onQueryChange={setQuery}
         shown={visible.length}
-        total={rows.length}
+        total={source.length}
       />
       {visible.length === 0 ? (
         <EmptyState>Ningún suscriptor coincide con la búsqueda.</EmptyState>
       ) : (
-        <div className="overflow-hidden rounded-lg border border-ink-200 bg-white">
+        <div className="border-ink-200 overflow-hidden rounded-lg border bg-white">
           <table className="w-full text-sm">
-            <thead className="border-b border-ink-200 bg-ink-50 text-left text-xs uppercase tracking-wide text-ink-500">
+            <thead className="border-ink-200 bg-ink-50 text-ink-500 border-b text-left text-xs tracking-wide uppercase">
               <tr>
                 <th className="px-4 py-3 font-medium">E-mail</th>
                 <th className="px-4 py-3 font-medium">Suscrito el</th>
                 <th className="px-4 py-3 text-right font-medium">Acciones</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-ink-100">
+            <tbody className="divide-ink-100 divide-y">
               {visible.map((row) => (
                 <tr key={row.id} className={isBusy(row.id) ? "opacity-50" : undefined}>
                   <td className="px-4 py-3">
                     <a
                       href={`mailto:${row.email}`}
-                      className="font-medium text-ink-900 hover:text-brand-700"
+                      className="text-ink-900 hover:text-brand-700 font-medium"
                     >
                       {row.email}
                     </a>
                   </td>
-                  <td className="px-4 py-3 text-ink-500">{row.createdAt}</td>
+                  <td className="text-ink-500 px-4 py-3">{row.createdAt}</td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end">
-                      <button
-                        type="button"
-                        disabled={isBusy(row.id)}
-                        onClick={() => onDelete(row)}
-                        aria-label="Eliminar"
-                        className="rounded p-1.5 text-ink-500 transition-colors hover:bg-red-50 hover:text-red-600"
-                      >
-                        <Trash2 size={15} aria-hidden />
-                      </button>
+                      {isArchived ? (
+                        <RestoreButton
+                          busy={isBusy(row.id)}
+                          onRestore={() =>
+                            run(
+                              row.id,
+                              () => restoreNewsletterSubscriber(row.id),
+                              "Suscriptor reactivado.",
+                            )
+                          }
+                        />
+                      ) : (
+                        <button
+                          type="button"
+                          disabled={isBusy(row.id)}
+                          onClick={() => onArchive(row)}
+                          aria-label="Dar de baja"
+                          title="Dar de baja"
+                          className="text-ink-500 rounded p-1.5 transition-colors hover:bg-red-50 hover:text-red-600"
+                        >
+                          <Archive size={15} aria-hidden />
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>

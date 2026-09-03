@@ -86,7 +86,7 @@ export default async function MensajesPage({
                 <span
                   className={cn(
                     "inline-flex min-w-5 items-center justify-center rounded-full px-1.5 text-xs font-semibold",
-                    active ? "bg-white/20 text-white" : "bg-white text-ink-600",
+                    active ? "bg-white/20 text-white" : "text-ink-600 bg-white",
                   )}
                 >
                   {t.badge}
@@ -105,7 +105,11 @@ export default async function MensajesPage({
 }
 
 async function ContactTab() {
-  const rows: ContactRow[] = (await adminListContactMessages()).map((r) => ({
+  const [active, archived] = await Promise.all([
+    adminListContactMessages(),
+    adminListContactMessages({ archived: true }),
+  ]);
+  const toRow = (r: Awaited<ReturnType<typeof adminListContactMessages>>[number]): ContactRow => ({
     id: r.id,
     name: r.name,
     email: r.email,
@@ -117,12 +121,16 @@ async function ContactTab() {
     message: r.message,
     resolved: r.resolved,
     createdAt: dateTimeFormatter.format(r.createdAt),
-  }));
-  return <ContactMessagesList rows={rows} />;
+  });
+  return <ContactMessagesList rows={active.map(toRow)} archivedRows={archived.map(toRow)} />;
 }
 
 async function SociosTab() {
-  const rows: MembershipRow[] = (await adminListMembershipApplications()).map((r) => ({
+  const [active, archived] = await Promise.all([
+    adminListMembershipApplications(),
+    adminListMembershipApplications({ archived: true }),
+  ]);
+  const toRow = (r: MembershipApplication): MembershipRow => ({
     id: r.id,
     fullName: r.fullName,
     rut: r.rut,
@@ -134,15 +142,21 @@ async function SociosTab() {
       const value = r[key];
       return typeof value === "string" && value.trim() ? [{ label, value }] : [];
     }),
-  }));
-  return <MembershipApplicationsList rows={rows} />;
+  });
+  return <MembershipApplicationsList rows={active.map(toRow)} archivedRows={archived.map(toRow)} />;
 }
 
 async function NewsletterTab() {
-  const rows: SubscriberRow[] = (await adminListNewsletterSubscribers()).map((r) => ({
+  const [active, archived] = await Promise.all([
+    adminListNewsletterSubscribers(),
+    adminListNewsletterSubscribers({ archived: true }),
+  ]);
+  const toRow = (
+    r: Awaited<ReturnType<typeof adminListNewsletterSubscribers>>[number],
+  ): SubscriberRow => ({
     id: r.id,
     email: r.email,
     createdAt: dateTimeFormatter.format(r.createdAt),
-  }));
-  return <SubscribersTable rows={rows} />;
+  });
+  return <SubscribersTable rows={active.map(toRow)} archivedRows={archived.map(toRow)} />;
 }

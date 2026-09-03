@@ -5,13 +5,19 @@ import { adminListArticles } from "@/server/queries/admin";
 export const dynamic = "force-dynamic";
 
 export default async function PacientesListPage() {
-  const rows: ArticleRow[] = (await adminListArticles("PATIENT")).map((r) => ({
+  const [active, archived] = await Promise.all([
+    adminListArticles("PATIENT"),
+    adminListArticles("PATIENT", { archived: true }),
+  ]);
+  const toRow = (r: Awaited<ReturnType<typeof adminListArticles>>[number]): ArticleRow => ({
     id: r.id,
     title: r.title,
     slug: r.slug,
     status: r.status,
     publishedAt: r.publishedAt ? r.publishedAt.toISOString().slice(0, 10) : "",
-  }));
+  });
+  const rows = active.map(toRow);
+  const archivedRows = archived.map(toRow);
 
   return (
     <div className="space-y-6">
@@ -21,7 +27,7 @@ export default async function PacientesListPage() {
         newHref="/admin/pacientes/nueva"
         newLabel="Nuevo artículo"
       />
-      <ArticleTable basePath="/admin/pacientes" rows={rows} />
+      <ArticleTable basePath="/admin/pacientes" rows={rows} archivedRows={archivedRows} />
     </div>
   );
 }
