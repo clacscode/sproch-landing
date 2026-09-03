@@ -4,12 +4,21 @@ import * as React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowRight, Menu, Phone, UserPlus, X } from "lucide-react";
+import { ArrowRight, CreditCard, Menu, Phone, UserPlus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { siteConfig } from "@/lib/site";
 import { cn } from "@/lib/cn";
 
-export function Header() {
+export interface PaymentLink {
+  label: string;
+  url: string;
+}
+
+/**
+ * `paymentLink` llega del layout (se configura en /admin/configuracion).
+ * Cuando es null el botón de pago simplemente no se renderiza.
+ */
+export function Header({ paymentLink = null }: { paymentLink?: PaymentLink | null }) {
   const pathname = usePathname();
   const [open, setOpen] = React.useState(false);
   const [scrolled, setScrolled] = React.useState(false);
@@ -30,7 +39,7 @@ export function Header() {
       className={cn(
         "fixed inset-x-0 top-0 z-40 w-full text-white transition-all duration-300",
         scrolled
-          ? "bg-ink-950/80 shadow-[0_8px_24px_-12px_rgba(0,0,0,0.5)] ring-1 ring-white/10 supports-[backdrop-filter]:bg-ink-950/60 supports-[backdrop-filter]:backdrop-blur-xl"
+          ? "bg-ink-950/80 supports-[backdrop-filter]:bg-ink-950/60 shadow-[0_8px_24px_-12px_rgba(0,0,0,0.5)] ring-1 ring-white/10 supports-[backdrop-filter]:backdrop-blur-xl"
           : "bg-transparent",
       )}
     >
@@ -51,11 +60,7 @@ export function Header() {
             scrolled ? "h-16 md:h-20" : "h-20 md:h-32 lg:h-36",
           )}
         >
-          <Link
-            href="/"
-            aria-label={siteConfig.legalName}
-            className="inline-flex items-center"
-          >
+          <Link href="/" aria-label={siteConfig.legalName} className="inline-flex items-center">
             <Image
               src="/brand/logo-dark.png"
               alt={siteConfig.name}
@@ -81,17 +86,15 @@ export function Header() {
                   href={item.href}
                   aria-current={active ? "page" : undefined}
                   className={cn(
-                    "relative rounded-md px-3 py-2 text-sm font-medium transition-colors",
-                    active
-                      ? "text-white"
-                      : "text-white/75 hover:bg-white/5 hover:text-white",
+                    "relative rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap transition-colors",
+                    active ? "text-white" : "text-white/75 hover:bg-white/5 hover:text-white",
                   )}
                 >
                   {item.label}
                   <span
                     aria-hidden
                     className={cn(
-                      "pointer-events-none absolute inset-x-3 -bottom-px h-0.5 rounded-full bg-brand-500 transition-all",
+                      "bg-brand-500 pointer-events-none absolute inset-x-3 -bottom-px h-0.5 rounded-full transition-all",
                       active ? "opacity-100" : "opacity-0",
                     )}
                   />
@@ -100,7 +103,7 @@ export function Header() {
             })}
           </nav>
 
-          <div className="hidden items-center gap-2.5 md:flex">
+          <div className="hidden items-center gap-2.5 lg:flex">
             <Button
               asChild
               size="sm"
@@ -112,6 +115,19 @@ export function Header() {
                 Hazte socio
               </Link>
             </Button>
+            {paymentLink && (
+              <Button
+                asChild
+                size="sm"
+                variant="secondary"
+                className="border-brand-500/45 bg-brand-500/10 hover:bg-brand-500/20 border text-white shadow-none ring-0 backdrop-blur transition-all hover:text-white"
+              >
+                <a href={paymentLink.url} target="_blank" rel="noopener noreferrer">
+                  <CreditCard size={15} aria-hidden className="text-brand-400" />
+                  {paymentLink.label}
+                </a>
+              </Button>
+            )}
             <Button asChild size="sm" className="btn-glow group/btn">
               <Link href="/eventos">
                 Inscríbete
@@ -126,7 +142,7 @@ export function Header() {
 
           <button
             type="button"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-md text-white hover:bg-white/10 md:hidden"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-md text-white hover:bg-white/10 lg:hidden"
             aria-label={open ? "Cerrar menú" : "Abrir menú"}
             aria-expanded={open}
             aria-controls="mobile-nav"
@@ -139,10 +155,7 @@ export function Header() {
 
       <div
         id="mobile-nav"
-        className={cn(
-          "border-t border-white/10 bg-ink-950 md:hidden",
-          open ? "block" : "hidden",
-        )}
+        className={cn("bg-ink-950 border-t border-white/10 lg:hidden", open ? "block" : "hidden")}
       >
         <nav className="container-page flex flex-col gap-1 py-4" aria-label="Móvil">
           {siteConfig.navigation.map((item) => {
@@ -154,7 +167,9 @@ export function Header() {
                 aria-current={active ? "page" : undefined}
                 className={cn(
                   "rounded-md px-3 py-3 text-base font-medium transition-colors",
-                  active ? "bg-white/10 text-white" : "text-white/80 hover:bg-white/5 hover:text-white",
+                  active
+                    ? "bg-white/10 text-white"
+                    : "text-white/80 hover:bg-white/5 hover:text-white",
                 )}
               >
                 {item.label}
@@ -172,7 +187,19 @@ export function Header() {
                 Hazte socio
               </Link>
             </Button>
-            <Button asChild className="btn-glow">
+            {paymentLink && (
+              <Button
+                asChild
+                variant="secondary"
+                className="border-brand-500/45 bg-brand-500/10 hover:bg-brand-500/20 border text-white hover:text-white"
+              >
+                <a href={paymentLink.url} target="_blank" rel="noopener noreferrer">
+                  <CreditCard size={16} aria-hidden className="text-brand-400" />
+                  {paymentLink.label}
+                </a>
+              </Button>
+            )}
+            <Button asChild className={cn("btn-glow", paymentLink && "col-span-2")}>
               <Link href="/eventos">
                 Inscríbete
                 <ArrowRight size={16} aria-hidden />

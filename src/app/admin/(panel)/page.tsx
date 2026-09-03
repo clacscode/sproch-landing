@@ -4,6 +4,7 @@ import {
   ArrowUpRight,
   BellRing,
   CalendarDays,
+  CreditCard,
   ExternalLink,
   HeartPulse,
   Inbox,
@@ -11,6 +12,8 @@ import {
   Plus,
 } from "lucide-react";
 import { adminCounts, adminMessageCounts } from "@/server/queries/admin";
+import { getSiteSettings } from "@/server/queries/settings";
+import { DEFAULT_PAYMENT_LABEL } from "@/lib/validations/settings";
 
 export const dynamic = "force-dynamic";
 
@@ -38,22 +41,36 @@ const cards = [
   },
 ];
 
+/** Dominio del link de pago, para mostrarlo corto en la tarjeta del panel. */
+function linkHost(url: string): string {
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    return url;
+  }
+}
+
 export default async function DashboardPage() {
-  const [counts, messages] = await Promise.all([adminCounts(), adminMessageCounts()]);
+  const [counts, messages, settings] = await Promise.all([
+    adminCounts(),
+    adminMessageCounts(),
+    getSiteSettings(),
+  ]);
   const messagesPending = messages.contact.pending + messages.membership.pending;
+  const paymentLive = settings.paymentEnabled && settings.paymentUrl !== "";
 
   return (
     <div className="space-y-8">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="font-display text-3xl uppercase tracking-tight text-ink-900">Panel</h1>
-          <p className="mt-1 text-sm text-ink-500">Gestiona el contenido publicado en el sitio.</p>
+          <h1 className="font-display text-ink-900 text-3xl tracking-tight uppercase">Panel</h1>
+          <p className="text-ink-500 mt-1 text-sm">Gestiona el contenido publicado en el sitio.</p>
         </div>
         <a
           href="/"
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-ink-600 transition-colors hover:text-ink-900"
+          className="text-ink-600 hover:text-ink-900 inline-flex items-center gap-1.5 text-sm font-medium transition-colors"
         >
           <ExternalLink size={15} aria-hidden />
           Ver sitio
@@ -63,19 +80,18 @@ export default async function DashboardPage() {
       {messagesPending > 0 && (
         <div
           role="status"
-          className="flex flex-wrap items-center gap-4 rounded-xl border border-brand-200 bg-brand-50 px-5 py-4"
+          className="border-brand-200 bg-brand-50 flex flex-wrap items-center gap-4 rounded-xl border px-5 py-4"
         >
-          <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-600 text-white">
+          <span className="bg-brand-600 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-white">
             <BellRing size={18} aria-hidden />
           </span>
           <div className="min-w-0 flex-1">
-            <p className="font-semibold text-ink-900">
+            <p className="text-ink-900 font-semibold">
               Tienes {messagesPending} {messagesPending === 1 ? "mensaje" : "mensajes"} por atender
             </p>
-            <p className="text-sm text-ink-600">
+            <p className="text-ink-600 text-sm">
               {[
-                messages.contact.pending > 0 &&
-                  `${messages.contact.pending} de contacto`,
+                messages.contact.pending > 0 && `${messages.contact.pending} de contacto`,
                 messages.membership.pending > 0 &&
                   `${messages.membership.pending} ${
                     messages.membership.pending === 1
@@ -89,7 +105,7 @@ export default async function DashboardPage() {
           </div>
           <Link
             href="/admin/mensajes"
-            className="inline-flex items-center gap-1.5 rounded-md bg-brand-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-700"
+            className="bg-brand-600 hover:bg-brand-700 inline-flex items-center gap-1.5 rounded-md px-4 py-2 text-sm font-semibold text-white transition-colors"
           >
             Ver mensajes
             <ArrowRight size={14} aria-hidden />
@@ -104,29 +120,29 @@ export default async function DashboardPage() {
           return (
             <div
               key={card.key}
-              className="flex flex-col rounded-xl border border-ink-200 bg-white p-6 shadow-card transition-shadow hover:shadow-lift"
+              className="border-ink-200 shadow-card hover:shadow-lift flex flex-col rounded-xl border bg-white p-6 transition-shadow"
             >
               <div className="flex items-center gap-3">
-                <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-brand-50 text-brand-700">
+                <span className="bg-brand-50 text-brand-700 inline-flex h-10 w-10 items-center justify-center rounded-lg">
                   <Icon size={20} aria-hidden />
                 </span>
-                <h2 className="font-medium text-ink-900">{card.label}</h2>
+                <h2 className="text-ink-900 font-medium">{card.label}</h2>
               </div>
               <div className="mt-5 flex items-baseline gap-2">
-                <span className="font-display text-4xl text-ink-900">{data.published}</span>
-                <span className="text-sm text-ink-500">publicados · {data.total} en total</span>
+                <span className="font-display text-ink-900 text-4xl">{data.published}</span>
+                <span className="text-ink-500 text-sm">publicados · {data.total} en total</span>
               </div>
-              <div className="mt-6 flex items-center gap-3 border-t border-ink-100 pt-4">
+              <div className="border-ink-100 mt-6 flex items-center gap-3 border-t pt-4">
                 <Link
                   href={card.href}
-                  className="inline-flex items-center gap-1 text-sm font-semibold text-brand-700 hover:text-brand-800"
+                  className="text-brand-700 hover:text-brand-800 inline-flex items-center gap-1 text-sm font-semibold"
                 >
                   Gestionar
                   <ArrowUpRight size={14} aria-hidden />
                 </Link>
                 <Link
                   href={card.newHref}
-                  className="ml-auto inline-flex items-center gap-1 text-sm font-medium text-ink-600 hover:text-ink-900"
+                  className="text-ink-600 hover:text-ink-900 ml-auto inline-flex items-center gap-1 text-sm font-medium"
                 >
                   <Plus size={14} aria-hidden />
                   Nuevo
@@ -136,25 +152,59 @@ export default async function DashboardPage() {
           );
         })}
 
-        <div className="flex flex-col rounded-xl border border-ink-200 bg-white p-6 shadow-card transition-shadow hover:shadow-lift">
+        <div className="border-ink-200 shadow-card hover:shadow-lift flex flex-col rounded-xl border bg-white p-6 transition-shadow">
           <div className="flex items-center gap-3">
-            <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-brand-50 text-brand-700">
+            <span className="bg-brand-50 text-brand-700 inline-flex h-10 w-10 items-center justify-center rounded-lg">
               <Inbox size={20} aria-hidden />
             </span>
-            <h2 className="font-medium text-ink-900">Mensajes</h2>
+            <h2 className="text-ink-900 font-medium">Mensajes</h2>
           </div>
           <div className="mt-5 flex items-baseline gap-2">
-            <span className="font-display text-4xl text-ink-900">{messagesPending}</span>
-            <span className="text-sm text-ink-500">
+            <span className="font-display text-ink-900 text-4xl">{messagesPending}</span>
+            <span className="text-ink-500 text-sm">
               por atender · {messages.subscribers} suscriptores
             </span>
           </div>
-          <div className="mt-6 flex items-center gap-3 border-t border-ink-100 pt-4">
+          <div className="border-ink-100 mt-6 flex items-center gap-3 border-t pt-4">
             <Link
               href="/admin/mensajes"
-              className="inline-flex items-center gap-1 text-sm font-semibold text-brand-700 hover:text-brand-800"
+              className="text-brand-700 hover:text-brand-800 inline-flex items-center gap-1 text-sm font-semibold"
             >
               Gestionar
+              <ArrowUpRight size={14} aria-hidden />
+            </Link>
+          </div>
+        </div>
+
+        <div className="border-ink-200 shadow-card hover:shadow-lift flex flex-col rounded-xl border bg-white p-6 transition-shadow">
+          <div className="flex items-center gap-3">
+            <span className="bg-brand-50 text-brand-700 inline-flex h-10 w-10 items-center justify-center rounded-lg">
+              <CreditCard size={20} aria-hidden />
+            </span>
+            <h2 className="text-ink-900 font-medium">
+              {settings.paymentLabel || DEFAULT_PAYMENT_LABEL}
+            </h2>
+          </div>
+          <div className="mt-5 flex flex-wrap items-baseline gap-2">
+            <span
+              className={
+                paymentLive
+                  ? "inline-flex rounded-full bg-green-50 px-2.5 py-0.5 text-sm font-semibold text-green-700"
+                  : "bg-ink-100 text-ink-600 inline-flex rounded-full px-2.5 py-0.5 text-sm font-semibold"
+              }
+            >
+              {paymentLive ? "Visible en el sitio" : "Oculto"}
+            </span>
+            <span className="text-ink-500 truncate text-sm">
+              {settings.paymentUrl ? linkHost(settings.paymentUrl) : "sin link configurado"}
+            </span>
+          </div>
+          <div className="border-ink-100 mt-6 flex items-center gap-3 border-t pt-4">
+            <Link
+              href="/admin/configuracion"
+              className="text-brand-700 hover:text-brand-800 inline-flex items-center gap-1 text-sm font-semibold"
+            >
+              Configurar
               <ArrowUpRight size={14} aria-hidden />
             </Link>
           </div>

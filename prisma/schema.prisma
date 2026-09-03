@@ -228,3 +228,16 @@ model NewsletterSubscriber {
   archivedAt DateTime?
   createdAt  DateTime  @default(now())
 }
+
+/// Ajustes del sitio editables desde el panel. Fila única (id = "default").
+model SiteSettings {
+  id String @id @default("default")
+
+  /// Botón "Pago socios" del header: link externo de la pasarela de pago.
+  /// Sin URL o con paymentEnabled = false, el botón no se renderiza.
+  paymentEnabled Boolean @default(false)
+  paymentLabel   String? @db.VarChar(60)
+  paymentUrl     String? @db.VarChar(512)
+
+  updatedAt DateTime @updatedAt
+}
