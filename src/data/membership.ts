@@ -1,12 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import {
-  BookOpenCheck,
-  GraduationCap,
-  Library,
-  Medal,
-  Network,
-  Ticket,
-} from "lucide-react";
+import { BookOpenCheck, GraduationCap, Library, Medal, Network, Ticket } from "lucide-react";
 
 export interface MembershipBenefit {
   icon: LucideIcon;
@@ -86,7 +79,7 @@ export interface StatItem {
 }
 
 export const stats: StatItem[] = [
-  { value: "74+", label: "años de historia" },
+  { value: "74", label: "años de historia" },
   { value: "12+", label: "países en nuestra red iberoamericana" },
   { value: "20+", label: "cursos y jornadas anuales" },
   { value: "100%", label: "actividades con aval científico" },

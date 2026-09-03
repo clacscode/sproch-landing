@@ -25,7 +25,7 @@ const cards = [
     bullets: [
       "Especialistas con foco en evidencia",
       "Actualización clínica permanente",
-      "Sociedad con más de 74 años de historia",
+      "Una sociedad con 74 años de historia",
     ],
     cta: { label: "Conocer SPROCh", href: "/nosotros" },
     tone: "light" as const,
@@ -42,34 +42,34 @@ export function AudienceSplit() {
             key={eyebrow}
             className={
               isDark
-                ? "relative isolate overflow-hidden rounded-2xl bg-ink-950 p-8 text-white md:p-10"
-                : "relative isolate overflow-hidden rounded-2xl border border-ink-100 bg-white p-8 text-ink-900 md:p-10"
+                ? "bg-ink-950 relative isolate overflow-hidden rounded-2xl p-8 text-white md:p-10"
+                : "border-ink-100 text-ink-900 relative isolate overflow-hidden rounded-2xl border bg-white p-8 md:p-10"
             }
           >
             {isDark && (
               <div
                 aria-hidden
-                className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-brand-600/30 blur-3xl"
+                className="bg-brand-600/30 absolute -top-24 -right-24 h-72 w-72 rounded-full blur-3xl"
               />
             )}
             <span
               className={
                 isDark
-                  ? "inline-flex h-12 w-12 items-center justify-center rounded-lg bg-white/10 text-brand-600"
-                  : "inline-flex h-12 w-12 items-center justify-center rounded-lg bg-brand-50 text-brand-700"
+                  ? "text-brand-600 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-white/10"
+                  : "bg-brand-50 text-brand-700 inline-flex h-12 w-12 items-center justify-center rounded-lg"
               }
             >
               <Icon size={22} />
             </span>
             <p
               className={
-                "mt-6 text-xs font-semibold uppercase tracking-[0.18em] " +
+                "mt-6 text-xs font-semibold tracking-[0.18em] uppercase " +
                 (isDark ? "text-brand-600" : "text-brand-700")
               }
             >
               {eyebrow}
             </p>
-            <h3 className="mt-2 font-display text-3xl uppercase leading-tight md:text-4xl">
+            <h3 className="font-display mt-2 text-3xl leading-tight uppercase md:text-4xl">
               {title}
             </h3>
             <p className={"mt-4 text-base " + (isDark ? "text-ink-200" : "text-ink-600")}>
@@ -93,7 +93,7 @@ export function AudienceSplit() {
               href={cta.href}
               className={
                 "mt-8 inline-flex items-center gap-2 text-sm font-semibold transition-colors " +
-                (isDark ? "text-white hover:text-brand-600" : "text-brand-700 hover:text-brand-800")
+                (isDark ? "hover:text-brand-600 text-white" : "text-brand-700 hover:text-brand-800")
               }
             >
               {cta.label}

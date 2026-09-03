@@ -3,56 +3,64 @@ import type { BoardMember } from "@/lib/types";
 /**
  * Directorio nacional SPROCh con sede en Santiago.
  * Período actualizado al 2026.
+ *
+ * `photo` es opcional: si está, la página de Nosotros muestra el retrato; si no,
+ * cae al avatar con iniciales. Los archivos viven en `public/team/` (retratos
+ * cuadrados, ~720px, entregados por el cliente).
  */
 export const directorioSantiago: BoardMember[] = [
   {
     name: "Dr. Roque Cona Trujillo",
+    photo: "/team/cona.jpg",
     role: "Presidente",
     email: "roquejct@gmail.com",
   },
   {
     name: "Dr. Héctor González Bustamante",
+    photo: "/team/gonzalez.jpg",
     role: "Vicepresidente",
     email: "hgonzalez@hgdental.cl",
   },
   {
     name: "Dr. Jorge Biotti Picand",
+    photo: "/team/biotti.jpg",
     role: "Secretario",
     email: "jbiotti@gmail.com",
   },
   {
     name: "Dr. Alfredo Zunino Belmar",
+    photo: "/team/zunino.jpg",
     role: "Tesorero",
     email: "alfredo.zunino@gmail.com",
   },
   {
     name: "Dr. Mario Barbano Maturana",
+    photo: "/team/barbano.jpg",
     role: "Director",
     email: "mbarbano@gmail.com",
   },
   {
     name: "Dr. Roberto Santana Leiva",
+    photo: "/team/santana.jpg",
     role: "Director",
     email: "roansale@gmail.com",
   },
   {
     name: "Dr. Carlos Parra Atala",
+    photo: "/team/parra.jpg",
     role: "Director",
     email: "carlos.parra.atala@gmail.com",
   },
   {
-    name: "Dra. Paulina Barrientos Ramwell",
-    role: "Directora",
-    email: "pbarrientosr@gmail.com",
-  },
-  {
     name: "Dra. Marcela Hormazábal",
+    photo: "/team/hormazabal.jpg",
     role: "Directora",
     email: "marcehormazabal@gmail.com",
   },
   {
     name: "Dr. Eugenio Nieto Grez",
-    role: "Past President",
+    photo: "/team/nieto.jpg",
+    role: "Director",
     email: "eugenio.nieto@gmail.com",
   },
   {

@@ -10,6 +10,8 @@ export async function listEvents(opts?: {
   category?: EventCategory;
   limit?: number;
   upcomingOnly?: boolean;
+  /** Sólo eventos ya terminados (endDate anterior a hoy), del más reciente al más antiguo. */
+  pastOnly?: boolean;
 }): Promise<EventItem[]> {
   const today = new Date(new Date().toISOString().slice(0, 10));
   const rows = await prisma.event.findMany({
@@ -18,8 +20,9 @@ export async function listEvents(opts?: {
       archivedAt: null,
       ...(opts?.category ? { category: opts.category } : {}),
       ...(opts?.upcomingOnly ? { endDate: { gte: today } } : {}),
+      ...(opts?.pastOnly ? { endDate: { lt: today } } : {}),
     },
-    orderBy: { startDate: "asc" },
+    orderBy: { startDate: opts?.pastOnly ? "desc" : "asc" },
     ...(opts?.limit ? { take: opts.limit } : {}),
   });
   return rows.map(mapEvent);

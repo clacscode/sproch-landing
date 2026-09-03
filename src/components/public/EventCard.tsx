@@ -10,12 +10,11 @@ import type { EventItem } from "@/lib/types";
 interface EventCardProps {
   event: EventItem;
   variant?: "default" | "featured";
+  /** Evento ya finalizado: se marca como tal y no se muestra el valor de inscripción. */
+  past?: boolean;
 }
 
-const MONTHS = [
-  "ene", "feb", "mar", "abr", "may", "jun",
-  "jul", "ago", "sep", "oct", "nov", "dic",
-];
+const MONTHS = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
 
 function parseLocalDate(iso: string): Date {
   const parts = iso.split("-").map(Number);
@@ -25,7 +24,7 @@ function parseLocalDate(iso: string): Date {
   return new Date(y, m - 1, d);
 }
 
-export function EventCard({ event, variant = "default" }: EventCardProps) {
+export function EventCard({ event, variant = "default", past = false }: EventCardProps) {
   const isFeatured = variant === "featured";
   // El mapper rellena coverImage con /brand/logo.png cuando no hay afiche;
   // ese fallback no debe usarse como fondo de la tarjeta.
@@ -38,12 +37,12 @@ export function EventCard({ event, variant = "default" }: EventCardProps) {
   return (
     <Card
       className={`group card-lift relative flex h-full flex-col overflow-hidden ${
-        isFeatured ? "ring-1 ring-brand-200" : ""
+        isFeatured ? "ring-brand-200 ring-1" : ""
       }`}
     >
       <Link
         href={`/eventos/${event.slug}`}
-        className="relative block aspect-[16/10] w-full overflow-hidden bg-ink-950"
+        className="bg-ink-950 relative block aspect-[16/10] w-full overflow-hidden"
         aria-label={event.title}
       >
         {/* Base background — afiche si existe; si no, composición de marca */}
@@ -59,7 +58,7 @@ export function EventCard({ event, variant = "default" }: EventCardProps) {
             {/* Oscurece el afiche para que fecha y badges sigan legibles */}
             <div
               aria-hidden
-              className="absolute inset-0 bg-gradient-to-t from-ink-950/90 via-ink-950/40 to-ink-950/25"
+              className="from-ink-950/90 via-ink-950/40 to-ink-950/25 absolute inset-0 bg-gradient-to-t"
             />
           </>
         ) : (
@@ -84,7 +83,7 @@ export function EventCard({ event, variant = "default" }: EventCardProps) {
         {/* Diagonal accent */}
         <div
           aria-hidden
-          className="absolute -left-2 inset-y-0 w-3 bg-brand-600 [clip-path:polygon(0_0,100%_0,60%_100%,0_100%)]"
+          className="bg-brand-600 absolute inset-y-0 -left-2 w-3 [clip-path:polygon(0_0,100%_0,60%_100%,0_100%)]"
         />
 
         {!hasAfiche && (
@@ -92,7 +91,7 @@ export function EventCard({ event, variant = "default" }: EventCardProps) {
             {/* Patrón de puntos */}
             <div
               aria-hidden
-              className="absolute inset-0 opacity-[0.08] [background-image:radial-gradient(circle_at_2px_2px,white_1px,transparent_0)] [background-size:32px_32px]"
+              className="absolute inset-0 [background-image:radial-gradient(circle_at_2px_2px,white_1px,transparent_0)] [background-size:32px_32px] opacity-[0.08]"
             />
 
             {/* Glow inferior izquierdo para resaltar la fecha */}
@@ -110,16 +109,22 @@ export function EventCard({ event, variant = "default" }: EventCardProps) {
               <Badge variant={event.category === "CONGRESO" ? "brand" : "dark"}>
                 {event.category}
               </Badge>
-              {isFeatured && (
+              {past ? (
                 <Badge variant="dark" className="bg-white/15 text-white backdrop-blur">
-                  Destacado
+                  Finalizado
                 </Badge>
+              ) : (
+                isFeatured && (
+                  <Badge variant="dark" className="bg-white/15 text-white backdrop-blur">
+                    Destacado
+                  </Badge>
+                )
               )}
             </div>
             {/* SPROCH watermark top-right (sutil) */}
             <span
               aria-hidden
-              className="font-display text-base uppercase leading-none tracking-[0.18em] text-white/30 transition-colors group-hover:text-white/45"
+              className="font-display text-base leading-none tracking-[0.18em] text-white/30 uppercase transition-colors group-hover:text-white/45"
             >
               SPROCh
             </span>
@@ -128,17 +133,17 @@ export function EventCard({ event, variant = "default" }: EventCardProps) {
           {/* Bottom row: fecha gigante editorial */}
           <div className="flex items-end justify-between gap-3">
             <div>
-              <p className="font-display text-[88px] uppercase leading-[0.85] tracking-tight text-white drop-shadow-[0_2px_14px_rgba(0,0,0,0.65)]">
+              <p className="font-display text-[88px] leading-[0.85] tracking-tight text-white uppercase drop-shadow-[0_2px_14px_rgba(0,0,0,0.65)]">
                 {day}
               </p>
-              <p className="mt-2 inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-brand-500">
-                <span aria-hidden className="h-px w-6 bg-brand-600" />
+              <p className="text-brand-500 mt-2 inline-flex items-center gap-2 text-[10px] font-semibold tracking-[0.22em] uppercase">
+                <span aria-hidden className="bg-brand-600 h-px w-6" />
                 {month} · 20{year}
               </p>
             </div>
             <span
               aria-hidden
-              className="pb-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-white/55"
+              className="pb-1 text-[10px] font-semibold tracking-[0.2em] text-white/55 uppercase"
             >
               {event.category}
             </span>
@@ -149,36 +154,36 @@ export function EventCard({ event, variant = "default" }: EventCardProps) {
       <div className="flex flex-1 flex-col gap-4 p-6">
         <Link
           href={`/eventos/${event.slug}`}
-          className="font-display text-xl uppercase leading-tight tracking-tight text-ink-900 transition-colors group-hover:text-brand-700 md:text-2xl"
+          className="font-display text-ink-900 group-hover:text-brand-700 text-xl leading-tight tracking-tight uppercase transition-colors md:text-2xl"
         >
           {event.title}
         </Link>
-        <p className="line-clamp-3 text-sm text-ink-600">{event.summary}</p>
-        <ul className="mt-1 space-y-2 text-sm text-ink-700">
+        <p className="text-ink-600 line-clamp-3 text-sm">{event.summary}</p>
+        <ul className="text-ink-700 mt-1 space-y-2 text-sm">
           <li className="flex items-center gap-2">
-            <CalendarDays size={16} className="shrink-0 text-brand-600" aria-hidden />
+            <CalendarDays size={16} className="text-brand-600 shrink-0" aria-hidden />
             <span>{formatDateRange(event.startDate, event.endDate)}</span>
           </li>
           <li className="flex items-center gap-2">
-            <MapPin size={16} className="shrink-0 text-brand-600" aria-hidden />
+            <MapPin size={16} className="text-brand-600 shrink-0" aria-hidden />
             <span className="line-clamp-1">{event.location}</span>
           </li>
           {event.capacity ? (
             <li className="flex items-center gap-2">
-              <Users size={16} className="shrink-0 text-brand-600" aria-hidden />
+              <Users size={16} className="text-brand-600 shrink-0" aria-hidden />
               <span>{event.capacity} cupos</span>
             </li>
           ) : null}
         </ul>
-        <div className="mt-auto flex items-center justify-between gap-3 border-t border-ink-100 pt-4">
-          {event.hidePrice ? (
+        <div className="border-ink-100 mt-auto flex items-center justify-between gap-3 border-t pt-4">
+          {event.hidePrice || past ? (
             <span aria-hidden />
           ) : (
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-ink-500">
+              <p className="text-ink-500 text-[10px] font-semibold tracking-[0.18em] uppercase">
                 {event.priceCLP === 0 ? "Acceso" : "Inversión"}
               </p>
-              <p className="font-display text-xl uppercase tracking-tight text-ink-900">
+              <p className="font-display text-ink-900 text-xl tracking-tight uppercase">
                 {formatEventPrice(event.priceCLP, { from: event.priceFrom })}
               </p>
             </div>

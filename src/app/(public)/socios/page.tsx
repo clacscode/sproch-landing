@@ -115,7 +115,7 @@ export default function SociosPage() {
           {/* Stats strip */}
           <div className="mt-16 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur md:mt-20 md:grid-cols-4">
             {[
-              { k: "+74", v: "Años de tradición" },
+              { k: "74", v: "Años de tradición" },
               { k: "06", v: "Beneficios incluidos" },
               { k: "05", v: "Categorías de socio" },
               { k: "48h", v: "Respuesta al registro" },
