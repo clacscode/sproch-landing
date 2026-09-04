@@ -2,6 +2,7 @@
 
 import { membershipSchema, type MembershipInput } from "@/lib/validations/membership";
 import { prisma } from "@/lib/prisma";
+import { clientIp, rateLimit, tooManyRequestsMessage } from "@/lib/rate-limit";
 import { emailLayout, fieldsTable, sendEmail } from "@/server/email";
 
 export type MembershipResult =
@@ -35,6 +36,10 @@ export async function submitMembershipAction(
   _: MembershipResult | null,
   formData: FormData,
 ): Promise<MembershipResult> {
+  // Más estricto que contacto: es un trámite que nadie repite en el día.
+  const limit = rateLimit(`membership:${await clientIp()}`, { limit: 3, windowMs: 60 * 60_000 });
+  if (!limit.ok) return { ok: false, error: tooManyRequestsMessage(limit.retryAfter) };
+
   const get = (k: keyof MembershipInput) => formData.get(k)?.toString() ?? "";
   const parsed = membershipSchema.safeParse({
     fullName: get("fullName"),
@@ -112,15 +117,24 @@ export async function submitMembershipAction(
     html: emailLayout({
       title: "Nueva solicitud de incorporación",
       subtitle: "Socio de Número — Sociedad de Prótesis y Rehabilitación Oral de Chile",
-      bodyHtml: fieldsTable(FIELD_LABELS.map(({ key, label }) => ({ label, value: data[key] as string }))),
-      footer: "El postulante declaró conocer y comprometerse a respetar los Estatutos de la Sociedad.",
+      bodyHtml: fieldsTable(
+        FIELD_LABELS.map(({ key, label }) => ({ label, value: data[key] as string })),
+      ),
+      footer:
+        "El postulante declaró conocer y comprometerse a respetar los Estatutos de la Sociedad.",
     }),
   });
 
-  // Red de seguridad: si tampoco se guardó en la DB, dejamos la solicitud
-  // completa en los logs del servidor para no perderla.
+  // Red de seguridad: si tampoco se guardó en la DB, dejamos lo mínimo para
+  // poder contactar al postulante. El resto de la ficha (RUT, fecha de
+  // nacimiento, direcciones) no se vuelca a los logs: son datos personales y
+  // los logs del hosting no tienen política de retención.
   if (!saved && !sent) {
-    console.error("[membership] solicitud NO guardada ni enviada — payload de respaldo:", parsed.data);
+    console.error("[membership] solicitud NO guardada ni enviada — contacto de respaldo:", {
+      fullName: data.fullName,
+      email: data.email,
+      phone: data.phone,
+    });
     return {
       ok: false,
       error: "No pudimos registrar tu solicitud. Intenta nuevamente en unos minutos.",

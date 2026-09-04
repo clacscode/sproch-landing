@@ -3,6 +3,7 @@
 import { Prisma } from "@prisma/client";
 import { newsletterSchema } from "@/lib/validations/newsletter";
 import { prisma } from "@/lib/prisma";
+import { clientIp, rateLimit, tooManyRequestsMessage } from "@/lib/rate-limit";
 import { emailLayout, fieldsTable, sendEmail } from "@/server/email";
 
 export type NewsletterResult = { ok: true } | { ok: false; error: string };
@@ -11,6 +12,9 @@ export async function subscribeNewsletterAction(
   _: NewsletterResult | null,
   formData: FormData,
 ): Promise<NewsletterResult> {
+  const limit = rateLimit(`newsletter:${await clientIp()}`, { limit: 5, windowMs: 60 * 60_000 });
+  if (!limit.ok) return { ok: false, error: tooManyRequestsMessage(limit.retryAfter) };
+
   const parsed = newsletterSchema.safeParse({
     email: formData.get("email")?.toString() ?? "",
     hp: formData.get("hp")?.toString() ?? "",

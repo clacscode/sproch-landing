@@ -7,6 +7,7 @@ import {
   type InquiryType,
 } from "@/lib/validations/contact";
 import { prisma } from "@/lib/prisma";
+import { clientIp, rateLimit, tooManyRequestsMessage } from "@/lib/rate-limit";
 import { emailLayout, fieldsTable, sendEmail } from "@/server/email";
 
 export type ContactResult =
@@ -14,6 +15,11 @@ export type ContactResult =
   | { ok: false; error: string; fieldErrors?: Partial<Record<keyof ContactInput, string>> };
 
 export async function submitContactAction(input: ContactInput): Promise<ContactResult> {
+  // Antes de validar: el honeypot no frena un script, y sin tope cualquiera
+  // puede inundar la bandeja y quemar la cuota de envío de Resend.
+  const limit = rateLimit(`contact:${await clientIp()}`, { limit: 5, windowMs: 15 * 60_000 });
+  if (!limit.ok) return { ok: false, error: tooManyRequestsMessage(limit.retryAfter) };
+
   const parsed = contactSchema.safeParse(input);
   if (!parsed.success) {
     const fieldErrors: Partial<Record<keyof ContactInput, string>> = {};
