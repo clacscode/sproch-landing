@@ -28,7 +28,11 @@ export async function toggleContactResolved(id: string): Promise<ActionResult> {
       select: { resolved: true },
     });
     if (!row) return { ok: false, error: "El mensaje ya no existe" };
-    await prisma.contactMessage.update({ where: { id }, data: { resolved: !row.resolved } });
+    const resolved = !row.resolved;
+    await prisma.contactMessage.update({
+      where: { id },
+      data: { resolved, resolvedAt: resolved ? new Date() : null },
+    });
     refresh();
     return { ok: true };
   } catch (err) {
@@ -70,7 +74,11 @@ export async function toggleMembershipResolved(id: string): Promise<ActionResult
       select: { resolved: true },
     });
     if (!row) return { ok: false, error: "La solicitud ya no existe" };
-    await prisma.membershipApplication.update({ where: { id }, data: { resolved: !row.resolved } });
+    const resolved = !row.resolved;
+    await prisma.membershipApplication.update({
+      where: { id },
+      data: { resolved, resolvedAt: resolved ? new Date() : null },
+    });
     refresh();
     return { ok: true };
   } catch (err) {

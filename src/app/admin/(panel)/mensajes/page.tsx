@@ -26,6 +26,12 @@ const dateTimeFormatter = new Intl.DateTimeFormat("es-CL", {
   timeZone: "America/Santiago",
 });
 
+/** Formato corto para el badge "Respondido el ..." (sin hora, para no alargarlo). */
+const dateFormatter = new Intl.DateTimeFormat("es-CL", {
+  dateStyle: "medium",
+  timeZone: "America/Santiago",
+});
+
 /** Antecedentes en el orden del documento oficial (solo se muestran los con valor). */
 const MEMBERSHIP_FIELDS: { key: keyof MembershipApplication; label: string }[] = [
   { key: "birthDate", label: "Fecha de nacimiento" },
@@ -120,6 +126,7 @@ async function ContactTab() {
     subject: r.subject,
     message: r.message,
     resolved: r.resolved,
+    resolvedAt: r.resolvedAt ? dateFormatter.format(r.resolvedAt) : null,
     createdAt: dateTimeFormatter.format(r.createdAt),
   });
   return <ContactMessagesList rows={active.map(toRow)} archivedRows={archived.map(toRow)} />;
@@ -137,6 +144,7 @@ async function SociosTab() {
     email: r.email,
     phone: r.phone,
     resolved: r.resolved,
+    resolvedAt: r.resolvedAt ? dateFormatter.format(r.resolvedAt) : null,
     createdAt: dateTimeFormatter.format(r.createdAt),
     fields: MEMBERSHIP_FIELDS.flatMap(({ key, label }) => {
       const value = r[key];

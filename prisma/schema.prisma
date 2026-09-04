@@ -188,6 +188,8 @@ model ContactMessage {
   subject     String    @db.VarChar(255)
   message     String    @db.Text
   resolved    Boolean   @default(false)
+  /// Momento en que se marcó como respondido. null mientras esté pendiente.
+  resolvedAt  DateTime?
   /// Soft delete: fecha de archivado. null = activo. Nunca borramos filas.
   archivedAt  DateTime?
   createdAt   DateTime  @default(now())
@@ -216,6 +218,8 @@ model MembershipApplication {
   languages           String?   @db.VarChar(300)
   sponsor             String?   @db.VarChar(160)
   resolved            Boolean   @default(false)
+  /// Momento en que se marcó como respondida. null mientras esté pendiente.
+  resolvedAt          DateTime?
   /// Soft delete: fecha de archivado. null = activo. Nunca borramos filas.
   archivedAt          DateTime?
   createdAt           DateTime  @default(now())

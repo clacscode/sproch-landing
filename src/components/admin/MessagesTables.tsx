@@ -28,6 +28,8 @@ export interface ContactRow {
   subject: string;
   message: string;
   resolved: boolean;
+  /** Fecha en que se marcó como respondido (ya formateada); null si sigue pendiente. */
+  resolvedAt: string | null;
   createdAt: string;
 }
 
@@ -38,6 +40,8 @@ export interface MembershipRow {
   email: string;
   phone: string;
   resolved: boolean;
+  /** Fecha en que se marcó como respondida (ya formateada); null si sigue pendiente. */
+  resolvedAt: string | null;
   createdAt: string;
   /** Antecedentes completos ya formateados (solo campos con valor). */
   fields: { label: string; value: string }[];
@@ -73,7 +77,7 @@ function useRowActions() {
   return { run, confirm, isBusy: (id: string) => pending && busyId === id };
 }
 
-function StatusBadge({ resolved }: { resolved: boolean }) {
+function StatusBadge({ resolved, resolvedAt }: { resolved: boolean; resolvedAt: string | null }) {
   return (
     <span
       className={cn(
@@ -81,7 +85,7 @@ function StatusBadge({ resolved }: { resolved: boolean }) {
         resolved ? "bg-green-50 text-green-700" : "bg-amber-50 text-amber-700",
       )}
     >
-      {resolved ? "Atendido" : "Pendiente"}
+      {resolved ? (resolvedAt ? `Respondido el ${resolvedAt}` : "Respondido") : "Pendiente"}
     </span>
   );
 }
@@ -97,6 +101,34 @@ function RestoreButton({ busy, onRestore }: { busy: boolean; onRestore: () => vo
       className="text-ink-500 rounded p-1.5 transition-colors hover:bg-green-50 hover:text-green-700"
     >
       <ArchiveRestore size={15} aria-hidden />
+    </button>
+  );
+}
+
+/**
+ * Acción con texto visible: los íconos solos se leían como "eliminar" y nadie
+ * encontraba el de marcar como respondido.
+ */
+function ActionButton({
+  icon: Icon,
+  label,
+  busy,
+  onClick,
+}: {
+  icon: typeof Check;
+  label: string;
+  busy: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      disabled={busy}
+      onClick={onClick}
+      className="border-ink-200 text-ink-600 hover:bg-ink-100 hover:text-ink-900 inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-xs font-medium transition-colors disabled:opacity-50"
+    >
+      <Icon size={14} aria-hidden />
+      {label}
     </button>
   );
 }
@@ -124,27 +156,14 @@ function RowButtons({
     );
   }
   return (
-    <div className="flex items-center gap-1">
-      <button
-        type="button"
-        disabled={busy}
+    <div className="flex flex-wrap items-center gap-2">
+      <ActionButton
+        icon={resolved ? Undo2 : Check}
+        label={resolved ? "Marcar como pendiente" : "Marcar como respondido"}
+        busy={busy}
         onClick={onToggle}
-        aria-label={resolved ? "Marcar como pendiente" : "Marcar como atendido"}
-        title={resolved ? "Marcar como pendiente" : "Marcar como atendido"}
-        className="text-ink-500 hover:bg-ink-100 hover:text-ink-900 rounded p-1.5 transition-colors"
-      >
-        {resolved ? <Undo2 size={15} aria-hidden /> : <Check size={15} aria-hidden />}
-      </button>
-      <button
-        type="button"
-        disabled={busy}
-        onClick={onArchive}
-        aria-label="Archivar"
-        title="Archivar"
-        className="text-ink-500 rounded p-1.5 transition-colors hover:bg-red-50 hover:text-red-600"
-      >
-        <Archive size={15} aria-hidden />
-      </button>
+      />
+      <ActionButton icon={Archive} label="Archivar" busy={busy} onClick={onArchive} />
     </div>
   );
 }
@@ -175,11 +194,11 @@ interface SelectFilter {
 const ESTADO_OPTIONS = [
   { value: "todos", label: "Todos" },
   { value: "pendiente", label: "Pendiente" },
-  { value: "atendido", label: "Atendido" },
+  { value: "respondido", label: "Respondido" },
 ];
 
 function matchesEstado(resolved: boolean, estado: string): boolean {
-  return estado === "todos" || resolved === (estado === "atendido");
+  return estado === "todos" || resolved === (estado === "respondido");
 }
 
 function FilterBar({
@@ -291,9 +310,8 @@ export function ContactMessagesList({
     const ok = await confirm({
       title: `¿Archivar el mensaje de ${row.name}?`,
       description:
-        "Sale de la bandeja activa, pero no se borra: queda guardado en “Archivados” y puedes restaurarlo.",
-      confirmLabel: "Sí, archivar",
-      danger: true,
+        "Sale de la bandeja activa, pero no se borra: queda guardado en “Archivados” y puedes restaurarlo cuando quieras.",
+      confirmLabel: "Archivar",
     });
     if (ok) run(row.id, () => archiveContactMessage(row.id), "Mensaje archivado.");
   }
@@ -357,7 +375,7 @@ export function ContactMessagesList({
             <div className="min-w-0">
               <p className="text-ink-900 flex flex-wrap items-center gap-2 font-medium">
                 {row.name}
-                <StatusBadge resolved={row.resolved} />
+                <StatusBadge resolved={row.resolved} resolvedAt={row.resolvedAt} />
                 <span className="bg-ink-100 text-ink-600 inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium">
                   {row.inquiryLabel}
                 </span>
@@ -377,7 +395,7 @@ export function ContactMessagesList({
                 run(
                   row.id,
                   () => toggleContactResolved(row.id),
-                  row.resolved ? "Marcado como pendiente." : "Marcado como atendido.",
+                  row.resolved ? "Marcado como pendiente." : "Marcado como respondido.",
                 )
               }
               onArchive={() => onArchive(row)}
@@ -423,9 +441,8 @@ export function MembershipApplicationsList({
     const ok = await confirm({
       title: `¿Archivar la solicitud de ${row.fullName}?`,
       description:
-        "Sale del listado activo, pero los antecedentes se conservan: queda en “Archivados” y puedes restaurarla.",
-      confirmLabel: "Sí, archivar",
-      danger: true,
+        "Sale del listado activo, pero los antecedentes se conservan: queda en “Archivados” y puedes restaurarla cuando quieras.",
+      confirmLabel: "Archivar",
     });
     if (ok) run(row.id, () => archiveMembershipApplication(row.id), "Solicitud archivada.");
   }
@@ -478,7 +495,7 @@ export function MembershipApplicationsList({
             <div className="min-w-0">
               <p className="text-ink-900 flex flex-wrap items-center gap-2 font-medium">
                 {row.fullName}
-                <StatusBadge resolved={row.resolved} />
+                <StatusBadge resolved={row.resolved} resolvedAt={row.resolvedAt} />
               </p>
               <p className="text-ink-500 mt-0.5 text-xs">
                 {row.rut} ·{" "}
@@ -496,7 +513,7 @@ export function MembershipApplicationsList({
                 run(
                   row.id,
                   () => toggleMembershipResolved(row.id),
-                  row.resolved ? "Marcada como pendiente." : "Marcada como atendida.",
+                  row.resolved ? "Marcada como pendiente." : "Marcada como respondida.",
                 )
               }
               onArchive={() => onArchive(row)}
