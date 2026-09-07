@@ -41,34 +41,38 @@ anterior, que queda en `.next.prev` / `node_modules.prev`).
 ## Configuración (una sola vez)
 
 ### 1. Llave SSH de deploy
+
 Ya existe el par `~/.ssh/sproch_deploy(.pub)` y la pública está autorizada en el
 servidor. Si hay que regenerarla: `ssh-keygen -t ed25519` + `ssh-copy-id`.
 
 ### 2. Secrets en GitHub
+
 **Settings → Secrets and variables → Actions → New repository secret:**
 
-| Secret | Valor |
-|---|---|
-| `SSH_PRIVATE_KEY` | contenido de `~/.ssh/sproch_deploy` (privada completa) |
-| `DATABASE_URL` | `mysql://USER:PASS@localhost:3306/sproch` (real, para migraciones) |
-| `NEXT_PUBLIC_SITE_URL` | `https://rehabilitacionoral.cl` |
-| `NEXT_PUBLIC_GA_ID` | (opcional) `G-XXXXXXXXXX` |
-| `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY` | misma clave que en runtime (hPanel) |
+| Secret                               | Valor                                                              |
+| ------------------------------------ | ------------------------------------------------------------------ |
+| `SSH_PRIVATE_KEY`                    | contenido de `~/.ssh/sproch_deploy` (privada completa)             |
+| `DATABASE_URL`                       | `mysql://USER:PASS@localhost:3306/sproch` (real, para migraciones) |
+| `NEXT_PUBLIC_SITE_URL`               | `https://rehabilitacionoral.cl`                                    |
+| `NEXT_PUBLIC_GA_ID`                  | (opcional) `G-XXXXXXXXXX`                                          |
+| `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY` | misma clave que en runtime (hPanel)                                |
 
 > Host/puerto/usuario SSH están en el `env` del workflow (no son secretos).
 
 ### 3. Variables de entorno en hPanel (runtime)
+
 La app en producción las lee vía Passenger:
 
-| Variable | Valor |
-|---|---|
-| `DATABASE_URL` | `mysql://USER:PASS@localhost:3306/sproch` |
-| `AUTH_SECRET` | `openssl rand -base64 32` |
-| `AUTH_URL` | `https://rehabilitacionoral.cl` |
-| `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY` | **mismo valor que en el secret de CI** |
-| `ADMIN_EMAIL` / `ADMIN_PASSWORD` / `ADMIN_NAME` | credenciales del admin |
+| Variable                                        | Valor                                     |
+| ----------------------------------------------- | ----------------------------------------- |
+| `DATABASE_URL`                                  | `mysql://USER:PASS@localhost:3306/sproch` |
+| `AUTH_SECRET`                                   | `openssl rand -base64 32`                 |
+| `AUTH_URL`                                      | `https://rehabilitacionoral.cl`           |
+| `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY`            | **mismo valor que en el secret de CI**    |
+| `ADMIN_EMAIL` / `ADMIN_PASSWORD` / `ADMIN_NAME` | credenciales del admin                    |
 
 ### 4. Desactivar el auto-deploy de Hostinger
+
 hPanel → (sección Git / despliegue del sitio) → desactivar el deploy automático
 desde GitHub.
 
@@ -78,3 +82,39 @@ desde GitHub.
 
 Viven en `nodejs/public/uploads`. El deploy las **preserva** (el swap excluye
 `uploads/`). No se pierden entre despliegues.
+
+---
+
+## Content-Security-Policy (paso manual en el servidor)
+
+`next.config.ts` emite todos los headers de seguridad, pero **LiteSpeed inyecta
+su propia CSP** (`upgrade-insecure-requests`) que pisa la de la app. Los demás
+headers (X-Frame-Options, nosniff, Referrer-Policy, Permissions-Policy, HSTS)
+sí llegan sin intervención.
+
+La única forma de ganarle es desde el `.htaccess` del docroot, que **no lo
+gestiona el deploy**: vive sólo en el servidor y sobrevive a los despliegues.
+El bloque a pegar está versionado en `scripts/htaccess-csp.conf`.
+
+```bash
+D=domains/rehabilitacionoral.cl/public_html
+ssh -i ~/.ssh/sproch_deploy -p 65002 u273127787@46.202.197.70
+
+# 1. Respaldo ANTES de tocar nada (un .htaccess malo tumba el sitio con 500).
+cp -p $D/.htaccess $D/.htaccess.bak-$(date +%Y%m%d)
+
+# 2. Pegar al final del .htaccess el contenido de scripts/htaccess-csp.conf.
+nano $D/.htaccess
+
+# 3. Verificar de inmediato. Si algo falla:
+#    cp -p $D/.htaccess.bak-<fecha> $D/.htaccess
+curl -sI https://rehabilitacionoral.cl/ | grep -i content-security
+curl -s -o /dev/null -w "%{http_code}\n" https://rehabilitacionoral.cl/
+```
+
+Debe responder 200 y mostrar la política completa (`default-src 'self'; ...`),
+no `upgrade-insecure-requests` a secas.
+
+> Al cambiar la constante `csp` de `next.config.ts` hay que actualizar también
+> `scripts/htaccess-csp.conf` y repetir este paso, o la política del servidor
+> queda desincronizada con la de la app.
